@@ -94,14 +94,13 @@ def change_urls_to_mimecast():
                                     source = source.replace(string_to_be_replaced.group(0)," " + replacement_string + " ")
                                     changed_file=True
 
-
                         if "beta.linkanalysis" in parsed['source']:
                             tags.append('Link Analysis Present')
 
                         if check_hard_to_fix(parsed['source']):
                             tags.append('Mimecast Hard to Fix')
 
-                        if ".href_url.domain" in source:
+                        elif ".href_url.domain" in source:
                             tags.append('Mimecast Needs Fix')
 
                         elif changed_file:
