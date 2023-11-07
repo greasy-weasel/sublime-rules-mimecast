@@ -34,7 +34,7 @@ source: |-
   // sender domain matches no body domains
   and not any(body.links,
                strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)
-              and .href_url.domain.root_domain not in $tranco_1m
+              and  not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
   )
 
   // org domain in the subject of the message
@@ -50,5 +50,5 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Needs Fix
+- Mimecast Hard to Fix
 type: rule

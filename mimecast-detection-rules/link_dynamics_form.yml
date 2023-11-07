@@ -22,7 +22,7 @@ source: |-
 
           // confirm it is a form
           and any(beta.linkanalysis(.).final_dom.links,
-                  .href_url.domain.domain == "cdn.forms.office.net"
+                   .href_url.query_params == "domain=cdn.forms.office.net"
           )
 
           // analyze for credential phishing signals

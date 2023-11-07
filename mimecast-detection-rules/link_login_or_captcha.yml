@@ -23,7 +23,7 @@ source: |-
           // either the original or the redirect is a free subdomain
           and (
             beta.linkanalysis(.).effective_url.domain.root_domain in $free_subdomain_hosts
-            or .href_url.domain.root_domain in $free_subdomain_hosts
+            or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
           )
 
           // exclude FP prone free subdomain hosts

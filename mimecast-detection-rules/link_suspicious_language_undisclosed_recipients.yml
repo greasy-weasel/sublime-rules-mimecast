@@ -27,7 +27,7 @@ source: |-
           // scope to a hard-coded list or add exclusions
           (
              any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
-            or .href_url.domain.root_domain in $free_subdomain_hosts
+            or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
           )
 
           // link text is in all caps
@@ -55,5 +55,5 @@ source: |-
 tactics_and_techniques:
 - Evasion
 tags:
-- Mimecast Needs Fix
+- Mimecast Hard to Fix
 type: rule

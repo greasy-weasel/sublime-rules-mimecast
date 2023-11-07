@@ -22,16 +22,16 @@ source: |-
 
   // low rep or url shortened links found
   and any(body.links,
-          .href_url.domain.domain in $url_shorteners
+           any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
 
           // exempting legitimate Google Maps shortener
           and (
             not strings.ilike(.href_url.url, "http?://goo.gl/maps*")
             or (
-              .href_url.domain.domain not in $tranco_1m
+               not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
               or .href_url.domain.domain in $free_file_hosts
-              or .href_url.domain.root_domain in $free_subdomain_hosts
-              or .href_url.domain.domain in $url_shorteners
+              or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+              or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
               or
 
               // mass mailer link, masks the actual URL

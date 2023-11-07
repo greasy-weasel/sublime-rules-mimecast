@@ -19,9 +19,9 @@ source: |-
   and sender.email.domain.root_domain not in $org_domains
   and any(body.links,
           (
-            .href_url.domain.domain not in $tranco_1m
-            or .href_url.domain.domain in $free_file_hosts
-            or .href_url.domain.root_domain in $free_subdomain_hosts
+             not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
+            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             or .href_url.domain.domain in $url_shorteners
             or
 
@@ -69,5 +69,5 @@ tactics_and_techniques:
 - Free subdomain host
 - Social engineering
 tags:
-- Mimecast Needs Fix
+- Mimecast Hard to Fix
 type: rule

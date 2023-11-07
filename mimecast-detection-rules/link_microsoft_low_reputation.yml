@@ -19,19 +19,19 @@ source: |-
   // suspicious link
   and any(body.links,
           (
-            .href_url.domain.root_domain not in $tranco_1m
-            or .href_url.domain.domain in $free_file_hosts
-            or .href_url.domain.root_domain in $free_subdomain_hosts
+             not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
+            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             or .href_url.domain.domain in $url_shorteners
             or
 
             // mass mailer link, masks the actual URL
-            .href_url.domain.root_domain in (
+             any([
               "hubspotlinks.com",
               "mandrillapp.com",
               "sendgrid.net",
               "rs6.net"
-            )
+            ], strings.ends_with(..href_url.query_params,.))
 
             // Google AMP redirect
             or (
@@ -50,7 +50,7 @@ source: |-
               "aka.ms",
               "msftauthimages.net"
             ], strings.ends_with(..href_url.query_params,.)))
-            or any(body.links, .href_url.domain.domain in $free_file_hosts)
+            or any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
           )
           and .href_url.domain.root_domain not in $org_domains
   )
