@@ -2,7 +2,7 @@ name: Update Rules From Sublime Repo
 
 on:
     schedule:
-      - cron:  '5 1,7,13,19 * * *'
+      - cron:  '5 1,13 * * *'
     workflow_dispatch: {}
 
 jobs:
@@ -23,6 +23,8 @@ jobs:
 
             - name: Synchronize With Master Sublime Repo
               run: |
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
                   git remote add sublime https://github.com/sublime-security/sublime-rules.git
                   git fetch --all
                   git merge --allow-unrelated-histories -X ours sublime/main -m "Updating from sublime"
@@ -32,8 +34,6 @@ jobs:
                 
             - name: commit files
               run: |
-                  git config --local user.email "action@github.com"
-                  git config --local user.name "GitHub Action"
                   git add -A
                   git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
           
