@@ -25,7 +25,7 @@ jobs:
               run: |
                   git remote add sublime https://github.com/sublime-security/sublime-rules.git
                   git fetch --all
-                  git merge -X ours sublime/main -m "Updating from sublime"
+                  git merge --allow-unrelated-histories -X ours sublime/main -m "Updating from sublime"
 
                   pip install -r scripts/change-url-to-mimecast/requirements.txt
                   python scripts/change-url-to-mimecast/main.py
