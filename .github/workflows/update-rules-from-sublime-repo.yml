@@ -24,7 +24,7 @@ jobs:
             - name: Synchronize With Master Sublime Repo
               run: |
                   git remote add sublime https://github.com/sublime-security/sublime-rules.git
-                  git fetch all
+                  git fetch --all
                   git merge -X ours sublime/main -m "Updating from sublime"
 
                   pip install -r scripts/change-url-to-mimecast/requirements.txt
