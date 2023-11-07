@@ -33,6 +33,5 @@ source: |-
   )
 tactics_and_techniques:
 - Evasion
-tags:
-- Mimecast No Change Needed
+tags: []
 type: rule

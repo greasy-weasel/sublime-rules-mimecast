@@ -48,6 +48,5 @@ source: |-
 tactics_and_techniques:
 - 'Impersonation: Employee'
 - Social engineering
-tags:
-- Mimecast No Change Needed
+tags: []
 type: rule

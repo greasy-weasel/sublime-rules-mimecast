@@ -21,6 +21,5 @@ source: |-
       and not profile.by_sender().any_false_positives
     )
   )
-tags:
-- Mimecast No Change Needed
+tags: []
 type: rule

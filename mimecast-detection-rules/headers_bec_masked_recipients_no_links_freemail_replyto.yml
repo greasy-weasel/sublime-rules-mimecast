@@ -31,6 +31,5 @@ source: |-
 tactics_and_techniques:
 - Evasion
 - Free email provider
-tags:
-- Mimecast No Change Needed
+tags: []
 type: rule
