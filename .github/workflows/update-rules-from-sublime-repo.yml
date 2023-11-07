@@ -3,7 +3,8 @@ name: Update Rules From Sublime Repo
 on:
     schedule:
       - cron:  '5 1,7,13,19 * * *'
-
+    workflow_dispatch: {}
+    
 jobs:
     tests:
         name: Run Rule Validation
