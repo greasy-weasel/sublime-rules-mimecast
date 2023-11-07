@@ -64,35 +64,39 @@ def change_urls_to_mimecast():
                                 source = source.replace(stripped_orig," " + replace_item['replace'].strip() + " ")
                                 changed_file=True
                             else:
-                                if "$$" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("$$","\$([\w_\-]+)"),source)
-                                    if string_to_be_replaced:
-                                        print(string_to_be_replaced.group(0))
-                                if "[]" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("[]","\[([\w\.\-\\\",'\s]+)\]"),source)
-                                if "()" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("()","\(([\w\.\-\\\",'\s]+)\)"),source)
-                                if "\"\"" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("\"\"","\"([\w\.\-]+)\""),source)
-                                if "''" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("''","'([\w\.\-]+)'"),source)
+                                while True:
+                                    temp_source=source
+                                    if "$$" in stripped_orig:
+                                        string_to_be_replaced=re.search(stripped_orig.replace("$$","\$([\w_\-]+)"),source)
+                                        if string_to_be_replaced:
+                                            print(string_to_be_replaced.group(0))
+                                    if "[]" in stripped_orig:
+                                        string_to_be_replaced=re.search(stripped_orig.replace("[]","\[([\w\.\-\\\",'\s]+)\]"),source)
+                                    if "()" in stripped_orig:
+                                        string_to_be_replaced=re.search(stripped_orig.replace("()","\(([\w\.\-\\\",'\s]+)\)"),source)
+                                    if "\"\"" in stripped_orig:
+                                        string_to_be_replaced=re.search(stripped_orig.replace("\"\"","\"([\w\.\-]+)\""),source)
+                                    if "''" in stripped_orig:
+                                        string_to_be_replaced=re.search(stripped_orig.replace("''","'([\w\.\-]+)'"),source)
 
-                                # Probably do not need to wildcard multiple items in the same line so no need to loop.  Looping will require more complex logic
-                                if string_to_be_replaced:
-                                    if "$$" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("$$","$" + string_to_be_replaced.group(1))
-                                    if "[]" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("[]","[" + string_to_be_replaced.group(1) + "]")
-                                    if "()" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("()","(" + string_to_be_replaced.group(1) + ")")
-                                    if "\"\"" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("\"\"","\"" + string_to_be_replaced.group(1) + "\"")
-                                    if "''" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("''","'" + string_to_be_replaced.group(1) + "'")
-                                    if "##" in replace_item['replace']:
-                                        replacement_string = replace_item['replace'].strip().replace("##", string_to_be_replaced.group(1))                                      
-                                    source = source.replace(string_to_be_replaced.group(0)," " + replacement_string + " ")
-                                    changed_file=True
+                                    # Probably do not need to wildcard multiple items in the same line so no need to loop.  Looping will require more complex logic
+                                    if string_to_be_replaced:
+                                        if "$$" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("$$","$" + string_to_be_replaced.group(1))
+                                        if "[]" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("[]","[" + string_to_be_replaced.group(1) + "]")
+                                        if "()" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("()","(" + string_to_be_replaced.group(1) + ")")
+                                        if "\"\"" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("\"\"","\"" + string_to_be_replaced.group(1) + "\"")
+                                        if "''" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("''","'" + string_to_be_replaced.group(1) + "'")
+                                        if "##" in replace_item['replace']:
+                                            replacement_string = replace_item['replace'].strip().replace("##", string_to_be_replaced.group(1))                                      
+                                        source = source.replace(string_to_be_replaced.group(0)," " + replacement_string + " ")
+                                        changed_file=True
+                                    if temp_source==source:
+                                        break
 
                         if "beta.linkanalysis" in parsed['source']:
                             tags.append('Link Analysis Present')
