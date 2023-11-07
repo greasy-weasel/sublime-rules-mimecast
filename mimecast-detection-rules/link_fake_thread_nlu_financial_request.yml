@@ -75,7 +75,7 @@ source: |-
     sender.email.domain.domain == "",
 
     // sender domain matches no body domains
-    all(body.links, .href_url.domain.root_domain != sender.email.domain.root_domain),
+    all(body.links,  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)) ),
   )
 tactics_and_techniques:
 - Social engineering

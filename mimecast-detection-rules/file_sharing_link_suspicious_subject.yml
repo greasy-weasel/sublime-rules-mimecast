@@ -14,7 +14,7 @@ source: |-
   type.inbound
   and sender.email.domain.root_domain != 'google.com'
   and any(body.links,
-    .href_url.domain.domain in $free_file_hosts
+     any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
     and not (
         // negating Google Forms links
          .href_url.query_params == "domain=docs.google.com"

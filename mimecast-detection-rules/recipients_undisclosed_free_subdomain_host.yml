@@ -9,7 +9,7 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-          .href_url.domain.root_domain in $free_subdomain_hosts
+           any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
           and .href_url.domain.subdomain is not null
           and  strings.starts_with(.href_url.query_params,"domain=www."))
   )

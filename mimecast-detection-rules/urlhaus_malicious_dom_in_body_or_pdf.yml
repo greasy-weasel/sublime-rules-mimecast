@@ -25,10 +25,10 @@ source: |-
         // this ensures we don't flag on legit FQDNs that
         // aren't in the Tranco 1M, but their root domains are
         // eg: support[.]google[.]com
-        .href_url.domain.root_domain not in $tranco_1m
+         not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
         and .href_url.domain.root_domain not in $umbrella_1m
         and .href_url.domain.root_domain not in $free_subdomain_hosts
-        and .href_url.domain.root_domain in $abuse_ch_urlhaus_domains_trusted_reporters
+        and  any($abuse_ch_urlhaus_domains_trusted_reporters, strings.ends_with(..href_url.query_params,.))
     )
     or any(attachments,
            .file_type == "pdf"
@@ -57,5 +57,5 @@ tactics_and_techniques:
 - PDF
 tags:
 - 'Abusech: URLhaus'
-- Mimecast Needs Fix
+- Mimecast Hard to Fix
 type: rule
