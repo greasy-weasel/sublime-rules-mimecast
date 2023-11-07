@@ -4,10 +4,10 @@ on:
     schedule:
       - cron:  '5 1,7,13,19 * * *'
     workflow_dispatch: {}
-    
+
 jobs:
     tests:
-        name: Run Rule Validation
+        name: Synchronize With Master Sublime Repo
         runs-on: ubuntu-20.04
         permissions:
             contents: write
@@ -16,15 +16,10 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  ref: ${{ github.head_ref }}
-                  repository: ${{ github.event.pull_request.head.repo.full_name }}
-                  depth: 0
 
             - uses: actions/setup-python@v4
               with:
                   python-version: '3.10'
-
 
             - name: Synchronize With Master Sublime Repo
               run: |
@@ -34,11 +29,17 @@ jobs:
 
                   pip install -r scripts/change-url-to-mimecast/requirements.txt
                   python scripts/change-url-to-mimecast/main.py
-                  git add mimecast-detection-rules/*
-
-                  git config --global user.name Mimecast update bot'
-                  git config --global user.email 'hello@sublimesecurity.com'
-                  
-                  git commit --allow-empty -m "updating rules"
-                  git push
+                
+            - name: commit files
+              run: |
+                  git config --local user.email "action@github.com"
+                  git config --local user.name "GitHub Action"
+                  git add -A
+                  git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
+          
+            - name: push changes
+              uses: ad-m/github-push-action@v0.6.0
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  branch: main 
 
