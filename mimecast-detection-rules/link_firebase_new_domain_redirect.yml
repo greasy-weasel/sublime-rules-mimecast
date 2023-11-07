@@ -1,0 +1,26 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: ajpc500
+description: |-
+  An attacker may use Google's Firebase Dynamic Links to redirect a user to a malicious site.
+  This rule identifies Firebase Dynamic Links where the destination domain is less than a week old.
+detection_methods:
+- URL analysis
+- Whois
+id: 5a204a37-3120-53c1-a55a-5f4f09c61dc4
+name: 'Link: Google Firebase Dynamic Link that Redirects to New Domain (<7 days old)'
+severity: low
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.root_domain =~ "goo.gl"
+          and strings.icontains(.href_url.domain.domain, "app")
+          and any(beta.linkanalysis(.).redirect_history, beta.whois(.domain).days_old < 7)
+  )
+tactics_and_techniques:
+- Evasion
+tags:
+- Link Analysis Present
+type: rule

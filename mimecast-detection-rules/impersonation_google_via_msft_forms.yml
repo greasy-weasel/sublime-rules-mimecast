@@ -1,0 +1,34 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Abuses Microsoft Forms to impersonate Google.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: 1daac608-66f7-5d0a-ab0f-ff9902ddabb7
+name: 'Brand impersonation: Google using Microsoft Forms'
+severity: high
+source: |-
+  type.inbound
+  and sender.email.domain.domain == 'email.formspro.microsoft.com'
+  and regex.icontains(sender.display_name, '(google|gmail)')
+  and regex.icontains(sender.display_name, '(alert|warning|notification)')
+  // MsgID does not contain Google|Gmail|GoogleMail
+  and not regex.icontains(headers.message_id, '(mail|mx)?\.?(google(mail)?|gmail.com)')
+  and (
+    any(body.links,  not(any($tranco_1m, strings.ends_with(..href_url.query_params,.))) )
+    or strings.ilike(body.html.display_text,
+                     "*suspicious activities*",
+                     "*failure to secure*",
+                     "*loose your*",
+                     "*suspended*"
+    )
+  )
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Lookalike domain
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule

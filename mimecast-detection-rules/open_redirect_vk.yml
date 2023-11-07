@@ -1,0 +1,22 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: vector_sec
+description: |-
+  Message contains use of the VK open redirect, but the sender is not VK. This has been exploited in the wild.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 6ebd6d42-b0d5-5585-a715-aa939097ed99
+name: 'Open redirect: VK'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links, .href_url.domain.root_domain == 'vk.com' and .href_url.path =~ '/away.php')
+  and sender.email.domain.root_domain != 'vk.com'
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

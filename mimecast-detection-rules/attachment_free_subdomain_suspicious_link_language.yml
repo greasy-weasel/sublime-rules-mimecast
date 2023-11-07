@@ -1,0 +1,34 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Message contains a suspicious Recipients pattern, a link that uses a free subdomain provider, and has credential theft language on the linked page.
+detection_methods:
+- Content analysis
+- Header analysis
+- Natural Language Understanding
+- Optical Character Recognition
+- URL analysis
+- URL screenshot
+id: 9187479c-8941-5f28-88fe-0735fd2a86bc
+name: Free subdomain link with credential theft indicators
+severity: high
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.root_domain in $free_subdomain_hosts
+          and .href_url.domain.subdomain is not null
+          and  strings.starts_with(.href_url.query_params,"domain=www."))
+  )
+  and (length(recipients.to) == 0 or all(recipients.to, .display_name == "Undisclosed recipients"))
+  and length(recipients.cc) == 0
+  and length(recipients.bcc) == 0
+  and any(body.links,
+          any(file.explode(beta.linkanalysis(.).screenshot),
+              any(ml.nlu_classifier(.scan.ocr.raw).intents, .name == "cred_theft" and .confidence != "low")
+          )
+  )
+tactics_and_techniques:
+- Free subdomain host
+tags:
+- Link Analysis Present
+type: rule

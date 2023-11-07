@@ -1,0 +1,61 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: Detects URLhaus domains submitted by trusted reporters in message bodies
+  or pdf attachments
+detection_methods:
+- File analysis
+- Threat intelligence
+- URL analysis
+id: cfca2986-0daa-582c-a379-fb0a31329847
+name: 'URLhaus: Malicious domain in message body or pdf attachment (trusted reporters)'
+severity: medium
+source: |-
+  type.inbound
+  and (
+    any(body.links,
+        // filter potentially known good domains
+        // prevents FPs on entries such as drive[.]google[.]com, or
+        // other accidental pushes to the List
+         not(any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)))
+        and .href_url.domain.domain not in $tranco_1m
+        and .href_url.domain.domain not in $umbrella_1m
+        and
+
+        // this ensures we don't flag on legit FQDNs that
+        // aren't in the Tranco 1M, but their root domains are
+        // eg: support[.]google[.]com
+        .href_url.domain.root_domain not in $tranco_1m
+        and .href_url.domain.root_domain not in $umbrella_1m
+        and .href_url.domain.root_domain not in $free_subdomain_hosts
+        and .href_url.domain.root_domain in $abuse_ch_urlhaus_domains_trusted_reporters
+    )
+    or any(attachments,
+           .file_type == "pdf"
+           and any(file.explode(.),
+                   any(.scan.pdf.urls,
+                       // filter potentially known good domains
+                       // prevents FPs on entries such as drive[.]google[.]com, or
+                       // other accidental pushes to the List
+                       .domain.domain not in $free_file_hosts
+                       and .domain.domain not in $free_subdomain_hosts
+                       and .domain.domain not in $tranco_1m
+                       and .domain.domain not in $umbrella_1m
+                       and
+
+                       // this ensures we don't flag on legit FQDNs that
+                       // aren't in the Tranco 1M, but their root domains are
+                       // eg: support[.]google[.]com
+                       .domain.root_domain not in $tranco_1m
+                       and .domain.root_domain not in $umbrella_1m
+                       and .domain.domain in $abuse_ch_urlhaus_domains_trusted_reporters
+                   )
+           )
+    )
+  )
+tactics_and_techniques:
+- PDF
+tags:
+- 'Abusech: URLhaus'
+- Mimecast Needs Fix
+type: rule

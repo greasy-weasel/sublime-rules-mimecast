@@ -1,0 +1,25 @@
+attack_types:
+- Credential Phishing
+authors:
+- twitter: delivr_to
+description: "Body of the email, or any links, contain the Unicode U+2044 (\u2044\
+  ) or U+2215 (\u2215) characters inside a URL."
+detection_methods:
+- Content analysis
+- URL analysis
+id: 12069f5b-a774-53ba-8473-633291f71e84
+name: "Body: Contains URL with Unicode U+2044 (\u2044) or U+2215 (\u2215) characters"
+references:
+- https://medium.com/@bobbyrsec/the-dangers-of-googles-zip-tld-5e1e675e59a5
+severity: low
+source: "type.inbound\nand (\n  regex.icontains(body.plain.raw, 'https?:\\/\\/[^\\\
+  s\u2044\u2215]+(?:\\/[^\\s\u2044\u2215]+)*[\u2044\u2215][^\\s\u2044\u2215]+')\n\
+  \  or any(body.links,\n         regex.icontains(.href_url.url, 'https?:\\/\\/[^\\\
+  s\u2044\u2215]+(?:\\/[^\\s\u2044\u2215]+)*[\u2044\u2215][^\\s\u2044\u2215]+')\n\
+  \  )\n)"
+tactics_and_techniques:
+- Evasion
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

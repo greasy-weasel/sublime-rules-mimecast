@@ -1,0 +1,36 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains a Google Apps Script macro link invoked from a comment on Google Slides|Docs.
+  App Scripts can run arbitrary code, including redirecting the user to a malicious web page.
+detection_methods:
+- Content analysis
+- Sender analysis
+- URL analysis
+id: 66fecd30-4628-5e53-b3cb-5355a6741487
+name: Link to Google Apps Script macro via Comment Tagging
+references:
+- https://twitter.com/bunnymaid/status/1415478829162762240
+- https://playground.sublimesecurity.com?id=de1a2916-3812-4caa-a443-d1986487d772
+severity: medium
+source: |-
+  type.inbound
+  and regex.contains(sender.display_name, '\(Google (Slides|Docs)')
+  and any(body.links,
+           .href_url.query_params == "domain=script.google.com"  and strings.ilike(.href_url.path, "/macros*")
+  )
+  and 1 of (
+    strings.ilike(body.plain.raw, '*you have ? hours*'),
+    strings.ilike(body.plain.raw, '*transfer of funds*'),
+    strings.ilike(body.plain.raw, '*order your funds*')
+    // Or the Sender Display Name is not in your Org Display Names
+    or not any($org_display_names,
+               strings.istarts_with(sender.display_name, strings.concat(., " (Google "))
+    )
+  )
+tactics_and_techniques:
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

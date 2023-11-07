@@ -1,0 +1,19 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Malformed URL prefix is a technique used to evade email security scanners.
+detection_methods:
+- URL analysis
+id: 4e659d28-53fa-51ca-888d-a7cab1e4bcad
+name: Malformed URL prefix
+references:
+- https://threatpost.com/malformed-url-prefix-phishing-attacks-spike-6000/164132/
+severity: high
+source: |-
+  any(body.links, regex.icontains(.href_url.url, ':/\\'))
+tactics_and_techniques:
+- Evasion
+tags:
+- Mimecast Hard to Fix
+type: rule

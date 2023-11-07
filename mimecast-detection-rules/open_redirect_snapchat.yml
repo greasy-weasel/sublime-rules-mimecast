@@ -1,0 +1,22 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: vector_sec
+description: |-
+  Message contains use of the click.snapchat.com open redirect.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 6f363e68-ced9-5f0e-8951-4070623cd705
+name: 'Open redirect: Snapchat'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,  .href_url.query_params == "domain=click.snapchat.com" )
+  and sender.email.domain.root_domain != "snapchat.com"
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Changes Complete
+type: rule

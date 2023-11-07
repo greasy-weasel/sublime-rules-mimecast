@@ -1,0 +1,22 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Message contains a suspicious Office 365 app authorization link. The app may be compromised or
+  was stood up for malicious purposes. Once the app has been authorized, the attacker will have
+  read or write permissions to the user's Office 365 account.
+detection_methods:
+- URL analysis
+id: 13a8c430-3e62-5c8f-86b5-3722599bead4
+name: Suspicious Office 365 app authorization link
+references:
+- https://info.phishlabs.com/blog/office-365-phishing-uses-malicious-app-persist-password-reset
+severity: high
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 'login.microsoftonline.com'
+          and strings.ilike(.href_url.query_params, '*offline_access*', '*.readwrite*', '*.read*')
+  )
+tags:
+- Mimecast Hard to Fix
+type: rule

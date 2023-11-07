@@ -1,0 +1,25 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: vector_sec
+description: |-
+  Looks for use of the YouTube open redirect coming from someone other than YouTube.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: fb33bffe-d3db-5acb-ae19-5ddc6b5b0b01
+name: 'Open redirect: YouTube'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"youtube.com")
+          and strings.icontains(.href_url.url, "attribution_link?")
+  )
+  and sender.email.domain.root_domain != "youtube.com"
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

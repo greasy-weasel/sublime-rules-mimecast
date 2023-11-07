@@ -1,0 +1,24 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Looks for use of the HHS open redirect.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: c2d8cda9-358e-5856-93a7-8e76d1ab1df5
+name: 'Open redirect: HHS'
+references:
+- https://www.bleepingcomputer.com/news/security/hhsgov-open-redirect-used-by-coronavirus-phishing-to-spread-malware/
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 'dcis.hhs.gov'
+          and strings.ilike(.href_url.query_params, '*service*')
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

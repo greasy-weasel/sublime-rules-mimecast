@@ -1,0 +1,45 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Attack impersonating a DocuSign request for signature.
+detection_methods:
+- Header analysis
+- Sender analysis
+- URL analysis
+id: 4d29235c-08b9-5f9b-950e-60b05c4691fb
+name: 'Brand impersonation: DocuSign'
+references:
+- https://playground.sublimesecurity.com?id=2d2c6472-fabb-4952-b902-573a6294aa2f
+severity: high
+source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings.ilike(sender.email.email,\
+  \ '*docusign.net*', '*docusign.com*')\n\n  // if the above is true, you'll see a\
+  \ \"via Docusign\"\n  or strings.ilike(sender.display_name, '*docusign*')\n\n  //\
+  \ detects 1 character variations,\n  // such as DocuSlgn (with an \"L\" instead\
+  \ of an \"I\")\n  or strings.ilevenshtein(sender.display_name, \"docusign\") ==\
+  \ 1\n)\n\n// identifies the main CTA in the email, eg \"Review now\" or \"Review\
+  \ document\"\n// this should always be a known docusign domain,\n// even with branded\
+  \ docusign subdomains\nand any(body.links,\n        // we've observed invisible\
+  \ characters in the display name\n        // such as U+034f(look carefully): \"\
+  Revi\u034Few Now\"\n        (\n          strings.ilevenshtein(.display_text, \"\
+  Review Now\") <= 3\n          or (\n            strings.icontains(.display_text,\
+  \ \"Review\")\n            and not strings.icontains(.display_text, \"Review Us\"\
+  )\n          )\n          or strings.icontains(.display_text, \"Now\")\n       \
+  \   or strings.contains(.display_text, \"document\")\n        )\n        and  not(any([\"\
+  docusign.com\", \"docusign.net\"], strings.ends_with(..href_url.query_params,.)))\n\
+  )\nand (\n  sender.email.domain.root_domain not in ('docusign.net', 'docusign.com')\n\
+  \  // check for DMARC fail for spoofs\n  or any(distinct(headers.hops, .authentication_results.dmarc\
+  \ is not null),\n         strings.ilike(.authentication_results.dmarc, \"*fail\"\
+  )\n  )\n)\n// adding negation for messages originating from docusigns api\n// and\
+  \ the sender.display.name contains \"via\"\nand not (\n  any(headers.hops,\n   \
+  \   any(.fields, .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"\
+  ))\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Lookalike domain
+- Social engineering
+- Spoofing
+tags:
+- Mimecast Changes Complete
+type: rule

@@ -1,0 +1,63 @@
+10:
+  orig: |
+    .href_url.domain.root_domain in $$
+  replace: |
+      any($$, strings.ends_with(..href_url.query_params,.))
+20:
+  orig: |
+    .href_url.domain.root_domain not in $$
+  replace: |
+    not(any($$, strings.ends_with(..href_url.query_params,.)))
+30:
+  orig: |
+    .href_url.domain.domain in $$
+  replace: |
+    any($$, ..href_url.query_params == strings.concat("domain=",.))
+40:
+  orig: |
+    .href_url.domain.domain not in $$
+  replace: |
+    not(any($$, ..href_url.query_params == strings.concat("domain=",.)))
+50:
+  orig: |
+    .href_url.domain.domain == ""
+  replace: |
+    .href_url.query_params == "domain=##"
+60:
+  orig: |
+    .href_url.domain.subdomain != "www"
+  replace: |
+    strings.starts_with(.href_url.query_params,"domain=www."))
+70:
+  orig: |
+    .href_url.domain.root_domain != sender.email.domain.root_domain
+  replace: |
+    not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
+80:
+  orig: |
+    .href_url.domain.root_domain in ()
+  replace: |
+    any([], strings.ends_with(..href_url.query_params,.))
+90:
+  orig: |
+    .href_url.domain.root_domain == sender.email.domain.root_domain
+  replace: |
+    strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)
+100:
+  orig: |
+    .href_url.domain.root_domain not in ()
+  replace: |
+    not(any([], strings.ends_with(..href_url.query_params,.)))
+110:
+  orig: |
+    .href_url.domain.domain in ()
+  replace: |
+    any([], ..href_url.query_params == strings.concat("domain=",.))
+120:
+  orig: |
+    .href_url.domain.root_domain == ""
+  replace: |
+    strings.ends_with(.href_url.query_params,"")
+    
+
+    

@@ -1,0 +1,35 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Impersonation of Blockchain[.]com, usually for credential theft.
+detection_methods:
+- Header analysis
+- Sender analysis
+id: 0d85e555-bf7c-50a9-afba-de3c67818b6f
+name: 'Brand impersonation: Blockchain[.]com'
+severity: medium
+source: |-
+  type.inbound
+  and (
+    regex.imatch(sender.display_name, '\bblockchain\b')
+    or strings.ilevenshtein(sender.display_name, 'blockchain') <= 1
+    or strings.ilike(sender.email.domain.domain, '*blockchain.com*')
+    or any(body.links, strings.ilevenshtein(.href_url.domain.root_domain, 'blockchain') == 1)
+  )
+  and any(distinct(headers.hops, .received_spf.verdict is not null),
+          strings.like(.received_spf.verdict, "*fail")
+  )
+  and sender.email.domain.root_domain not in~ (
+    'blockchain.com',
+    'wxblockchain.com',
+    'ai-blockchain.com',
+    'envisionblockchain.com'
+  )
+  and sender.email.email not in $recipient_emails
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Lookalike domain
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

@@ -1,0 +1,43 @@
+attack_types:
+- Spam
+description: |-
+  This rule detects spam emails impersonating FedEx, UPS, or USPS with links to free file hosting.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: 6d3fe05e-8ee6-586e-a2c6-60488ecf347a
+name: Fake shipping notification with link to free file hosting
+references:
+- https://playground.sublimesecurity.com?id=64feb22a-03e8-4d8f-83f6-a828dc5e3540
+severity: low
+source: |-
+  type.inbound
+  and length(attachments) == 0
+  and (
+    regex.icontains(coalesce(body.html.inner_text, body.html.display_text),
+                    '\bf[ _]?e[ _]?d[ _]?e[ _]?x\b'
+    )
+    and sender.email.domain.domain != "fedex.com"
+    and headers.return_path.domain.domain != sender.email.domain.domain
+    and any(body.links, strings.contains(.display_text, "track"))
+  )
+  and any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
+  and (
+    (
+      sender.email.domain.root_domain in $free_email_providers
+      and sender.email.email not in $sender_emails
+    )
+    or (
+      sender.email.domain.root_domain not in $free_email_providers
+      and sender.email.domain.root_domain not in $sender_domains
+    )
+    or sender.email.domain.valid == false
+  )
+tactics_and_techniques:
+- Free file host
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule

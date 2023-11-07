@@ -1,0 +1,39 @@
+attack_types:
+- Credential Phishing
+authors:
+- twitter: ajpc500
+description: |-
+  The body contains a link to a domain with Punycode characters to hide the true URL destination, or contains non-printable ASCII content.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 74b3698c-d75e-52db-9596-48af93817822
+name: Link to a Domain with Punycode Characters
+references:
+- https://www.bleepingcomputer.com/news/security/hackers-abuse-lookalike-domains-and-favicons-for-credit-card-theft/
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links, .href_url.domain.punycode is not null and .href_url.domain.valid == true)
+  and (
+    // include automated emails
+    sender.display_name == "WordPress"
+    or sender.email.local_part == "wordpress"
+
+    // Has my organization ever sent an email to this sender?
+    or (
+      sender.email.domain.root_domain in $free_email_providers
+      and sender.email.email not in $recipient_emails
+    )
+    or (
+      sender.email.domain.root_domain not in $free_email_providers
+      and sender.email.domain.domain not in $recipient_domains
+    )
+  )
+tactics_and_techniques:
+- Evasion
+- Lookalike domain
+- Punycode
+tags:
+- Mimecast Hard to Fix
+type: rule

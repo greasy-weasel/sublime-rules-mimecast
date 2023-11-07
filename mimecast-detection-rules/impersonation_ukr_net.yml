@@ -1,0 +1,39 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Impersonation of ukr[.]net.
+
+  Originally reported by CERT-UA on 07 March, 2022, phishing emails impersonate
+  ukr[.]net to steal user credentials. "Compromised mailboxes are used by the
+  Russian Federation's special services to conduct cyber attacks on citizens of Ukraine."
+detection_methods:
+- Sender analysis
+- Threat intelligence
+id: 3cb4015f-1e35-5bba-8d83-d5ed3dfff011
+name: 'Brand impersonation: ukr[.]net'
+references:
+- https://www.facebook.com/UACERT/posts/317482093744389
+- https://www.facebook.com/UACERT/posts/317539153738683
+- https://twitter.com/thehackersnews/status/1500824885957857280?s=21
+- https://thehackernews.com/2022/03/ukrainian-cert-warns-citizens-of.html
+severity: medium
+source: "type.inbound\nand (\n  (\n    // technique\n    strings.ilike(sender.display_name,\
+  \ \"ukr*net\")\n    and sender.email.domain.root_domain != \"ukr.net\"\n  )\n  or\
+  \ (\n    // IOCs\n    subject.subject == \"\u0423\u0432\u0430\u0433\u0430\"\n  \
+  \  and (\n      sender.email.email in (\n        \"muthuprakash.b@tvsrubber.com\"\
+  ,\n        \"rakesh.ict@msruas.ac.in\",\n        \"omars@salecharter.net\",\n  \
+  \      \"citi.in.pm@xerago.com\",\n        \"qs@gsengint.com\",\n        \"sec.ls@msruas.ac.in\"\
+  ,\n        \"vaishnavi.kj@tvsrubber.com\",\n        \"nshcorp@nshcorp.in\",\n  \
+  \      \"purchase2@hitechelastomers.com\",\n        \"productionbelgavi@hodekindia.com\"\
+  ,\n        \"narayanababu.py.ph@msruas.ac.in\",\n        \"roopa.tsld@msruas.ac.in\"\
+  ,\n        \"in-nonciti.basupport@xerago.com\",\n        \"info@empiink.com\",\n\
+  \        \"pooja.fa@msruas.ac.in\",\n        \"babu.d@tvsrubber.com\",\n       \
+  \ \"systeam@xerago.com\",\n        \"dean.ds@msruas.ac.in\",\n      )\n      or\
+  \ any(body.links,  .href_url.query_params == \"domain=consumerspanel.frge.io\" )\n\
+  \    )\n  )\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule

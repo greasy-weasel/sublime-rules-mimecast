@@ -1,0 +1,24 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: vector_sec
+description: |-
+  Message contains use of the Atdmt (Facebook) open redirect.
+detection_methods:
+- URL analysis
+id: fafbd230-bb09-5306-b652-3060639b8660
+name: 'Open redirect: Atdmt'
+references:
+- https://en.wikipedia.org/wiki/Atdmt
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 'ad.atdmt.com' and strings.ilike(.href_url.path, '*/c*')
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

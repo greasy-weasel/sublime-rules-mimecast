@@ -1,0 +1,23 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains use of McGill University's open redirect but the sender is not McGill University.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 5d006c90-a585-576f-84af-d4f9e4365d39
+name: 'Open redirect: McGill University'
+severity: low
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 'myalumni.mcgill.ca' and .href_url.path =~ '/redirect.aspx'
+  )
+  and any(body.links, strings.ilike(.href_url.query_params, '*tokenUrl=*'))
+  and sender.email.domain.root_domain != 'mcgill.ca'
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

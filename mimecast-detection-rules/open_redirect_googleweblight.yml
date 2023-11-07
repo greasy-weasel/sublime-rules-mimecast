@@ -1,0 +1,23 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+authors:
+- twitter: ajpc500
+description: |-
+  Message contains use of the Google Web Light domain for open redirect.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 27030ba5-c9dc-5789-bd3e-621626e0a123
+name: 'Open redirect: Google Web Light'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 'googleweblight.com' and strings.ilike(.href_url.url, '*/i?u=*')
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule

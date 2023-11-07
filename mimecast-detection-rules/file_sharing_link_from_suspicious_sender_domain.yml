@@ -1,0 +1,27 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  A file sharing link in the body sent from a suspicious sender domain.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 95f20354-3091-537e-9fe0-80ea8b64913b
+name: File sharing link from suspicious sender domain
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
+  and sender.email.domain.tld in $suspicious_tlds
+  and (
+    not profile.by_sender().solicited
+    or (
+      profile.by_sender().any_messages_malicious_or_spam
+      and not profile.by_sender().any_false_positives
+    )
+  )
+tactics_and_techniques:
+- Free file host
+tags:
+- Mimecast Changes Complete
+type: rule

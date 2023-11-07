@@ -1,0 +1,24 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Shortened link is blocked or gated by bit.ly. Indicator of malicious email.
+detection_methods:
+- URL analysis
+id: 1528eb6c-22fa-5879-b48c-53ee466fde23
+name: 'Link: Flagged bit.ly link'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          // contains bit.ly link
+           strings.ends_with(.href_url.query_params,"bit.ly")
+          // link doesn't forward through
+          and beta.linkanalysis(.).effective_url.domain.domain == "bit.ly"
+          // blocked or gated by bit.ly
+          and strings.ilike(beta.linkanalysis(.).final_dom.display_text, "*link*blocked*", "*flagged*by*")
+  )
+tactics_and_techniques:
+- Evasion
+tags:
+- Link Analysis Present
+type: rule

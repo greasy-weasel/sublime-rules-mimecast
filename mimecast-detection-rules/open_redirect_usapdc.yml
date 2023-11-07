@@ -1,0 +1,22 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains use of the U.S. Antarctic Program Data Center (USAP-DC) open redirect.
+detection_methods:
+- URL analysis
+id: c499d041-1e95-52a5-bc7e-857376e1a873
+name: 'Open redirect: U.S. Antarctic Program Data Center (USAP-DC)'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"usap-dc.org")
+          and .href_url.path =~ "/tracker"
+          and strings.starts_with(.href_url.query_params, "type=dataset&url=http")
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule
