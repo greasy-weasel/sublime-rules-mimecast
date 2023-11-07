@@ -61,11 +61,13 @@ def change_urls_to_mimecast():
                         for replace_item in url_replacement_string.values():
                             stripped_orig=replace_item['orig'].strip()
                             if stripped_orig in source:
-                                parsed['source'] = source.replace(stripped_orig," " + replace_item['replace'].strip() + " ")
+                                source = source.replace(stripped_orig," " + replace_item['replace'].strip() + " ")
                                 changed_file=True
                             else:
                                 if "$$" in stripped_orig:
-                                    string_to_be_replaced=re.search(stripped_orig.replace("$$","\$(\w+)"),source)
+                                    string_to_be_replaced=re.search(stripped_orig.replace("$$","\$([\w_\-]+)"),source)
+                                    if string_to_be_replaced:
+                                        print(string_to_be_replaced.group(0))
                                 if "[]" in stripped_orig:
                                     string_to_be_replaced=re.search(stripped_orig.replace("[]","\[([\w\.\-\\\",'\s]+)\]"),source)
                                 if "()" in stripped_orig:
@@ -89,8 +91,11 @@ def change_urls_to_mimecast():
                                         replacement_string = replace_item['replace'].strip().replace("''","'" + string_to_be_replaced.group(1) + "'")
                                     if "##" in replace_item['replace']:
                                         replacement_string = replace_item['replace'].strip().replace("##", string_to_be_replaced.group(1))                                      
-                                    parsed['source'] = source.replace(string_to_be_replaced.group(0)," " + replacement_string + " ")
+                                    source = source.replace(string_to_be_replaced.group(0)," " + replacement_string + " ")
                                     changed_file=True
+
+                        if changed_file:
+                            parsed['source'] = source
 
                         if "beta.linkanalysis" in source:
                             tags.append('Link Analysis Present')
