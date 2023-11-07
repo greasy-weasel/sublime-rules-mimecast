@@ -29,7 +29,7 @@ source: |-
             not strings.ilike(.href_url.url, "http?://goo.gl/maps*")
             or (
                not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
-              or .href_url.domain.domain in $free_file_hosts
+              or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
               or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
               or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
               or

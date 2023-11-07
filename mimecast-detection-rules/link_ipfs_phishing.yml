@@ -26,8 +26,8 @@ source: |-
             and (
               (
                 // don't include high rep domains
-                .href_url.domain.domain not in $tranco_1m
-                and .href_url.domain.domain not in $umbrella_1m
+                 not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
+                and  not(any($umbrella_1m, ..href_url.query_params == strings.concat("domain=",.)))
               )
               // if it's in Tranco or Umbrella, still include it if it's one of these
               or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))

@@ -39,10 +39,10 @@ source: |-
       any(body.links,
            not(any($org_domains, strings.ends_with(..href_url.query_params,.)))
           and (
-            .href_url.domain.root_domain not in $tranco_1m
+             not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
             or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
             or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
-            or .href_url.domain.domain in $url_shorteners
+            or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
           )
       )
     ),
@@ -87,5 +87,5 @@ tactics_and_techniques:
 - Spoofing
 tags:
 - Attack surface reduction
-- Mimecast Needs Fix
+- Mimecast Changes Complete
 type: rule
