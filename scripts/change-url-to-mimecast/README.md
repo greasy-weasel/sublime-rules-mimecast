@@ -83,6 +83,5 @@ We also add tags to the rules to give you a better idea of problem rules:
 - Mimecast Changes Complete = Needed changes made to rule should be fully compatable with mimecast
 - Mimecast Hard to Fix = rules which contain MQL which does contains data removed by mimecast and noway to achieve equivalent functionality
 - Mimecast Needs Fix = Needs to more work to fix
-- Mimecast Needs Fix Unknown = Rule not fixed for unkown reason
 - Link Analysis Present = Link analysis present in rule
 
