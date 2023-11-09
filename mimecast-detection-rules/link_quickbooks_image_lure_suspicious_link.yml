@@ -1,0 +1,96 @@
+attack_types:
+- Credential Phishing
+description: 'This rule detects messages with image attachments containing QuickBooks
+  logo containing exactly 1 link to a suspicious URL. '
+detection_methods:
+- Computer Vision
+- File analysis
+- Optical Character Recognition
+- URL analysis
+id: 3826a923-865e-5d87-82e4-0c1f8434efc0
+name: 'Link: QuickBooks image lure with suspicious link'
+severity: medium
+source: |-
+  type.inbound
+  and length(attachments) < 3
+  and any(attachments,
+          .file_type in $file_types_images
+          and any(ml.logo_detect(.).brands, .name == "Quickbooks")
+  )
+  and length(body.links) == 1
+  and (
+    // body text is very short
+    (
+      0 <= (length(body.current_thread.text)) < 10
+      or body.current_thread.text is null
+    )
+    or (
+      length(body.current_thread.text) < 900
+      // or body is most likely all warning banner (text contains the sender and common warning banner language)
+      and (
+        regex.icontains(body.current_thread.text,
+                        'caution|confidentiality notice|warning'
+        )
+      )
+    )
+  )
+
+  // suspicious link
+  and any(body.links,
+          (
+             not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
+            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+            or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+            or
+
+            // mass mailer link, masks the actual URL
+             any([
+              "hubspotlinks.com",
+              "mandrillapp.com",
+              "sendgrid.net",
+              "rs6.net"
+            ], strings.ends_with(..href_url.query_params,.))
+          )
+
+          // exclude sources of potential FPs
+          and (
+             not(any([
+              "svc.ms",
+              "sharepoint.com",
+              "1drv.ms",
+              "microsoft.com",
+              "aka.ms",
+              "msftauthimages.net",
+              "intuit.com",
+              "turbotax.com",
+              "intuit.ca"
+            ], strings.ends_with(..href_url.query_params,.)))
+            or any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
+          )
+          and  not(any($org_domains, strings.ends_with(..href_url.query_params,.)))
+  )
+  and sender.email.domain.root_domain not in~ (
+    'intuit.com',
+    'turbotax.com',
+    'intuit.ca'
+  )
+
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and (
+        any(distinct(headers.hops, .authentication_results.dmarc is not null),
+            strings.ilike(.authentication_results.dmarc, "*fail")
+        )
+      )
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule
