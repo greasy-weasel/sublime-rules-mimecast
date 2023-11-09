@@ -64,7 +64,6 @@ def change_urls_to_mimecast():
                                 source = source.replace(stripped_orig," " + replace_item['replace'].strip() + " ")
                                 changed_file=True
                             else:
-                                orig_string_regex=""
                                 temp_source=source
                                 if "$$" in stripped_orig:
                                     orig_string_regex=stripped_orig.replace("$$","\$([\w_\-]+)")
@@ -83,7 +82,9 @@ def change_urls_to_mimecast():
                                     strings_to_be_replaced=re.findall(orig_string_regex,source)
 
                                 for x in strings_to_be_replaced:
-                                    string_to_be_replaced=re.search(orig_string_regex,source)
+                                    print(x)
+                                    string_to_be_replaced=re.search(orig_string_regex,x)
+                                    print(orig_string_regex)
                                     if "$$" in replace_item['replace']:
                                         replacement_string = replace_item['replace'].strip().replace("$$","$" + string_to_be_replaced.group(1))
                                     if "[]" in replace_item['replace']:
