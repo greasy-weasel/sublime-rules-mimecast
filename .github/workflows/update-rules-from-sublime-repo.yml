@@ -29,6 +29,8 @@ jobs:
                   git fetch --all
                   git merge --allow-unrelated-histories -X theirs sublime/main -m "Updating from sublime"
                   git rm mimecast-detection-rules/*
+
+                  cp scripts/change-url-to-mimecast/README.md ./README.md
                   
                   pip install -r scripts/change-url-to-mimecast/requirements.txt
                   python scripts/change-url-to-mimecast/main.py
