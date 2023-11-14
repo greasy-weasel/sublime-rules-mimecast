@@ -28,7 +28,8 @@ jobs:
                   git remote add sublime https://github.com/sublime-security/sublime-rules.git
                   git fetch --all
                   git merge --allow-unrelated-histories -X theirs sublime/main -m "Updating from sublime"
-
+                  git rm mimecast-detection-rules/*
+                  
                   pip install -r scripts/change-url-to-mimecast/requirements.txt
                   python scripts/change-url-to-mimecast/main.py
                 
