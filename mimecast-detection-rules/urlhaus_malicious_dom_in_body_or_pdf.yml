@@ -17,7 +17,7 @@ source: |-
         // filter potentially known good domains
         // prevents FPs on entries such as drive[.]google[.]com, or
         // other accidental pushes to the List
-         not(any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)))
+        any([.href_url.domain.domain, .href_url.domain.root_domain], . not in $free_file_hosts)
         and  not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
         and  not(any($umbrella_1m, ..href_url.query_params == strings.concat("domain=",.)))
         and
@@ -57,5 +57,5 @@ tactics_and_techniques:
 - PDF
 tags:
 - 'Abusech: URLhaus'
-- Mimecast Changes Complete
+- Mimecast Needs Fix
 type: rule

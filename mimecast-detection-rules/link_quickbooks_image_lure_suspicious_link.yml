@@ -39,7 +39,9 @@ source: |-
   and any(body.links,
           (
              not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
-            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or any([.href_url.domain.domain, .href_url.domain.root_domain],
+                   . in $free_file_hosts
+            )
             or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
             or
@@ -93,5 +95,5 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Changes Complete
+- Mimecast Needs Fix
 type: rule

@@ -15,10 +15,12 @@ source: |-
   type.inbound
 
   // no recipients defined
-  and (length(recipients.to) == 0 or all(recipients.to, .display_name == "Undisclosed recipients"))
+  and (
+    length(recipients.to) == 0
+    or all(recipients.to, .display_name == "Undisclosed recipients")
+  )
   and length(recipients.cc) == 0
   and length(recipients.bcc) == 0
-
   and any(body.links,
 
           // suspicious link
@@ -26,7 +28,9 @@ source: |-
           // if using the full list causes FPs, we can reduce the
           // scope to a hard-coded list or add exclusions
           (
-             any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            any([.href_url.domain.domain, .href_url.domain.root_domain],
+                . in $free_file_hosts
+            )
             or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
           )
 
@@ -35,7 +39,9 @@ source: |-
   )
 
   // any confidence cred_theft classification
-  and any(ml.nlu_classifier(body.current_thread.text).intents, .name == "cred_theft")
+  and any(ml.nlu_classifier(body.current_thread.text).intents,
+          .name == "cred_theft"
+  )
 
   // 'org' entity is in all caps
   and any(ml.nlu_classifier(body.current_thread.text).entities,
@@ -44,7 +50,6 @@ source: |-
 
   // subject is in all caps
   and regex.match(subject.subject, "[A-Z ]+")
-
   and (
     profile.by_sender().prevalence in ("new", "outlier")
     or (
@@ -55,5 +60,5 @@ source: |-
 tactics_and_techniques:
 - Evasion
 tags:
-- Mimecast Changes Complete
+- Mimecast Needs Fix
 type: rule

@@ -30,7 +30,7 @@ source: |-
                 and  not(any($umbrella_1m, ..href_url.query_params == strings.concat("domain=",.)))
               )
               // if it's in Tranco or Umbrella, still include it if it's one of these
-              or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+              or any([.href_url.domain.domain, .href_url.domain.root_domain], . in $free_file_hosts)
               or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             )
           )

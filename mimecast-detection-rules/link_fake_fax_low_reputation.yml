@@ -20,26 +20,36 @@ source: |-
   and any(body.links,
           (
              not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
-            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or any([.href_url.domain.domain, .href_url.domain.root_domain],
+                   . in $free_file_hosts
+            )
             or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
             or
 
             // mass mailer link, masks the actual URL
-             any(["hubspotlinks.com", "mandrillapp.com", "sendgrid.net"], strings.ends_with(..href_url.query_params,.))
+             any([
+              "hubspotlinks.com",
+              "mandrillapp.com",
+              "sendgrid.net"
+            ], strings.ends_with(..href_url.query_params,.))
           )
   )
 
   // any brand logo detected
   and (
     any(attachments,
-        .file_type in $file_types_images and any(ml.logo_detect(.).brands, .name is not null)
+        .file_type in $file_types_images
+        and any(ml.logo_detect(.).brands, .name is not null)
     )
     or any(ml.logo_detect(beta.message_screenshot()).brands, .name is not null)
   )
 
   // Subject or sender contains fax
-  and (strings.icontains(subject.subject, "fax") or strings.icontains(sender.display_name, "fax"))
+  and (
+    strings.icontains(subject.subject, "fax")
+    or strings.icontains(sender.display_name, "fax")
+  )
 
   // suspicious content
   and (
@@ -54,7 +64,6 @@ source: |-
 
   // negate known fax mailers
   and sender.email.domain.root_domain not in ("faxage.com")
-
   and (
     profile.by_sender().prevalence in ("new", "outlier")
     or (
@@ -69,5 +78,5 @@ tactics_and_techniques:
 - Free subdomain host
 - Social engineering
 tags:
-- Mimecast Changes Complete
+- Mimecast Needs Fix
 type: rule

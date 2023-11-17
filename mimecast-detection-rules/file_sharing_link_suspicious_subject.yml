@@ -14,12 +14,14 @@ source: |-
   type.inbound
   and sender.email.domain.root_domain != 'google.com'
   and any(body.links,
-     any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
-    and not (
-        // negating Google Forms links
-         .href_url.query_params == "domain=docs.google.com"
-        and strings.istarts_with(.href_url.path, "/forms/")
-    )
+          any([.href_url.domain.domain, .href_url.domain.root_domain],
+              . in $free_file_hosts
+          )
+          and not (
+            // negating Google Forms links
+             .href_url.query_params == "domain=docs.google.com"
+            and strings.istarts_with(.href_url.path, "/forms/")
+          )
   )
   and regex.icontains(subject.subject, 'immediately', 'urgent')
   and any(ml.nlu_classifier(body.current_thread.text).intents, .name != "benign")

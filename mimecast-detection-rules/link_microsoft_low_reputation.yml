@@ -20,7 +20,9 @@ source: |-
   and any(body.links,
           (
              not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
-            or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or any([.href_url.domain.domain, .href_url.domain.root_domain],
+                   . in $free_file_hosts
+            )
             or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
             or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
             or
@@ -129,32 +131,31 @@ source: |-
     )
     or (
       any(file.explode(beta.message_screenshot()),
-                   strings.ilike(.scan.ocr.raw,
-                                 "*password*",
-                                 "*document*",
-                                 "*voicemail*",
-                                 "*cache*",
-                                 "*fax*",
-                                 "*storage*",
-                                 "*quota*",
-                                 "*messages*"
-                   )
-                   and strings.ilike(.scan.ocr.raw,
-                                     "*terminated*",
-                                     "*review*",
-                                     "*expire*",
-                                     "*click*",
-                                     "*view*",
-                                     "*exceed*",
-                                     "*clear*",
-                                     "*only works*",
-                                     "*failed*",
-                                     "*deleted*"
-                   )
+          strings.ilike(.scan.ocr.raw,
+                        "*password*",
+                        "*document*",
+                        "*voicemail*",
+                        "*cache*",
+                        "*fax*",
+                        "*storage*",
+                        "*quota*",
+                        "*messages*"
+          )
+          and strings.ilike(.scan.ocr.raw,
+                            "*terminated*",
+                            "*review*",
+                            "*expire*",
+                            "*click*",
+                            "*view*",
+                            "*exceed*",
+                            "*clear*",
+                            "*only works*",
+                            "*failed*",
+                            "*deleted*"
+          )
       )
     )
   )
-
   and (
     any(ml.nlu_classifier(body.current_thread.text).intents,
         .name == "cred_theft" and .confidence in~ ("medium", "high")
