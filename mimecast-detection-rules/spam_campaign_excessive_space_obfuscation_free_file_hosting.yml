@@ -18,9 +18,8 @@ source: |-
                       '([a-zA-Z\d\.]\s){30,}'
   )
   and any(body.links,
-          any([.href_url.domain.domain, .href_url.domain.root_domain],
-              . in $free_file_hosts
-          )
+           any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
   )
   and (
     profile.by_sender().prevalence in ("new", "outlier")
@@ -32,5 +31,5 @@ source: |-
 tactics_and_techniques:
 - Free file host
 tags:
-- Mimecast Needs Fix
+- Mimecast Changes Complete
 type: rule

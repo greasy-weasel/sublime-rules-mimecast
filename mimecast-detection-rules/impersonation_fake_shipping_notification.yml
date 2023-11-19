@@ -23,9 +23,8 @@ source: |-
     and any(body.links, strings.contains(.display_text, "track"))
   )
   and any(body.links,
-          any([.href_url.domain.domain, .href_url.domain.root_domain],
-              . in $free_file_hosts
-          )
+           any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
   )
   and (
     (
@@ -43,5 +42,5 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Needs Fix
+- Mimecast Changes Complete
 type: rule

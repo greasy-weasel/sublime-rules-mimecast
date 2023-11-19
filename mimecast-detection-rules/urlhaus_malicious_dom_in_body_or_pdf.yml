@@ -17,45 +17,46 @@ source: |-
         // filter potentially known good domains
         // prevents FPs on entries such as drive[.]google[.]com, or
         // other accidental pushes to the List
-        any([.href_url.domain.domain, .href_url.domain.root_domain], . not in $free_file_hosts)
+
+         not(any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)))
+        and  not(any($free_file_hosts, strings.ends_with(..href_url.query_params,.)))
         and  not(any($tranco_1m, ..href_url.query_params == strings.concat("domain=",.)))
         and  not(any($umbrella_1m, ..href_url.query_params == strings.concat("domain=",.)))
-        and
 
         // this ensures we don't flag on legit FQDNs that
         // aren't in the Tranco 1M, but their root domains are
         // eg: support[.]google[.]com
-         not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
+        and  not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
         and  not(any($umbrella_1m, strings.ends_with(..href_url.query_params,.)))
         and  not(any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.)))
         and  any($abuse_ch_urlhaus_domains_trusted_reporters, strings.ends_with(..href_url.query_params,.))
     )
     or any(attachments,
-           .file_type == "pdf"
-           and any(file.explode(.),
-                   any(.scan.pdf.urls,
-                       // filter potentially known good domains
-                       // prevents FPs on entries such as drive[.]google[.]com, or
-                       // other accidental pushes to the List
-                       .domain.domain not in $free_file_hosts
-                       and .domain.domain not in $free_subdomain_hosts
-                       and .domain.domain not in $tranco_1m
-                       and .domain.domain not in $umbrella_1m
-                       and
+          .file_type == "pdf"
+          and any(file.explode(.),
+                  any(.scan.pdf.urls,
+                      // filter potentially known good domains
+                      // prevents FPs on entries such as drive[.]google[.]com, or
+                      // other accidental pushes to the List
+                      .domain.domain not in $free_file_hosts
+                      and .domain.root_domain not in $free_file_hosts
+                      and .domain.domain not in $free_subdomain_hosts
+                      and .domain.domain not in $tranco_1m
+                      and .domain.domain not in $umbrella_1m
 
-                       // this ensures we don't flag on legit FQDNs that
-                       // aren't in the Tranco 1M, but their root domains are
-                       // eg: support[.]google[.]com
-                       .domain.root_domain not in $tranco_1m
-                       and .domain.root_domain not in $umbrella_1m
-                       and .domain.domain in $abuse_ch_urlhaus_domains_trusted_reporters
-                   )
-           )
+                      // this ensures we don't flag on legit FQDNs that
+                      // aren't in the Tranco 1M, but their root domains are
+                      // eg: support[.]google[.]com
+                      and .domain.root_domain not in $tranco_1m
+                      and .domain.root_domain not in $umbrella_1m
+                      and .domain.domain in $abuse_ch_urlhaus_domains_trusted_reporters
+                  )
+          )
     )
   )
 tactics_and_techniques:
 - PDF
 tags:
 - 'Abusech: URLhaus'
-- Mimecast Needs Fix
+- Mimecast Changes Complete
 type: rule
