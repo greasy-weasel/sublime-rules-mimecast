@@ -34,7 +34,9 @@ source: |-
     "office.com",
     "onedrive.com",
     "sharepointonline.com",
-    "yammer.com"
+    "yammer.com",
+    //ignore microsoft privacy statement links
+    "aka.ms"
   )
 
   // negate highly trusted sender domains unless they fail DMARC authentication
