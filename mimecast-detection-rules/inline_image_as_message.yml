@@ -11,7 +11,7 @@ detection_methods:
 - URL analysis
 id: 823d7107-2605-5671-9acb-ba172d071671
 name: Inline image as message with attachment or link
-severity: medium
+severity: low
 source: |-
   type.inbound
   and length(body.html.raw) < 200

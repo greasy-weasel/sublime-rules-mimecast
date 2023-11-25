@@ -39,5 +39,6 @@ tactics_and_techniques:
 - Free file host
 - Social engineering
 tags:
+- Attack surface reduction
 - Mimecast Changes Complete
 type: rule
