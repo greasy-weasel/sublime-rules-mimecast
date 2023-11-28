@@ -9,7 +9,7 @@ detection_methods:
 - URL analysis
 id: 569817fe-96b5-5c1d-96dc-30cd1cb9fd16
 name: 'Link: Free file host from freemail sender with NLU intent'
-severity: medium
+severity: low
 source: |-
   type.inbound
 
