@@ -13,6 +13,11 @@ severity: medium
 source: |-
   type.inbound
   and sender.email.domain.root_domain != 'google.com'
+  and not (
+    sender.email.domain.root_domain == "dropbox.com"
+    and any(distinct(headers.hops, .authentication_results.dmarc is not null),
+            strings.ilike(.authentication_results.dmarc, "*pass")
+  ))
   and any(body.links,
           (
              any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
