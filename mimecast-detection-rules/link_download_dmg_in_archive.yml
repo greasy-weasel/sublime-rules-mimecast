@@ -1,26 +1,28 @@
 attack_types:
-- Credential Phishing
 - Malware/Ransomware
-description: |-
-  Message contains use of the Ticketmaster open redirect, but the sender is not Ticketmaster. This has been exploited in the wild.
+description: A link in the body of the message downloads an archive containing a DMG
+  file. The message is not from a common or trusted sender and is unsolicited.
 detection_methods:
+- Archive analysis
+- File analysis
 - Sender analysis
 - URL analysis
-id: a5b3901f-e57b-5fb9-a3d7-ee2205cc0c5b
-name: 'Open redirect: Ticketmaster'
-references:
-- https://www.reddit.com/r/cybersecurity/comments/127q4ny/ticketmaster_systems_exploited_for_phishing/
-severity: low
+id: dc04cdd8-6023-578b-a0d5-c59f4b76cacd
+name: Link to auto-downloaded DMG in archive
+severity: medium
 source: |-
   type.inbound
   and any(body.links,
-          .href_url.domain.domain == 'links.engage.ticketmaster.com' and .href_url.path =~ '/ctt'
+          any(beta.linkanalysis(.).files_downloaded,
+              .file_extension in~ $file_extensions_common_archives
+              and any(file.explode(.), .file_extension == "dmg")
+          )
   )
-  and sender.email.domain.root_domain != 'ticketmaster.com'
-  and headers.return_path.domain.root_domain != "ticketmaster.com"
-
   and (
-    not profile.by_sender().solicited
+    (
+      profile.by_sender().prevalence != "common"
+      and not profile.by_sender().solicited
+    )
     or (
       profile.by_sender().any_messages_malicious_or_spam
       and not profile.by_sender().any_false_positives
@@ -40,8 +42,8 @@ source: |-
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
 tactics_and_techniques:
-- Open redirect
+- Evasion
 tags:
 - Attack surface reduction
-- Mimecast Hard to Fix
+- Link Analysis Present
 type: rule
