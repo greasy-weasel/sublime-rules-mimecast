@@ -7,7 +7,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: 81a8ed12-0e26-5998-90ae-03334f358704
-name: Display name impersonation using recipient SLD (new sender)
+name: Display name impersonation using recipient SLD
 severity: medium
 source: |-
   type.inbound
@@ -70,8 +70,7 @@ source: |-
   )
   and (
     (
-      profile.by_sender().prevalence != "common"
-      and not profile.by_sender().solicited
+      not profile.by_sender().solicited
     )
     or (
       profile.by_sender().any_messages_malicious_or_spam
