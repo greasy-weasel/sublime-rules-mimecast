@@ -29,6 +29,9 @@ jobs:
                   git fetch --all
                   git merge --allow-unrelated-histories -X theirs sublime/main -m "Updating from sublime"
                   git rm mimecast-detection-rules/*
+                  git rm .github/workflows/clear-old-test-rules.yml
+                  git rm .github/workflows/rule-validate.yml
+                  git rm .github/workflows/update-test-rules.yml
 
                   cp scripts/change-url-to-mimecast/README.md ./README.md
                   
