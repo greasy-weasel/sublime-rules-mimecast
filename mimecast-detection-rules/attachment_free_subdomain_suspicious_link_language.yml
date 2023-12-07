@@ -30,6 +30,7 @@ source: |-
 tactics_and_techniques:
 - Free subdomain host
 tags:
+- Attack surface reduction
 - Link Analysis Present
 - Mimecast Hard to Fix
 type: rule
