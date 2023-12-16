@@ -26,5 +26,6 @@ source: |-
 tactics_and_techniques:
 - Free file host
 tags:
+- Attack surface reduction
 - Mimecast Changes Complete
 type: rule

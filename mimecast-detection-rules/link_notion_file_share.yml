@@ -61,5 +61,6 @@ tactics_and_techniques:
 - Evasion
 - Free file host
 tags:
+- Attack surface reduction
 - Mimecast Hard to Fix
 type: rule
