@@ -218,7 +218,6 @@ source: |-
                        "Sweepstakes",
                        "System",
                        "Tax",
-                       "Team",
                        "Tech Support",
                        "Update",
                        "Upgrade",
@@ -235,6 +234,21 @@ source: |-
   and any(body.links,
           regex.icontains(beta.linkanalysis(., mode="aggressive").final_dom.display_text,
                           "cloudflare"
+          )
+          and not (
+            ( // a Cloudflare error page
+              strings.ilike(beta.linkanalysis(., mode="aggressive").final_dom.display_text,
+                            "*error code*"
+              )
+              and any(beta.linkanalysis(., mode="aggressive").final_dom.links,
+                      strings.icontains(.href_url.query_params,
+                                        "utm_source=errorcode"
+                      )
+              )
+            ) // a cookie warning mentioning Cloudflare
+            or regex.icontains(beta.linkanalysis(., mode="aggressive").final_dom.display_text,
+                               "cookie.{0,50}Cloudflare"
+            )
           )
   )
   and (
@@ -259,5 +273,5 @@ source: |-
   and not profile.by_sender().any_false_positives
 tags:
 - Link Analysis Present
-- Mimecast Changes Complete
+- Mimecast Hard to Fix
 type: rule
