@@ -18,5 +18,6 @@ source: |-
 tactics_and_techniques:
 - Open redirect
 tags:
+- Attack surface reduction
 - Mimecast Changes Complete
 type: rule

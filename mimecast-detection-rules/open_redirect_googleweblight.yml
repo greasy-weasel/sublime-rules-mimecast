@@ -19,5 +19,6 @@ source: |-
 tactics_and_techniques:
 - Open redirect
 tags:
+- Attack surface reduction
 - Mimecast Hard to Fix
 type: rule

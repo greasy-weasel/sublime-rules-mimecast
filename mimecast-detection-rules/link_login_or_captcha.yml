@@ -62,6 +62,7 @@ tactics_and_techniques:
 - Free subdomain host
 - Social engineering
 tags:
+- Attack surface reduction
 - Link Analysis Present
 - Mimecast Changes Complete
 type: rule
