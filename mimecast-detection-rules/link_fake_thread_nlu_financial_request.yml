@@ -85,6 +85,19 @@ source: |-
          not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
     ),
   )
+
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and (
+        any(distinct(headers.hops, .authentication_results.dmarc is not null),
+            strings.ilike(.authentication_results.dmarc, "*fail")
+        )
+      )
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
 tactics_and_techniques:
 - Social engineering
 tags:
