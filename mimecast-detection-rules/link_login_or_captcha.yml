@@ -12,6 +12,7 @@ name: Free subdomain link with login or captcha (first-time sender, unsolicited)
 severity: medium
 source: |-
   type.inbound
+  and 0 < length(body.links) < 10
   and any(body.links,
 
           // contains login or captcha
