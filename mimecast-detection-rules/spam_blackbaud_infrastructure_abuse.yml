@@ -1,0 +1,29 @@
+attack_types:
+- Spam
+description: Malvertising campaign has been observed abusing a compromised account
+  with BlackBaud. These campaigns have been leveraging brands like Disney+, Netflix,
+  Paramount+, Peacock, UPS, and impersonating the likeness of Elon Musk.
+detection_methods:
+- Content analysis
+- Header analysis
+id: 3db46591-0bab-5ea3-afad-76c6a44eea94
+name: 'Spam: BlackBaud infrastructure abuse'
+severity: medium
+source: |-
+  type.inbound
+  and regex.imatch(sender.email.email, 'communications[a-z]{4,}@.+')
+  and any(headers.hops, any(.fields, strings.ilike(.name, "x-campaignid")))
+  and any(headers.domains, strings.contains(.domain, "blackbaud.com"))
+  and regex.imatch(subject.subject, 'RE\s?:.*')
+  and (
+    length(headers.references) == 0
+    or not any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
+  )
+  and any(body.links, .display_text is null)
+tactics_and_techniques:
+- Evasion
+- 'Impersonation: Brand'
+- Image as content
+- Social engineering
+tags: []
+type: rule
