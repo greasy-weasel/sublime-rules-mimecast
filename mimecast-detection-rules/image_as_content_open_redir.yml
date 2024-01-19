@@ -1,20 +1,25 @@
 attack_types:
 - Credential Phishing
 - Malware/Ransomware
-description: Body contains little, no, or only disclaimer text, and an image linking
+description: Body contains little, no, or only disclaimer text, an image, and a link
   to an open redirect.
 detection_methods:
 - Content analysis
 - HTML analysis
 - URL analysis
 id: f5cec36b-76ea-5cd6-958b-74f819d73a47
-name: Image as content linking to an open redirect
+name: Image as content with a link to an open redirect (unsolicited)
 severity: high
 source: |-
   type.inbound
   and length(body.links) < 3
   and 0 < (length(attachments)) < 3
   and all(attachments, (.file_type in $file_types_images))
+  and all(attachments, (.size > 10000))
+  // image is in body
+  and strings.icontains(body.html.raw, 'src="cid')
+  // sender domain matches no body domains
+  and all(body.links,  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)) )
   and (
     // body text is very short
     (
@@ -38,12 +43,33 @@ source: |-
   and (
     any(body.links,
         any(.href_url.rewrite.encoders, strings.icontains(., "open_redirect"))
+        and  not(any($high_trust_sender_root_domains, strings.ends_with(..href_url.query_params,.)))
     )
     or any(body.links,
            .href_url.domain.root_domain == 'sng.link'
            and strings.ilike(.href_url.query_params, "*fallback_redirect*")
     )
   )
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and (
+        any(distinct(headers.hops, .authentication_results.dmarc is not null),
+            strings.ilike(.authentication_results.dmarc, "*fail")
+        )
+      )
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+  and (
+    not profile.by_sender().solicited
+    or (
+      profile.by_sender().any_messages_malicious_or_spam
+      and not profile.by_sender().any_false_positives
+    )
+  )
+  and not profile.by_sender().prevalence == "common"
 tactics_and_techniques:
 - Evasion
 - Image as content
