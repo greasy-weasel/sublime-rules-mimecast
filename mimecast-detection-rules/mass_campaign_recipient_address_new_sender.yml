@@ -10,7 +10,7 @@ detection_methods:
 - Natural Language Understanding
 - Sender analysis
 id: 599dabf5-6287-5adf-8a8f-70649ccf0f92
-name: 'Mass campaign: recipient address in subject, body, and link (first-time sender)'
+name: 'Mass campaign: recipient address in subject, body, and link (untrusted sender)'
 references:
 - https://playground.sublimesecurity.com?id=d9143109-8886-4639-b634-d0a671848eb6
 severity: medium

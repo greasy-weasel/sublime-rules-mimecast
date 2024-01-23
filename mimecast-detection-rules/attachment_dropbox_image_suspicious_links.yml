@@ -1,7 +1,7 @@
 attack_types:
 - Credential Phishing
 description: Detects Dropbox phishing emails with no Dropbox links with image attachments
-  from first time sender.
+  from an untrusted sender.
 detection_methods:
 - Content analysis
 - File analysis
