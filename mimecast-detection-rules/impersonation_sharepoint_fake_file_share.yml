@@ -22,7 +22,7 @@ source: |-
   // fake Sharepoint shares are easy to identify if there are any links
   // that don't point to microsoft[.]com or *.sharepoint[.]com
   and not all(body.links,
-               any(["microsoft.com", "sharepoint.com"], strings.ends_with(..href_url.query_params,.))
+               any(["aka.ms", "microsoft.com", "sharepoint.com"], strings.ends_with(..href_url.query_params,.))
   )
   and sender.email.domain.root_domain not in $org_domains
   and sender.email.domain.root_domain not in (

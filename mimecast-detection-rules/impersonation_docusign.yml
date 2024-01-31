@@ -26,15 +26,17 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   )\n            and not strings.icontains(.display_text, \"Review Us\")\n       \
   \   )\n          or strings.icontains(.display_text, \"Now\")\n          or strings.icontains(.display_text,\
   \ \"document\")\n        )\n        and  not(any([\"docusign.com\", \"docusign.net\"\
-  ], strings.ends_with(..href_url.query_params,.)))\n)\nand (\n  sender.email.domain.root_domain\
-  \ not in ('docusign.net', 'docusign.com')\n  // check for DMARC fail for spoofs\n\
-  \  or any(distinct(headers.hops, .authentication_results.dmarc is not null),\n \
-  \        strings.ilike(.authentication_results.dmarc, \"*fail\")\n  )\n)\n// adding\
-  \ negation for messages originating from docusigns api\n// and the sender.display.name\
-  \ contains \"via\"\nand not (\n  any(headers.hops,\n      any(.fields, .name ==\
-  \ \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"))\n  )\n  and strings.contains(sender.display_name,\
-  \ \"via\")\n)\nand (\n  not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
-  \    and not profile.by_sender().any_false_positives\n  )\n)"
+  ], strings.ends_with(..href_url.query_params,.)))\n)\n\n// negate legitimate docusign\
+  \ infrastructure\nand (\n  (\n    sender.email.domain.root_domain in ('docusign.net',\
+  \ 'docusign.com')\n    and (\n      any(distinct(headers.hops, .authentication_results.dmarc\
+  \ is not null),\n          strings.ilike(.authentication_results.dmarc, \"*fail\"\
+  )\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in ('docusign.net',\
+  \ 'docusign.com')\n)\n\n// adding negation for messages originating from docusigns\
+  \ api\n// and the sender.display.name contains \"via\"\nand not (\n  any(headers.hops,\n\
+  \      any(.fields, .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"\
+  ))\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Lookalike domain
