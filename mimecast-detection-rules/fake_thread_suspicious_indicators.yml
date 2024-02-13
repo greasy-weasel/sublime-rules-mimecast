@@ -1,6 +1,7 @@
 attack_types:
 - BEC/Fraud
 - Credential Phishing
+- Spam
 description: Fake thread contains suspicious indicators, which can lead to BEC, credential
   phishing, and other undesirable outcomes.
 detection_methods:
@@ -46,12 +47,15 @@ source: |-
       and (
         strings.ilevenshtein(body.current_thread.text, body.html.display_text) > 100
       )
+      //negating bouncebacks
+      and not any(attachments,
+                  .content_type in ("message/delivery-status", "message/rfc822")
+      )
     )
   )
 
   // unusual sender (email address rarely sends to your organization)
   and profile.by_sender().prevalence in ("new", "outlier", "rare")
-
   and 4 of (
     // language attempting to engage
     (
@@ -124,5 +128,6 @@ tactics_and_techniques:
 - Evasion
 - Social engineering
 tags:
+- Attack surface reduction
 - Mimecast Hard to Fix
 type: rule
