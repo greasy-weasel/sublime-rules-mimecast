@@ -19,10 +19,10 @@ source: "type.inbound\n\n// message contains between 1 and 9 links\nand 0 < leng
   \ is not 'calendar-server.bounces.google.com'\nand not headers.return_path.domain.domain\
   \ == 'calendar-server.bounces.google.com'\nand not headers.return_path.domain.domain\
   \ == 'identity-reachout.bounces.google.com'\nand not headers.return_path.domain.domain\
-  \ == 'bounce-sg.zoom.us'\n\n// the message is unsolicited and no false positives\n\
-  and (\n  not profile.by_sender().solicited\n  or (\n    length(headers.reply_to)\
-  \ > 0\n    and all(headers.reply_to, .email.email not in $recipient_emails)\n  )\n\
-  )\nand not profile.by_sender().any_false_positives"
+  \ == 'bounce-sg.zoom.us'\nand not headers.return_path.domain.domain == 'bounce.dataminr.com'\n\
+  \n// the message is unsolicited and no false positives\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    length(headers.reply_to) > 0\n    and all(headers.reply_to, .email.email\
+  \ not in $recipient_emails)\n  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - Evasion
 - Social engineering
