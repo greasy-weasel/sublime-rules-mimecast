@@ -1,7 +1,7 @@
 attack_types:
 - Credential Phishing
 description: |-
-  Detects the presence of known brand logos, mentions of "fax" in the subject or sender's display name, and a low reputation link from a first-time sender.
+  Detects the presence of known brand logos, mentions of "fax" in the subject or sender's display name, and a low reputation link from an untrusted sender.
 detection_methods:
 - Computer Vision
 - Content analysis

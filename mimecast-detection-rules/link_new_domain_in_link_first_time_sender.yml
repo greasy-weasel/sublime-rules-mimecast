@@ -2,13 +2,13 @@ attack_types:
 - Credential Phishing
 - Malware/Ransomware
 description: |-
-  Detects links in the body of an email where the linked domain is less than 10 days old from first-time senders.
+  Detects links in the body of an email where the linked domain is less than 10 days old from untrusted senders.
 detection_methods:
 - Sender analysis
 - URL analysis
 - Whois
 id: 4805b0e6-6d35-512b-8053-87dd0edacc8a
-name: New link domain (<=10d) from first-time sender
+name: New link domain (<=10d) from untrusted sender
 severity: medium
 source: |-
   type.inbound

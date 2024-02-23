@@ -1,7 +1,7 @@
 attack_types:
 - Credential Phishing
 description: |-
-  The rule flags inbound messages with no visible recipients, contain all-caps text, and include links from certain free hosts. It also checks for signs of credential theft using machine learning classifiers and is from a first-time sender.
+  The rule flags inbound messages with no visible recipients, contain all-caps text, and include links from certain free hosts. It also checks for signs of credential theft using machine learning classifiers and is from an untrusted sender.
 detection_methods:
 - Content analysis
 - Header analysis

@@ -2,7 +2,7 @@ attack_types:
 - BEC/Fraud
 - Credential Phishing
 description: Detects messages impersonating HR that contain at least 1 link or 1 attachment
-  with engaging language in the body from a first-time sender.
+  with engaging language in the body from an untrusted sender.
 detection_methods:
 - Content analysis
 - Header analysis

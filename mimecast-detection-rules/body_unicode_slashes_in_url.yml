@@ -2,13 +2,13 @@ attack_types:
 - Credential Phishing
 authors:
 - twitter: delivr_to
-description: "Body of the email, or any links, contain the Unicode U+2044 (\u2044\
+description: "Body of the message, or any links, contain the Unicode U+2044 (\u2044\
   ) or U+2215 (\u2215) characters inside a URL."
 detection_methods:
 - Content analysis
 - URL analysis
 id: 12069f5b-a774-53ba-8473-633291f71e84
-name: "Body: Contains URL with Unicode U+2044 (\u2044) or U+2215 (\u2215) characters"
+name: "URL with Unicode U+2044 (\u2044) or U+2215 (\u2215) characters"
 references:
 - https://medium.com/@bobbyrsec/the-dangers-of-googles-zip-tld-5e1e675e59a5
 severity: low

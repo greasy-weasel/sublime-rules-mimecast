@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: a1c1acfd-9b3b-58a7-81f1-b2c631b02985
-name: 'Link: Google Notification alert from untrusted sender'
+name: Google Notification alert link from non-Google sender
 references:
 - https://www.reddit.com/r/Scams/comments/15oilcr/meta_business_suite_messenger_phishing_scam_can/
 severity: medium
@@ -18,14 +18,14 @@ source: |-
   // ignore messages from google[.]com unlesss they fail DMARC authentication
   and (
     (
-      sender.email.domain.root_domain == "google.com"
+      sender.email.domain.root_domain in ("google.com", "youtube.com")
       and (
         any(distinct(headers.hops, .authentication_results.dmarc is not null),
             strings.ilike(.authentication_results.dmarc, "*fail")
         )
       )
     )
-    or sender.email.domain.root_domain != "google.com"
+    or sender.email.domain.root_domain not in ("google.com", "youtube.com")
   )
   and any(body.links,
            .href_url.query_params == "domain=notifications.google.com"

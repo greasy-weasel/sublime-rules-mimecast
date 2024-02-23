@@ -8,8 +8,8 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: 682191bf-a623-5f03-a497-9b8590535697
-name: 'Business Email Compromise: Masked recipients with suspicious reply-to mismatch
-  (unsolicited)'
+name: Business Email Compromise (BEC) attempt with masked recipients and reply-to
+  mismatch (unsolicited)
 severity: medium
 source: |-
   type.inbound
