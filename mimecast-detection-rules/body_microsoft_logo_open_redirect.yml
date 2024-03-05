@@ -14,7 +14,7 @@ name: 'Brand impersonation: Microsoft logo or suspicious language with open redi
 severity: high
 source: |-
   type.inbound
-
+  and (length(attachments) < 5 or length(body.links) < 10)
   // Microsoft logo
   and (
     any(attachments,
@@ -56,6 +56,14 @@ source: |-
   and any(body.links,
           any(.href_url.rewrite.encoders, strings.icontains(., "open_redirect"))
           and not  any($org_domains, strings.ends_with(..href_url.query_params,.))
+  )
+  and (
+    not profile.by_sender().solicited
+    or profile.by_sender().any_messages_malicious_or_spam
+  )
+  and not (
+    length(headers.references) > 0
+    or any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
   )
   and sender.email.domain.root_domain not in $org_domains
   and sender.email.domain.root_domain not in (
