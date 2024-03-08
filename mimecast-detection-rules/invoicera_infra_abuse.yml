@@ -1,0 +1,47 @@
+attack_types:
+- Credential Phishing
+- Spam
+description: This rule is tailored to flag infrastructural abuse involving Invoicera,
+  a SaaS-based invoicing and billing platform, which has been identified as a tool
+  in widespread spam and credential phishing campaigns.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: 1e56f310-750b-5c26-84eb-63e78f20a6bd
+name: Invoicera infrastructure abuse
+severity: medium
+source: |-
+  type.inbound
+  and sender.email.domain.root_domain == "invoicera.com"
+  // suspicious recipient pattern
+  and (
+    length(recipients.to) == 0
+    or any(recipients.to, .email.domain.valid == false)
+    or length(recipients.bcc) > 0
+  )
+  // suspicious link
+  and (
+    any(body.links,
+         any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+        or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+    )
+    or any(body.links,
+            any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+           and .href_url.domain.subdomain is not null
+           and  strings.starts_with(.href_url.query_params,"domain=www."))
+    )
+  )
+  // mismatched reply-to
+  and (
+    headers.return_path.email is not null
+    and headers.return_path.email != sender.email.email
+  )
+tactics_and_techniques:
+- Free file host
+- Free subdomain host
+- Image as content
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule
