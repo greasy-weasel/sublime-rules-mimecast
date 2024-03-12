@@ -13,11 +13,13 @@ detection_methods:
 id: 814a5694-d626-5bf4-a1ba-a1dbcb625279
 name: 'Brand impersonation: DocuSign image attachment lure with no DocuSign links'
 severity: high
-source: "type.inbound\nand length(attachments) > 0\nand all(attachments, .file_type\
-  \ in $file_types_images)\nand any(body.links,\n        not strings.ilike(.href_url.domain.root_domain,\
-  \ \"docusign.*\")\n)\nand (\n  any(attachments,\n      any(ml.logo_detect(.).brands,\
-  \ .name == \"DocuSign\")\n      or any(file.explode(.),\n             strings.ilike(.scan.ocr.raw,\
-  \ \"*DocuSign*\")\n             and (\n               any(ml.nlu_classifier(.scan.ocr.raw).intents,\n\
+source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and length(filter(attachments,\
+  \ .file_type in $file_types_images)) > 0\n  )\n  or (\n    length(attachments) >\
+  \ 0\n    and all(attachments, .file_type in $file_types_images)\n  )\n)\nand any(body.links,\n\
+  \        not strings.ilike(.href_url.domain.root_domain, \"docusign.*\")\n)\nand\
+  \ (\n  any(attachments,\n      any(ml.logo_detect(.).brands, .name == \"DocuSign\"\
+  )\n      or any(file.explode(.),\n             strings.ilike(.scan.ocr.raw, \"*DocuSign*\"\
+  )\n             and (\n               any(ml.nlu_classifier(.scan.ocr.raw).intents,\n\
   \                   .name == \"cred_theft\" and .confidence != \"low\"\n       \
   \        )\n               or regex.icontains(.scan.ocr.raw,\n                 \
   \                 \"((re)?view|access|complete(d)?) document(s)?\",\n          \
