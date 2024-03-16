@@ -28,7 +28,9 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \ (check|check|sign|sent))\n                                  \"Dokument (\xFCberpr\xFC\
   fen|pr\xFCfen|unterschreiben|geschickt)\",\n                                  //\
   \ German (important|urgent|immediate)\n                                  \"(wichtig|dringend|sofort)\"\
-  \n               )\n             )\n      )\n  )\n\n  // accomidate truncated pngs\
+  \n               )\n             )\n             and not (\n                 strings.ilike(.scan.ocr.raw,\
+  \ \"*DocuSigned By*\") and\n                 strings.ilike(.scan.ocr.raw, \"*DocuSign\
+  \ Envelope ID*\")\n            )\n      )\n  )\n\n  // accomidate truncated pngs\
   \ and GIF files which can cause logodetect/OCR failures\n  or any(attachments,\n\
   \         (\n           .file_type =~ \"gif\"\n           or any(file.explode(.),\n\
   \                  any(.scan.exiftool.fields,\n                      .key == \"\
@@ -46,14 +48,16 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \ (check|check|sign|sent))\n                                    \"Dokument (\xFC\
   berpr\xFCfen|pr\xFCfen|unterschreiben|geschickt)\",\n                          \
   \          // German (important|urgent|immediate)\n                            \
-  \        \"(wichtig|dringend|sofort)\"\n                 )\n             )\n   \
-  \        )\n         )\n  )\n)\nand (\n  not profile.by_sender().solicited\n  or\
-  \ (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives\n\n// negate docusign 'via'\
-  \ messages\nand not (\n  any(headers.hops,\n      any(.fields,\n          .name\
-  \ == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\")\n      )\n \
-  \ )\n  and strings.contains(sender.display_name, \"via\")\n)\n\n// negate docusign\
-  \ originated emails\nand not any(headers.hops,\n            regex.imatch(.received.server.raw,\
+  \        \"(wichtig|dringend|sofort)\"\n                 )\n                 and\
+  \ not (\n                    strings.ilike(.scan.ocr.raw, \"*DocuSigned By*\") and\n\
+  \                    strings.ilike(.scan.ocr.raw, \"*DocuSign Envelope ID*\")\n\
+  \                )\n             )\n           )\n         )\n  )\n)\nand (\n  not\
+  \ profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_false_positives\n  )\n)\nand not profile.by_sender().any_false_positives\n\
+  \n// negate docusign 'via' messages\nand not (\n  any(headers.hops,\n      any(.fields,\n\
+  \          .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"\
+  )\n      )\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\n\n// negate\
+  \ docusign originated emails\nand not any(headers.hops,\n            regex.imatch(.received.server.raw,\
   \ \".+.docusign.(net|com)\")\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
