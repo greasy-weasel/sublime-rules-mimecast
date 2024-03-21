@@ -49,7 +49,8 @@ source: |-
               "1drv.ms",
               "microsoft.com",
               "aka.ms",
-              "msftauthimages.net"
+              "msftauthimages.net",
+              "mimecastprotect.com"
             ], strings.ends_with(..href_url.query_params,.)))
             or any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
           )
