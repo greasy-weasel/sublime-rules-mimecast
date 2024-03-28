@@ -8,7 +8,7 @@ detection_methods:
 - Natural Language Understanding
 - Sender analysis
 id: e36b85b3-ffc6-5d73-b865-7dbdf9b4b1a0
-name: Fake request for tax preperation
+name: Fake request for tax preparation
 severity: high
 source: |-
   type.inbound
