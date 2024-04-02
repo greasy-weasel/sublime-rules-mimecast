@@ -1,16 +1,22 @@
-name: "Brand impersonation: Microsoft"
-description: |
-  Impersonation of the Microsoft brand.
-references:
-  - "https://www.itproportal.com/news/cybercriminals-launch-targeted-phishing-attacks-against-microsoft-365-users/"
-  - "https://cofense.com/blog/office-365-phishing-variant/"
-  - "https://www.helpnetsecurity.com/2020/05/04/fake-microsoft-teams-notification/"
-type: "rule"
-severity: "high"
+attack_types:
+- Credential Phishing
 authors:
-  - twitter: "amitchell516"
-source: |
+- twitter: amitchell516
+description: |-
+  Impersonation of the Microsoft brand.
+detection_methods:
+- Content analysis
+- Sender analysis
+id: 6e2f04e6-b607-5e36-9015-d39c98265579
+name: 'Brand impersonation: Microsoft'
+references:
+- https://www.itproportal.com/news/cybercriminals-launch-targeted-phishing-attacks-against-microsoft-365-users/
+- https://cofense.com/blog/office-365-phishing-variant/
+- https://www.helpnetsecurity.com/2020/05/04/fake-microsoft-teams-notification/
+severity: high
+source: |-
   type.inbound
+  and length(body.links) < 30
   and (
     (
       strings.ilike(subject.subject, '*Microsoft 365*')
@@ -52,7 +58,7 @@ source: |
       and not profile.by_sender().any_false_positives
     )
   )
-  
+
   // negate highly trusted sender domains unless they fail DMARC authentication
   and
   (
@@ -66,14 +72,8 @@ source: |
     )
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
-
-
-attack_types:
-  - "Credential Phishing"
 tactics_and_techniques:
-  - "Impersonation: Brand"
-  - "Social engineering"
-detection_methods:
-  - "Content analysis"
-  - "Sender analysis"
-id: "6e2f04e6-b607-5e36-9015-d39c98265579"
+- 'Impersonation: Brand'
+- Social engineering
+tags: []
+type: rule
