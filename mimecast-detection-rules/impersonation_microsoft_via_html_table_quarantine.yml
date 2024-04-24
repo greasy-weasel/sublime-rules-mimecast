@@ -1,0 +1,98 @@
+attack_types:
+- Credential Phishing
+description: A message containing a Microsoft logo generated using HTML tables and
+  references to the Microsoft Exchange quarantine, but did not come from Microsoft.
+detection_methods:
+- Content analysis
+- HTML analysis
+- Sender analysis
+id: f12c615c-1fd7-5b57-b41e-cb42ebf75381
+name: 'Brand impersonation: Microsoft logo in HTML with fake quarantine release notification'
+severity: high
+source: "type.inbound\nand 0 < length(body.links) < 10\n// Microsoft logo via HTML\
+  \ table composition\nand (\n  regex.icontains(body.html.raw,\n                 \
+  \ '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
+  [^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
+  [^>]*>\\s*&nbsp;\\s*</td>\\s*){2}'\n  )\n  or regex.icontains(body.html.raw,\n \
+  \                    '<td style=\"background:\\s*rgb\\(246,\\s*93,\\s*53\\);\\s*height:\\\
+  d+px;\">.*?<td style=\"background:\\s*rgb\\(129,\\s*187,\\s*5\\);\\s*height:\\d+px;\"\
+  >.*?<td style=\"background:\\s*rgb\\(4,\\s*165,\\s*240\\);\\s*height:\\d+px;\">.*?<td\
+  \ style=\"background:\\s*rgb\\(255,\\s*186,\\s*7\\);\\s*height:\\d+px;\">'\n  )\n\
+  \  or 4 of (\n    regex.icontains(body.html.raw,\n                    '<td style=\"\
+  width:.\\d.px;.height:.\\d.px;.background-color:.rgb\\(245, 189, 67\\);\">.{0,10}</td>'\n\
+  \    ),\n    regex.icontains(body.html.raw,\n                    '<td style=\"width:.\\\
+  d.px;.height:.\\d.px;.background-color:.rgb\\(137, 184, 57\\);\">.{0,10}</td>'\n\
+  \    ),\n    regex.icontains(body.html.raw,\n                    '<td style=\"width:.\\\
+  d.px;.height:.\\d.px;.background-color:.rgb\\(217, 83, 51\\);\">.{0,10}</td>'\n\
+  \    ),\n    regex.icontains(body.html.raw,\n                    '<td style=\"width:.\\\
+  d.px;.height:.\\d.px;.background-color:.rgb\\(71, 160, 218\\);\">.{0,10}</td>'\n\
+  \    )\n  )\n  or regex.icontains(body.html.raw,\n                     '<DIV[^>]*><SPAN\
+  \ style=\"[^\"]*BACKGROUND-COLOR: #ff1940\"></SPAN><SPAN style=\"[^\"]*BACKGROUND-COLOR:\
+  \ #3eb55d\"></SPAN><SPAN style=\"[^\"]*BACKGROUND-COLOR: #04b5f0\"></SPAN><SPAN\
+  \ style=\"[^\"]*BACKGROUND-COLOR: #ffca07\"></SPAN></DIV>'\n  )\n  or regex.icontains(body.html.raw,\n\
+  \                     '<span style=\"[^\"]*background-color:\\s*#FF1941;[^\"]*\"\
+  ></span>\\s*<span style=\"[^\"]*background-color:\\s*#36ba58;[^\"]*\"></span>\\\
+  s*<span style=\"[^\"]*background-color:\\s*#04a1d6;[^\"]*\"></span>\\s*<span style=\"\
+  [^\"]*background-color:\\s*#FFCA08;[^\"]*\"></span>'\n  )\n  or regex.icontains(body.html.raw,\n\
+  \                     '<td[^>]+background:#f25022[^>]+>.*?<td[^>]+background:#7fba00[^>]+>.*?<td[^>]+background:#01a4ef[^>]+>.*?<td[^>]+background:#ffb901[^>]+>'\n\
+  \  )\n  or regex.icontains(body.html.raw,\n                     '<td bgcolor=\"\
+  red\".*?<td bgcolor=\"green\".*?<td bgcolor=\"#04a5f0\".*?<td bgcolor=\"#ffba07\"\
+  '\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\n                    '<td\
+  \ style=\"width:.\\d.px;.height:.\\d.px;.background-color:.rgb\\(73, 161, 232\\\
+  );\">.{0,10}</td>'\n    ),\n    regex.icontains(body.html.raw,\n               \
+  \     '<td style=\"width:.\\d.px;.height:.\\d.px;.background-color:.rgb\\(224, 92,\
+  \ 53\\);\">.{0,10}</td>'\n    ),\n    regex.icontains(body.html.raw,\n         \
+  \           '<td style=\"width:.\\d.px;.height:.\\d.px;.background-color:.rgb\\\
+  (139, 183, 55\\);\">.{0,10}</td>'\n    ),\n    regex.icontains(body.html.raw,\n\
+  \                    '<td style=\"width:.\\d.px;.height:.\\d.px;.background-color:.rgb\\\
+  (244, 188, 65\\);\">.{0,10}</td>'\n    )\n  )\n  or regex.icontains(body.html.raw,\n\
+  \                     '<td style=\"BACKGROUND-COLOR: red\".*?<td style=\"BACKGROUND-COLOR:\
+  \ rgb\\(19,186,132\\)\".*?<td style=\"BACKGROUND-COLOR: rgb\\(4,166,240\\)\".*?<td\
+  \ style=\"BACKGROUND-COLOR: rgb\\(255,186,8\\)\"'\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
+  \ 'background-color:rgb\\(213,56,62\\)'),\n    regex.icontains(body.html.raw, 'background-color:rgb\\\
+  (0,114,30\\)'),\n    regex.icontains(body.html.raw, 'background-color:rgb\\(0,110,173\\\
+  )'),\n    regex.icontains(body.html.raw, 'background-color:rgb\\(227,209,43\\)'),\n\
+  \  )\n  or 4 of (\n    regex.icontains(body.html.raw, '<td[^>]*bgcolor=\"#F25022\"\
+  >&nbsp;</td>'),\n    regex.icontains(body.html.raw, '<td[^>]*bgcolor=\"#7FBA00\"\
+  >&nbsp;</td>'),\n    regex.icontains(body.html.raw,\n                    '<td[^>]*(bgcolor=\"\
+  #00A4EF\"|height=\"\\d+\")[^>]*(bgcolor=\"#00A4EF\"|height=\"\\d+\")[^>]*>&nbsp;</td>'\n\
+  \    ),\n    regex.icontains(body.html.raw,\n                    '<td[^>]*(bgcolor=\"\
+  #FFB900\"|height=\"\\d+\")[^>]*(bgcolor=\"#FFB900\"|height=\"\\d+\")[^>]*>&nbsp;</td>'\n\
+  \    )\n  )\n  or regex.icontains(body.html.raw,\n                     '<DIV[^>]*><SPAN[^>]*background-color:\\\
+  s*#FF1940;[^>]*><\\/SPAN><SPAN[^>]*background-color:\\s*#36ba57;[^>]*><\\/SPAN><SPAN[^>]*background-color:\\\
+  s*#04a1d6;[^>]*><\\/SPAN><SPAN[^>]*background-color:\\s*#FFCA07;[^>]*><\\/SPAN><\\\
+  /DIV>'\n  )\n  or 3 of (\n    regex.icontains(body.html.raw, '.password-expiration'),\n\
+  \    regex.icontains(body.html.raw, 'color: #2672ec;'),\n    regex.icontains(body.html.raw,\
+  \ 'M\xADic\xADro\xADso\xADft')\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
+  \ 'background-color:#FF1940;'),\n    regex.icontains(body.html.raw, 'background-color:#3eb55d;'),\n\
+  \    regex.icontains(body.html.raw, 'background-color:#04B5F0;'),\n    regex.icontains(body.html.raw,\
+  \ 'background-color:#FFCA07;'),\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
+  \ 'bgcolor=\"#eb5024\"'),\n    regex.icontains(body.html.raw, 'bgcolor=\"#7db606\"\
+  '),\n    regex.icontains(body.html.raw, 'bgcolor=\"#05a1e8\"'),\n    regex.icontains(body.html.raw,\
+  \ 'bgcolor=\"#f7b408\"'),\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
+  \ '<td style=\"background: #E74F23;'),\n    regex.icontains(body.html.raw, '<td\
+  \ style=\"background: #7AB206;'),\n    regex.icontains(body.html.raw, '<td style=\"\
+  background: #059EE4;'),\n    regex.icontains(body.html.raw, '<td style=\"background:\
+  \ #F2B108;'),\n  )\n  or 4 of (\n    regex.icontains(body.html.raw, 'background-color:rgb\\\
+  (246,93,53\\)'),\n    regex.icontains(body.html.raw, 'background-color:rgb\\(129,187,5\\\
+  )'),\n    regex.icontains(body.html.raw, 'background-color:rgb\\(4,165,240\\)'),\n\
+  \    regex.icontains(body.html.raw, 'background-color:rgb\\(255,186,7\\)')\n  )\n\
+  \  and 3 of (\n    strings.icontains(body.current_thread.text, \"review\"),\n  \
+  \  strings.icontains(body.current_thread.text, \"release\"),\n    strings.icontains(body.current_thread.text,\
+  \ \"quarantine\"),\n    strings.icontains(body.current_thread.text, \"messages\"\
+  ),\n    strings.icontains(body.current_thread.text, \"recover\"),\n    strings.icontains(body.current_thread.text,\
+  \ \"server error\")\n  )\n  and sender.email.domain.root_domain not in (\n    \"\
+  bing.com\",\n    \"microsoft.com\",\n    \"microsoftonline.com\",\n    \"microsoftsupport.com\"\
+  ,\n    \"microsoft365.com\",\n    \"office.com\",\n    \"onedrive.com\",\n    \"\
+  sharepointonline.com\",\n    \"yammer.com\",\n  )\n)\n\n// negate highly trusted\
+  \ sender domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and (\n      any(distinct(headers.hops,\
+  \ .authentication_results.dmarc is not null),\n          strings.ilike(.authentication_results.dmarc,\
+  \ \"*fail\")\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )\nand not profile.by_sender().solicited\nand not profile.by_sender().any_false_positives"
+tactics_and_techniques:
+- Evasion
+- 'Impersonation: Brand'
+- Social engineering
+tags: []
+type: rule
