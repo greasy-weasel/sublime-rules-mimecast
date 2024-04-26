@@ -22,7 +22,7 @@ source: |-
                        and .display_url.url == sender.email.domain.root_domain
                      )
                      or  .href_url.query_params == "domain=aka.ms"
-                     or beta.whois(.display_url.domain).days_old < 30
+                     or network.whois(.display_url.domain).days_old < 30
               )
     ) == length(body.links)
   )
@@ -51,5 +51,5 @@ source: |-
 tactics_and_techniques:
 - Social engineering
 tags:
-- Mimecast Hard to Fix
+- Mimecast Changes Complete
 type: rule

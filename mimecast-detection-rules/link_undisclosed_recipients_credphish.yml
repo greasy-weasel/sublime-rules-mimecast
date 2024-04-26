@@ -19,8 +19,8 @@ source: |-
   and length(recipients.cc) == 0
   and length(recipients.bcc) == 0
   and any(body.links,
-          beta.linkanalysis(.).credphish.disposition == "phishing"
-          and beta.linkanalysis(.).credphish.confidence in ("medium", "high")
+          ml.link_analysis(.).credphish.disposition == "phishing"
+          and ml.link_analysis(.).credphish.confidence in ("medium", "high")
   )
   // negate highly trusted sender domains unless they fail DMARC authentication
   and (
@@ -34,6 +34,5 @@ source: |-
   and not profile.by_sender().any_false_positives
 tactics_and_techniques:
 - Evasion
-tags:
-- Link Analysis Present
+tags: []
 type: rule

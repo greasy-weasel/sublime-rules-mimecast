@@ -30,7 +30,7 @@ source: |-
     ),
     (
       any(body.links,
-          any([beta.linkanalysis(.)],
+          any([ml.link_analysis(.)],
               .credphish.disposition == "phishing" and .credphish.confidence in ("high")
           )
       )
@@ -51,6 +51,5 @@ source: |-
     )
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
-tags:
-- Link Analysis Present
+tags: []
 type: rule
