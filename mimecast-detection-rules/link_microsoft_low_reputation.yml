@@ -50,11 +50,13 @@ source: |-
               "microsoft.com",
               "aka.ms",
               "msftauthimages.net",
-              "mimecastprotect.com"
+              "mimecastprotect.com",
+              "office.com"
             ], strings.ends_with(..href_url.query_params,.)))
             or any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
           )
           and  not(any($org_domains, strings.ends_with(..href_url.query_params,.)))
+          and .href_url.domain.valid
   )
 
   // not a reply
@@ -202,9 +204,10 @@ source: |-
     "microsoftsupport.com",
     "microsoft365.com",
     "office.com",
+    "office365.com",
     "onedrive.com",
     "sharepointonline.com",
-    "yammer.com"
+    "yammer.com",
   )
 
    // negate highly trusted sender domains unless they fail DMARC authentication
