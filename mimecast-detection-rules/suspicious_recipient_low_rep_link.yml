@@ -1,0 +1,60 @@
+attack_types:
+- Credential Phishing
+description: Message contains a suspicious recipient pattern, financial or urgent
+  language, and a suspicious link, with a login page and confusable characters or
+  multiple redirects.
+detection_methods:
+- Computer Vision
+- Content analysis
+- Header analysis
+- Natural Language Understanding
+- Optical Character Recognition
+- Sender analysis
+- URL analysis
+- URL screenshot
+id: a8ea0402-98eb-5a93-9f63-c54504b060b9
+name: Suspicious recipient pattern and language with low reputation link to login
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          (
+            (
+               not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))
+              and .href_url.domain.valid
+              and  not(any($org_domains, strings.ends_with(..href_url.query_params,.)))
+              and  not(any($high_trust_sender_root_domains, strings.ends_with(..href_url.query_params,.)))
+            )
+            or .href_url.domain.tld in $suspicious_tlds
+          )
+          and (
+            ml.link_analysis(.).credphish.contains_login
+            and (
+              ml.link_analysis(.).final_dom.display_text != strings.replace_confusables(ml.link_analysis(.
+                                                                                         ).final_dom.display_text
+              )
+              or length(ml.link_analysis(.).redirect_history) > 1
+            )
+          )
+  )
+  and any(ml.nlu_classifier(body.current_thread.text).entities,
+          .name in ("financial", "urgency")
+  )
+  and (
+    (
+      length(recipients.to) == 0
+      or length(recipients.bcc) > 0
+      or (
+        all(recipients.to, .email.domain.valid == false)
+        and all(recipients.cc, .email.domain.valid == false)
+      )
+    )
+  )
+  and all(body.links,
+           not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
+  )
+tactics_and_techniques:
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule
