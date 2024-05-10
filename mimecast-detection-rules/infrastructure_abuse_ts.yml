@@ -1,0 +1,40 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+- Spam
+description: Email contains a Truth Social link (links.truthsocial.com) but does not
+  originate from a Truth Social domain. This is a known malicious tactic.
+detection_methods:
+- Content analysis
+- Sender analysis
+- URL analysis
+id: aaaa30a8-34f8-57c1-b374-ec7ea15a8dda
+name: Truth Social infrastructure abuse via link redirect
+severity: medium
+source: |-
+  type.inbound
+  and length(body.links) < 10
+  and any(body.links,  .href_url.query_params == "domain=links.truthsocial.com" )
+  and sender.email.domain.domain not in~ ('truthsocial.com')
+  and (
+    not profile.by_sender().solicited
+    or (
+      profile.by_sender().any_messages_malicious_or_spam
+      and not profile.by_sender().any_false_positives
+    )
+  )
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and not headers.auth_summary.dmarc.pass
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+tactics_and_techniques:
+- Evasion
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule

@@ -122,7 +122,8 @@ source: |-
                         "*only works*",
                         "*failed*",
                         "*deleted*",
-                        "*revalidated*"
+                        "*revalidated*",
+                        "*renewal*"
       )
     )
     or (
@@ -177,7 +178,8 @@ source: |-
                             "*only works*",
                             "*failed*",
                             "*deleted*",
-                            "*revalidated"
+                            "*revalidated*",
+                            "*renewal*"
           )
       )
     )
