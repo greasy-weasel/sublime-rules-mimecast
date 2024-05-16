@@ -1,0 +1,69 @@
+attack_types:
+- Credential Phishing
+description: Detects phishing attempts disguised as e-signature requests, characterized
+  by common document sharing phrases, unusual HTML padding, and suspicious link text.
+detection_methods:
+- Content analysis
+- Header analysis
+- HTML analysis
+- URL analysis
+- Sender analysis
+id: 9b68c2d8-951e-5e04-9fa3-2ca67d9226a6
+name: 'Credential Phishing: Suspicious E-sign Agreement Document Notification'
+severity: medium
+source: "type.inbound\nand any([subject.subject, sender.display_name],\n        regex.icontains(strings.replace_confusables(.),\n\
+  \                        \"DocuLink\",\n                        \"Access.&.Approved\"\
+  ,\n                        \"Attend.and.Review\",\n                        \"Completed.File\"\
+  ,\n                        \"Dochsared\",\n                        \"Docshared\"\
+  ,\n                        \"DocsPoint\",\n                        \"Document.Shared\"\
+  ,\n                        \"DocuCentre\",\n                        \"DocuCenter\"\
+  ,\n                        \"DocCenter\",\n                        \"DocsOnline\"\
+  ,\n                        \"\\\\beSign\",\n                        \"e\\\\.sign\"\
+  ,\n                        \"eSignature\",\n                        \"eSign&Return\"\
+  ,\n                        \"eSignOnline\",\n                        \"Fileshare\"\
+  ,\n                        \"Review.and.Complete\",\n                        \"\
+  Review.&.Sign\",\n                        \"SignOnline\",\n                    \
+  \    \"Signature.Request\",\n                        \"Shared.Completed\",\n   \
+  \                     \"Sign.and.Seal\",\n                        \"viaSign\",\n\
+  \                        \"D0cuSign\",\n                        \"DocsID\",\n  \
+  \                      \"Complete.{0,10}DocuSign\",\n                        \"\
+  Enroll & Sign\",\n                        \"Review and Sign\",\n               \
+  \         \"SignReport\",\n                        \"SignDoc\",\n              \
+  \          \"Docxxx\",\n                        \"docufile\",\n                \
+  \        \"E\xAD-\xADS\xADi\xADg\xADn\xAD&Return\",\n                        \"\
+  document.signature\",\n        )\n)\nand (\n  regex.icontains(body.html.raw, '((<br\\\
+  s*/?>\\s*){20,}|\\n{20,})')\n  or regex.icontains(body.html.raw, '(<p[^>]*>\\s*<br\\\
+  s*/?>\\s*</p>\\s*){30,}')\n  or regex.icontains(body.html.raw,\n               \
+  \      '(<p class=\".*?\"><span style=\".*?\"><o:p>&nbsp;</o:p></span></p>\\s*){30,}'\n\
+  \  )\n  or regex.icontains(body.html.raw, '(<p>&nbsp;</p>\\s*){7,}')\n  or regex.icontains(body.html.raw,\
+  \ '(<p[^>]*>\\s*&nbsp;<br>\\s*</p>\\s*){5,}')\n  or regex.icontains(body.html.raw,\
+  \ '(<p[^>]*>&nbsp;</p>\\s*){7,}')\n  or strings.count(body.html.raw, '&nbsp;\u200C\
+  &nbsp;\u200C&nbsp') > 50\n)\nand (\n  any(body.links,\n      regex.icontains(.display_text,\n\
+  \                      \"activate\",\n                      \"re-auth\",\n     \
+  \                 \"verify\",\n                      \"acknowledg\",\n         \
+  \             \"(keep|change).{0,20}(active|password|access)\",\n              \
+  \        '((verify|view|click|download|goto|keep|V\u03B9ew|release).{0,10}(attachment|current|download|fax|file|document|message|same)s?)',\n\
+  \                      'use.same.pass',\n                      'validate.{0,15}account',\n\
+  \                      'recover.{0,15}messages',\n                      '(retry|update).{0,10}payment',\n\
+  \                      'check activity',\n                      '(listen|play).{0,10}(vm|voice)',\n\
+  \                      'clarify.{0,20}(deposit|wallet|funds)',\n               \
+  \       'enter.{0,15}teams',\n                      'Review and sign'\n      )\n\
+  \  )\n  or any(body.links,\n         (\n           regex.contains(.display_text,\n\
+  \                          \"\\\\bVIEW\",\n                          \"DOWNLOAD\"\
+  ,\n                          \"CHECK\",\n                          \"KEEP.(SAME|MY)\"\
+  ,\n                          \"VERIFY\",\n                          \"ACCESS\\\\\
+  b\",\n                          \"SIGN\\\\b\",\n                          \"ENABLE\\\
+  \\b\",\n                          \"RETAIN\",\n                          \"PLAY\"\
+  ,\n                          \"LISTEN\",\n           )\n           and regex.match(.display_text,\
+  \ \"^[^a-z]*[A-Z][^a-z]*$\")\n         )\n  )\n)\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)\nand not profile.by_sender().any_false_positives\n\n// negate highly trusted\
+  \ sender domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and (\n      any(distinct(headers.hops,\
+  \ .authentication_results.dmarc is not null),\n          strings.ilike(.authentication_results.dmarc,\
+  \ \"*fail\")\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )"
+tactics_and_techniques:
+- Social engineering
+tags: []
+type: rule
