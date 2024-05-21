@@ -1,0 +1,35 @@
+attack_types:
+- Spam
+description: This rule detects messages containing a link to blob.core.windows.net
+  from a sender domain less than 30 days old. There is a single recipient present,
+  but the recipient is a random email address, and not someone at the organization.
+detection_methods:
+- Header analysis
+- URL analysis
+- Sender analysis
+id: a09b3800-50b6-5ea9-b96e-367b6c8b5125
+name: 'Spam: Link to blob.core.windows.net from new domain (<30d)'
+severity: medium
+source: |-
+  type.inbound
+  and length(recipients.to) == 1
+  and any(recipients.to, .email.domain.root_domain not in $org_domains)
+  and network.whois(sender.email.domain).days_old < 30
+  and length(body.links) < 3
+  and any(body.links,
+          strings.ends_with(.href_url.domain.subdomain, "blob.core")
+          and  strings.ends_with(.href_url.query_params,"windows.net")
+  )
+  and (
+    not profile.by_sender().solicited
+    or (
+      profile.by_sender().any_messages_malicious_or_spam
+      and not profile.by_sender().any_false_positives
+    )
+  )
+  and not profile.by_sender().any_false_positives
+tactics_and_techniques:
+- Free subdomain host
+tags:
+- Mimecast Hard to Fix
+type: rule
