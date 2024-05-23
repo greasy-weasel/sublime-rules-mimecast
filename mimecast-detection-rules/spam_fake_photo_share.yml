@@ -45,7 +45,7 @@ source: |-
           )
           or (
             length(.display_text) == 1
-            and  strings.ends_with(.href_url.query_params,"facebook.com")
+            and  any(["facebook.com", "youtube.com"], strings.ends_with(..href_url.query_params,.))
           )
   )
 tactics_and_techniques:

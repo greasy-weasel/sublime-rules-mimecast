@@ -27,5 +27,6 @@ tactics_and_techniques:
 - Evasion
 - Social engineering
 - Spoofing
-tags: []
+tags:
+- Attack surface reduction
 type: rule
