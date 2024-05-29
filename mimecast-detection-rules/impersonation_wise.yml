@@ -231,7 +231,7 @@ source: |-
            )
     )
   )
-  and sender.email.domain.root_domain not in~ ('wise.com', 'wise.jobs')
+  and sender.email.domain.root_domain not in~ ('wise.com', 'wise.jobs', 'splitwise.com')
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
