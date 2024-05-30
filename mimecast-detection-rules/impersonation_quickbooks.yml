@@ -1,8 +1,16 @@
-name: "Brand impersonation: Quickbooks"
-description: "Impersonation of the Quickbooks service from Intuit."
-type: "rule"
-severity: "medium"
-source: |
+attack_types:
+- Callback Phishing
+- Credential Phishing
+description: Impersonation of the Quickbooks service from Intuit.
+detection_methods:
+- Computer Vision
+- Content analysis
+- Header analysis
+- Sender analysis
+id: 4fd791d1-a053-5c2d-80dd-c6dcdc112a62
+name: 'Brand impersonation: Quickbooks'
+severity: medium
+source: |-
   type.inbound
   and (
     (
@@ -15,10 +23,40 @@ source: |
   and any(ml.logo_detect(beta.message_screenshot()).brands,
           .name == "Quickbooks" and .confidence in ("medium", "high")
   )
-  and sender.email.domain.root_domain not in~ ('intuit.com', 'turbotax.com', 'intuit.ca', 'meliopayments.com', 'qemailserver.com', 'intuit.co.uk')
+  and sender.email.domain.root_domain not in~ (
+    'intuit.com',
+    'turbotax.com',
+    'intuit.ca',
+    'meliopayments.com',
+    'qemailserver.com',
+    'intuit.co.uk',
+    'quickbooksonline.com',
+    'tsheets.com'
+  )
   and (
-      not profile.by_sender().any_false_positives 
-      and not profile.by_sender().solicited
+    not profile.by_sender().any_false_positives
+    and not profile.by_sender().solicited
+  )
+  // links in body are not known QB domains or the senders root website (both indicative of a legitimate QuickBooks invoice message)
+  and (
+    length(filter(body.links,
+                  .href_url.domain.root_domain in~ (
+                    'intuit.com',
+                    'turbotax.com',
+                    'intuit.ca',
+                    'meliopayments.com',
+                    'qemailserver.com',
+                    'intuit.co.uk',
+                    'quickbooksonline.com'
+                  )
+                  or (
+                    .href_url.domain.domain == sender.email.domain.domain
+                    and (.href_url.path is null or .href_url.path == "/")
+                  )
+           )
+    ) != length(body.links)
+    // or no valid links
+    or length(filter(body.links, .href_url.domain.domain is not null)) == 0
   )
 
   // negate highly trusted sender domains unless they fail DMARC authentication
@@ -29,15 +67,9 @@ source: |
     )
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
-attack_types:
-  - "Callback Phishing"
-  - "Credential Phishing"
 tactics_and_techniques:
-  - "Impersonation: Brand"
-  - "Social engineering"
-detection_methods:
-  - "Computer Vision"
-  - "Content analysis"
-  - "Header analysis"
-  - "Sender analysis"
-id: "4fd791d1-a053-5c2d-80dd-c6dcdc112a62"
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

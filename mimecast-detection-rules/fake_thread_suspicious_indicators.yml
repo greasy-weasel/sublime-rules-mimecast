@@ -12,142 +12,59 @@ detection_methods:
 id: c2e18a57-1f52-544f-bb6d-a578e286cf89
 name: Fake thread with suspicious indicators
 severity: medium
-source: |-
-  type.inbound
-  // fake thread check
-  and (
-    (
-      (
-        strings.istarts_with(subject.subject, "RE:")
-        or strings.istarts_with(subject.subject, "FW:")
-        or strings.istarts_with(subject.subject, "FWD:")
-        or regex.icontains(subject.subject, '.{0,10}re:|fw:|fwd:')
-        or regex.imatch(subject.subject, '[^:]?automat.[^:]{0,20}:.*$')
-      )
-      and (
-        (length(headers.references) == 0 and headers.in_reply_to is null)
-        or not any(headers.hops,
-                   any(.fields, strings.ilike(.name, "In-Reply-To"))
-        )
-      )
-    )
-    // fake thread, but no indication in the subject line
-    // current_thread pulls the recent thread, but the full body contains the fake "original" email
-    or (
-      not (
-        (
-          strings.istarts_with(subject.subject, "RE:")
-          or strings.istarts_with(subject.subject, "FWD:")
-        )
-      )
-      and 3 of (
-        strings.icontains(body.html.display_text, "from:"),
-        strings.icontains(body.html.display_text, "to:"),
-        strings.icontains(body.html.display_text, "sent:"),
-        strings.icontains(body.html.display_text, "subject:")
-      )
-      and (
-        length(body.current_thread.text) + 100 < length(body.html.display_text)
-      )
-      // negating bouncebacks
-      and not any(attachments,
-                  .content_type in ("message/delivery-status", "message/rfc822")
-      )
-    )
-  )
-
-  // unusual sender (email address rarely sends to your organization)
-  and profile.by_sender().prevalence in ("new", "outlier", "rare")
-  and 4 of (
-    // language attempting to engage
-    (
-      any(ml.nlu_classifier(body.current_thread.text).entities,
-          .name == "request"
-      )
-      and any(ml.nlu_classifier(body.current_thread.text).entities,
-              .name == "financial"
-      )
-    ),
-
-    // invoicing language
-    (
-      any(ml.nlu_classifier(body.current_thread.text).tags, .name == "invoice")
-      or any(ml.nlu_classifier(body.current_thread.text).entities,
-             .text == "invoice"
-      )
-    ),
-
-    // urgency request
-    any(ml.nlu_classifier(body.current_thread.text).entities, .name == "urgency"),
-
-    // cred_theft detection
-    any(ml.nlu_classifier(body.current_thread.text).intents,
-        .name == "cred_theft" and .confidence in~ ("medium", "high")
-    ),
-
-    // commonly abused sender TLD
-    strings.ilike(sender.email.domain.tld, "*.jp"),
-
-    // headers traverse abused TLD
-    any(headers.domains, strings.ilike(.tld, "*.jp")),
-
-    // known suspicious pattern in the URL path
-    any(body.links, regex.match(.href_url.path, '\/[a-z]{3}\d[a-z]')),
-
-    // link display text is in all caps
-    any(body.links, regex.match(.display_text, '[A-Z ]+')),
-
-    // display name contains an email
-    regex.contains(sender.display_name, '[a-z0-9]+@[a-z]+'),
-
-    // Sender domain is empty
-    sender.email.domain.domain == "",
-
-    // sender domain matches no body domains
-    all(body.links,
-         not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
-    ),
-
-    // body contains name of VIP
-    (
-      any($org_vips, strings.icontains(body.html.inner_text, .display_name))
-      or any($org_vips, strings.icontains(body.plain.raw, .display_name))
-    ),
-
-    // new body domain
-    any(body.links, network.whois(.href_url.domain).days_old < 30),
-
-    // new sender domain
-    network.whois(sender.email.domain).days_old < 30,
-
-    // new sender
-    profile.by_sender().days_known < 7,
-
-    // excessive whitespace
-    (
-      regex.icontains(body.html.raw, '((<br\s*/?>\s*){20,}|\n{20,})')
-      or regex.icontains(body.html.raw, '(<p[^>]*>\s*<br\s*/?>\s*</p>\s*){30,}')
-      or regex.icontains(body.html.raw,
-                         '(<p class=".*?"><span style=".*?"><o:p>&nbsp;</o:p></span></p>\s*){30,}'
-      )
-      or regex.icontains(body.html.raw, '(<p>&nbsp;</p>\s*){7,}')
-      or regex.icontains(body.html.raw, '(<p[^>]*>\s*&nbsp;<br>\s*</p>\s*){5,}')
-      or regex.icontains(body.html.raw, '(<p[^>]*>&nbsp;</p>\s*){7,}')
-    ),
-
-    // body contains recipient SLD
-    any(recipients.to, strings.icontains(body.current_thread.text, .email.domain.sld))
-  )
-
-  // negate highly trusted sender domains unless they fail DMARC authentication
-  and (
-    (
-      sender.email.domain.root_domain in $high_trust_sender_root_domains
-      and not headers.auth_summary.dmarc.pass
-    )
-    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
-  )
-  and not profile.by_sender().any_false_positives
+source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n      or strings.istarts_with(subject.subject, \"FW:\")\n      or strings.istarts_with(subject.subject,\
+  \ \"FWD:\")\n      or regex.imatch(subject.subject, '[^:]?automat.[^:]{0,20}:.*$')\n\
+  \    )\n    and (\n      (length(headers.references) == 0 and headers.in_reply_to\
+  \ is null)\n      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
+  \ \"In-Reply-To\"))\n      )\n    )\n  )\n  // fake thread, but no indication in\
+  \ the subject line\n  // current_thread pulls the recent thread, but the full body\
+  \ contains the fake \"original\" email\n  or (\n    not (\n      (\n        strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"R:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"ODG:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
+  \        or strings.istarts_with(subject.subject, \"FWD:\")\n      )\n    )\n  \
+  \  and 3 of (\n      strings.icontains(body.html.display_text, \"from:\"),\n   \
+  \   strings.icontains(body.html.display_text, \"to:\"),\n      strings.icontains(body.html.display_text,\
+  \ \"sent:\"),\n      strings.icontains(body.html.display_text, \"subject:\")\n \
+  \   )\n    and (\n      length(body.current_thread.text) + 100 < length(body.html.display_text)\n\
+  \    )\n    // negating bouncebacks\n    and not any(attachments,\n            \
+  \    .content_type in (\"message/delivery-status\", \"message/rfc822\")\n    )\n\
+  \  )\n)\n\n// unusual sender (email address rarely sends to your organization)\n\
+  and profile.by_sender().prevalence in (\"new\", \"outlier\", \"rare\")\nand 4 of\
+  \ (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \        .name == \"request\"\n    )\n    and any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \            .name == \"financial\"\n    )\n  ),\n\n  // invoicing language\n  (\n\
+  \    any(ml.nlu_classifier(body.current_thread.text).tags, .name == \"invoice\"\
+  )\n    or any(ml.nlu_classifier(body.current_thread.text).entities,\n          \
+  \ .text == \"invoice\"\n    )\n  ),\n\n  // urgency request\n  any(ml.nlu_classifier(body.current_thread.text).entities,\
+  \ .name == \"urgency\"),\n\n  // cred_theft detection\n  any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  \      .name == \"cred_theft\" and .confidence in~ (\"medium\", \"high\")\n  ),\n\
+  \n  // commonly abused sender TLD\n  strings.ilike(sender.email.domain.tld, \"*.jp\"\
+  ),\n\n  // headers traverse abused TLD\n  any(headers.domains, strings.ilike(.tld,\
+  \ \"*.jp\")),\n\n  // known suspicious pattern in the URL path\n  any(body.links,\
+  \ regex.match(.href_url.path, '\\/[a-z]{3}\\d[a-z]')),\n\n  // link display text\
+  \ is in all caps\n  any(body.links, regex.match(.display_text, '[A-Z ]+')),\n\n\
+  \  // display name contains an email\n  regex.contains(sender.display_name, '[a-z0-9]+@[a-z]+'),\n\
+  \n  // Sender domain is empty\n  sender.email.domain.domain == \"\",\n\n  // sender\
+  \ domain matches no body domains\n  all(body.links,\n       not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
+  \  ),\n\n  // body contains name of VIP\n  (\n    any($org_vips, strings.icontains(body.html.inner_text,\
+  \ .display_name))\n    or any($org_vips, strings.icontains(body.plain.raw, .display_name))\n\
+  \  ),\n\n  // new body domain\n  any(body.links, network.whois(.href_url.domain).days_old\
+  \ < 30),\n\n  // new sender domain\n  network.whois(sender.email.domain).days_old\
+  \ < 30,\n\n  // new sender\n  profile.by_sender().days_known < 7,\n\n  // excessive\
+  \ whitespace\n  (\n    regex.icontains(body.html.raw, '((<br\\s*/?>\\s*){20,}|\\\
+  n{20,})')\n    or regex.icontains(body.html.raw, '(<p[^>]*>\\s*<br\\s*/?>\\s*</p>\\\
+  s*){30,}')\n    or regex.icontains(body.html.raw,\n                       '(<p class=\"\
+  .*?\"><span style=\".*?\"><o:p>&nbsp;</o:p></span></p>\\s*){30,}'\n    )\n    or\
+  \ regex.icontains(body.html.raw, '(<p>&nbsp;</p>\\s*){7,}')\n    or regex.icontains(body.html.raw,\
+  \ '(<p[^>]*>\\s*&nbsp;<br>\\s*</p>\\s*){5,}')\n    or regex.icontains(body.html.raw,\
+  \ '(<p[^>]*>&nbsp;</p>\\s*){7,}')\n  ),\n\n  // body contains recipient SLD\n  any(recipients.to,\
+  \ strings.icontains(body.current_thread.text, .email.domain.sld))\n)\n\n// negate\
+  \ highly trusted sender domains unless they fail DMARC authentication\nand (\n \
+  \ (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n  \
+  \  and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - Evasion
 - Social engineering

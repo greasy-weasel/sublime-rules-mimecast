@@ -51,7 +51,8 @@ source: |-
               "aka.ms",
               "msftauthimages.net",
               "mimecastprotect.com",
-              "office.com"
+              "office.com",
+              "microsoftproject.com"
             ], strings.ends_with(..href_url.query_params,.)))
             or any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
           )
@@ -202,6 +203,7 @@ source: |-
     "bing.com",
     "microsoft.com",
     "microsoftonline.com",
+    "microsoftproject.com",
     "microsoftstoreemail.com",
     "microsoftsupport.com",
     "microsoft365.com",
