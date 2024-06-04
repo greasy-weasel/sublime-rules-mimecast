@@ -40,5 +40,6 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
+- Attack surface reduction
 - Mimecast Changes Complete
 type: rule

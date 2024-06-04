@@ -23,16 +23,16 @@ source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.is
   \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"R:\")\n        or\
   \ strings.istarts_with(subject.subject, \"ODG:\")\n        or strings.istarts_with(subject.subject,\
   \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
-  \        or strings.istarts_with(subject.subject, \"FWD:\")\n      )\n    )\n  \
-  \  and 3 of (\n      strings.icontains(body.html.display_text, \"from:\"),\n   \
-  \   strings.icontains(body.html.display_text, \"to:\"),\n      strings.icontains(body.html.display_text,\
-  \ \"sent:\"),\n      strings.icontains(body.html.display_text, \"subject:\")\n \
-  \   )\n    and (\n      length(body.current_thread.text) + 100 < length(body.html.display_text)\n\
-  \    )\n    // negating bouncebacks\n    and not any(attachments,\n            \
-  \    .content_type in (\"message/delivery-status\", \"message/rfc822\")\n    )\n\
-  \  )\n)\n\n// unusual sender (email address rarely sends to your organization)\n\
-  and profile.by_sender().prevalence in (\"new\", \"outlier\", \"rare\")\nand 4 of\
-  \ (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \        or strings.istarts_with(subject.subject, \"TR:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"FWD:\")\n      )\n    )\n    and 3 of (\n      strings.icontains(body.html.display_text,\
+  \ \"from:\"),\n      strings.icontains(body.html.display_text, \"to:\"),\n     \
+  \ strings.icontains(body.html.display_text, \"sent:\"),\n      strings.icontains(body.html.display_text,\
+  \ \"subject:\")\n    )\n    and (\n      length(body.current_thread.text) + 100\
+  \ < length(body.html.display_text)\n    )\n    // negating bouncebacks\n    and\
+  \ not any(attachments,\n                .content_type in (\"message/delivery-status\"\
+  , \"message/rfc822\")\n    )\n  )\n)\n\n// unusual sender (email address rarely\
+  \ sends to your organization)\nand profile.by_sender().prevalence in (\"new\", \"\
+  outlier\", \"rare\")\nand 4 of (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \        .name == \"request\"\n    )\n    and any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \            .name == \"financial\"\n    )\n  ),\n\n  // invoicing language\n  (\n\
   \    any(ml.nlu_classifier(body.current_thread.text).tags, .name == \"invoice\"\
