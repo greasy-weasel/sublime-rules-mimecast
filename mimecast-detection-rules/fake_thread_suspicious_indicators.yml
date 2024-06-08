@@ -30,9 +30,8 @@ source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.is
   \ \"subject:\")\n    )\n    and (\n      length(body.current_thread.text) + 100\
   \ < length(body.html.display_text)\n    )\n    // negating bouncebacks\n    and\
   \ not any(attachments,\n                .content_type in (\"message/delivery-status\"\
-  , \"message/rfc822\")\n    )\n  )\n)\n\n// unusual sender (email address rarely\
-  \ sends to your organization)\nand profile.by_sender().prevalence in (\"new\", \"\
-  outlier\", \"rare\")\nand 4 of (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  , \"message/rfc822\")\n    )\n  )\n)\n\n// and not solicited\nand not profile.by_sender().solicited\n\
+  \nand 4 of (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \        .name == \"request\"\n    )\n    and any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \            .name == \"financial\"\n    )\n  ),\n\n  // invoicing language\n  (\n\
   \    any(ml.nlu_classifier(body.current_thread.text).tags, .name == \"invoice\"\
