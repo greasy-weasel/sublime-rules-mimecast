@@ -12,7 +12,7 @@ severity: high
 source: |-
   type.inbound
   and (
-    strings.ilike(sender.display_name, '*wise*')
+    regex.icontains(sender.display_name, '\bwise\b')
     or strings.ilike(sender.email.domain.domain, '*wise*')
   )
   and (
