@@ -9,7 +9,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: 420f60d3-5d10-5384-9253-9521a758e799
-name: 'Reconaissance: All recipients cc/bcc''d or undisclosed'
+name: 'Reconnaissance: All recipients cc/bcc''d or undisclosed'
 severity: low
 source: |-
   type.inbound
