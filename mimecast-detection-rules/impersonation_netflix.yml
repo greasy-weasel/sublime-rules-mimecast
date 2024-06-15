@@ -47,7 +47,8 @@ source: |-
     'dvd.com',
     'netflixfamily.com',
     'netflixpreviewclub.com',
-    'envoy.com'
+    'envoy.com',
+    'lexisnexis.com'
   )
   and sender.email.email not in $recipient_emails
 tactics_and_techniques:
