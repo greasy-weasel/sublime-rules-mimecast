@@ -12,6 +12,10 @@ source: |-
            any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
           and .href_url.domain.subdomain is not null
           and  strings.starts_with(.href_url.query_params,"domain=www."))
+          and not (
+             strings.ends_with(.href_url.query_params,"googleusercontent.com")
+            and strings.istarts_with(.href_url.path, "/mail-sig")
+          )
   )
   and (length(recipients.to) == 0 or all(recipients.to, .display_name == "Undisclosed recipients"))
   and length(recipients.cc) == 0

@@ -14,24 +14,25 @@ name: Fake thread with suspicious indicators
 severity: medium
 source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.istarts_with(subject.subject,\
   \ \"RE:\")\n      or strings.istarts_with(subject.subject, \"FW:\")\n      or strings.istarts_with(subject.subject,\
-  \ \"FWD:\")\n      or regex.imatch(subject.subject, '[^:]?automat.[^:]{0,20}:.*$')\n\
-  \    )\n    and (\n      (length(headers.references) == 0 and headers.in_reply_to\
-  \ is null)\n      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
-  \ \"In-Reply-To\"))\n      )\n    )\n  )\n  // fake thread, but no indication in\
-  \ the subject line\n  // current_thread pulls the recent thread, but the full body\
-  \ contains the fake \"original\" email\n  or (\n    not (\n      (\n        strings.istarts_with(subject.subject,\
-  \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"R:\")\n        or\
-  \ strings.istarts_with(subject.subject, \"ODG:\")\n        or strings.istarts_with(subject.subject,\
-  \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
-  \        or strings.istarts_with(subject.subject, \"TR:\")\n        or strings.istarts_with(subject.subject,\
-  \ \"FWD:\")\n      )\n    )\n    and 3 of (\n      strings.icontains(body.html.display_text,\
-  \ \"from:\"),\n      strings.icontains(body.html.display_text, \"to:\"),\n     \
-  \ strings.icontains(body.html.display_text, \"sent:\"),\n      strings.icontains(body.html.display_text,\
-  \ \"subject:\")\n    )\n    and (\n      length(body.current_thread.text) + 100\
-  \ < length(body.html.display_text)\n    )\n    // negating bouncebacks\n    and\
-  \ not any(attachments,\n                .content_type in (\"message/delivery-status\"\
-  , \"message/rfc822\")\n    )\n  )\n)\n\n// and not solicited\nand not profile.by_sender().solicited\n\
-  \nand 4 of (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \ \"FWD:\")\n      or regex.imatch(subject.subject,\n                      '(\\\
+  [[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\s?:.*'\n      )\n    )\n  )\n  // fake\
+  \ thread, but no indication in the subject line\n  // current_thread pulls the recent\
+  \ thread, but the full body contains the fake \"original\" email\n  or (\n    not\
+  \ (\n      (\n        strings.istarts_with(subject.subject, \"RE:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"R:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"ODG:\")\n        or strings.istarts_with(subject.subject, \"\u7B54\u590D:\"\
+  )\n        or strings.istarts_with(subject.subject, \"AW:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"TR:\")\n        or strings.istarts_with(subject.subject, \"FWD:\")\n      )\n\
+  \    )\n    and 3 of (\n      strings.icontains(body.html.display_text, \"from:\"\
+  ),\n      strings.icontains(body.html.display_text, \"to:\"),\n      strings.icontains(body.html.display_text,\
+  \ \"sent:\"),\n      strings.icontains(body.html.display_text, \"subject:\")\n \
+  \   )\n    and (\n      length(body.current_thread.text) + 100 < length(body.html.display_text)\n\
+  \    )\n    // negating bouncebacks\n    and not any(attachments,\n            \
+  \    .content_type in (\"message/delivery-status\", \"message/rfc822\")\n    )\n\
+  \  )\n)\n\nand (\n  (length(headers.references) == 0 and headers.in_reply_to is\
+  \ null)\n  or not any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\"\
+  )))\n)\n\n// and not solicited\nand not profile.by_sender().solicited\nand 4 of\
+  \ (\n  // language attempting to engage\n  (\n    any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \        .name == \"request\"\n    )\n    and any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \            .name == \"financial\"\n    )\n  ),\n\n  // invoicing language\n  (\n\
   \    any(ml.nlu_classifier(body.current_thread.text).tags, .name == \"invoice\"\
@@ -58,11 +59,11 @@ source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.is
   .*?\"><span style=\".*?\"><o:p>&nbsp;</o:p></span></p>\\s*){30,}'\n    )\n    or\
   \ regex.icontains(body.html.raw, '(<p>&nbsp;</p>\\s*){7,}')\n    or regex.icontains(body.html.raw,\
   \ '(<p[^>]*>\\s*&nbsp;<br>\\s*</p>\\s*){5,}')\n    or regex.icontains(body.html.raw,\
-  \ '(<p[^>]*>&nbsp;</p>\\s*){7,}')\n  ),\n\n  // body contains recipient SLD\n  any(recipients.to,\
-  \ strings.icontains(body.current_thread.text, .email.domain.sld))\n)\n\n// negate\
-  \ highly trusted sender domains unless they fail DMARC authentication\nand (\n \
-  \ (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n  \
-  \  and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ '(<p[^>]*>&nbsp;</p>\\s*){7,}')\n  ),\n\n  // body contains recipient SLD\n  any(recipients.to,\n\
+  \      strings.icontains(body.current_thread.text, .email.domain.sld)\n  )\n)\n\n\
+  // negate highly trusted sender domains unless they fail DMARC authentication\n\
+  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - Evasion
