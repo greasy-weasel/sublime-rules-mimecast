@@ -10,63 +10,36 @@ detection_methods:
 id: 32cc8bf1-f4d7-549f-a970-eade24b7c6ae
 name: 'Brand impersonation: Adobe with suspicious language and link'
 severity: high
-source: |-
-  type.inbound
-  // all attachments are images or 0 attachments
-  and (
-    (
-      length(attachments) > 0
-      and all(attachments, .file_type in $file_types_images)
-    )
-    or length(attachments) == 0
-  )
-  and length(body.links) > 0
-  and any(ml.logo_detect(beta.message_screenshot()).brands,
-          .name == "Adobe" and .confidence in ("high")
-  )
-  and (
-    any(file.explode(beta.message_screenshot()),
-        strings.ilike(.scan.ocr.raw,
-                      "*review*",
-                      "*sign*",
-                      "*view*",
-                      "*completed document*",
-                      "*open agreement*",
-                      "*open document*"
-        )
-        and not strings.ilike(.scan.ocr.raw,
-                                  "*view this email in*"
-        )
-    )
-    or any(body.links,
-           strings.ilike(.display_text,
-                         "*review*",
-                         "*sign*",
-                         "*view*",
-                         "*completed document*",
-                         "*open agreement*",
-                         "*open document*"
-           )
-           and not strings.ilike(.display_text,
-                                     "*view this email in*"
-           )
-    )
-  )
-  and (
-    not profile.by_sender().solicited
-    or (
-      profile.by_sender().any_messages_malicious_or_spam
-      and not profile.by_sender().any_false_positives
-    )
-  )
-  // negate highly trusted sender domains unless they fail DMARC authentication
-  and (
-    (
-      sender.email.domain.root_domain in $high_trust_sender_root_domains
-      and not headers.auth_summary.dmarc.pass
-    )
-    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
-  )
+source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  (\n\
+  \    length(attachments) > 0\n    and all(attachments, .file_type in $file_types_images)\n\
+  \  )\n  or length(attachments) == 0\n)\nand length(body.links) > 0\nand any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \        .name == \"Adobe\" and .confidence in (\"high\")\n)\nand (\n  any(file.explode(beta.message_screenshot()),\n\
+  \      strings.ilike(.scan.ocr.raw,\n                    \"*review*\",\n       \
+  \             \"*sign*\",\n                    \"*view*\",\n                   \
+  \ \"*completed document*\",\n                    \"*open agreement*\",\n       \
+  \             \"*open document*\"\n      )\n      and not strings.ilike(.scan.ocr.raw,\n\
+  \                                \"*view this email in*\"\n      )\n  )\n  or any(body.links,\n\
+  \         strings.ilike(.display_text,\n                       \"*review*\",\n \
+  \                      \"*sign*\",\n                       \"*view*\",\n       \
+  \                \"*completed document*\",\n                       \"*open agreement*\"\
+  ,\n                       \"*open document*\"\n         )\n         and not strings.ilike(.display_text,\n\
+  \                                   \"*view this email in*\"\n         )\n  )\n\
+  )\nand (\n  (\n    (\n      length(headers.references) > 0\n      or not any(headers.hops,\n\
+  \                 any(.fields, strings.ilike(.name, \"In-Reply-To\"))\n      )\n\
+  \    )\n    and not (\n      (\n        strings.istarts_with(subject.subject, \"\
+  RE:\")\n        or strings.istarts_with(subject.subject, \"RES:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"R:\")\n        or strings.istarts_with(subject.subject, \"ODG:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"AW:\")\n        or strings.istarts_with(subject.subject, \"TR:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"FWD:\")\n        or regex.imatch(subject.subject,\n\
+  \                      '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\s?:.*'\n  \
+  \    )\n      )\n    )\n  )\n  or length(headers.references) == 0\n)\nand (\n  not\
+  \ profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_false_positives\n  )\n)\n// negate highly trusted\
+  \ sender domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
+  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
