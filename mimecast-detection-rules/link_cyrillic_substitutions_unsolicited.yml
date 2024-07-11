@@ -20,7 +20,8 @@ source: "type.inbound\n\n// message contains between 1 and 9 links\nand 0 < leng
   \ == 'calendar-server.bounces.google.com'\nand not headers.return_path.domain.domain\
   \ == 'identity-reachout.bounces.google.com'\nand not headers.return_path.domain.domain\
   \ == 'bounce-sg.zoom.us'\nand not headers.return_path.domain.domain == 'bounce.dataminr.com'\n\
-  \n// the message is unsolicited and no false positives\nand (\n  not profile.by_sender().solicited\n\
+  and not headers.return_path.domain.domain == 'mail-us.atlassian.net'\n\n// the message\
+  \ is unsolicited and no false positives\nand (\n  not profile.by_sender().solicited\n\
   \  or (\n    length(headers.reply_to) > 0\n    and all(headers.reply_to, .email.email\
   \ not in $recipient_emails)\n  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:

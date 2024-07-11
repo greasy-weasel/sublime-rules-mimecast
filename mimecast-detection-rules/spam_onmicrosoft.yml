@@ -11,49 +11,24 @@ detection_methods:
 id: 3f2a64ce-28bf-505e-a366-204241610ff9
 name: 'Spam: Default Microsoft Exchange Online sender domain (onmicrosoft.com)'
 severity: low
-source: |-
-  type.inbound
-  and (
-    sender.email.domain.root_domain == "onmicrosoft.com"
-    or (
-      strings.icontains(sender.display_name, "onmicrosoft.com")
-      and sender.email.domain.valid == false
-    )
-  )
-  and length(recipients.to) < 2
-  and length(body.links) > 0
-  // bounce-back negations
-  and not strings.like(sender.email.local_part, "*postmaster*", "*mailer-daemon*", "*administrator*")
-  and not any(attachments,
-              .content_type in (
-                "message/rfc822",
-                "message/delivery-status",
-                "text/calendar"
-              )
-  )
-  // negating legit replies
-  and not (
-    (
-      strings.istarts_with(subject.subject, "RE:")
-      or strings.istarts_with(subject.subject, "FW:")
-      or strings.istarts_with(subject.subject, "FWD:")
-      or regex.imatch(subject.subject, '(\[[^\]]+\]\s?){0,3}(re|fwd?|automat.*)\s?:.*')
-    )
-    and (
-      length(headers.references) > 0
-      and any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
-    )
-  )
-  // construct the proper sender domain and check against known recipients
-  and not strings.concat(sender.email.domain.subdomain,  ".", sender.email.domain.tld) in $recipient_domains
-  and (
-    not profile.by_sender().solicited
-    or (
-      profile.by_sender().any_messages_malicious_or_spam
-      and not profile.by_sender().any_false_positives
-    )
-  )
-  and not sender.email.domain.domain in $org_domains
+source: "type.inbound\nand (\n  sender.email.domain.root_domain == \"onmicrosoft.com\"\
+  \n  or (\n    strings.icontains(sender.display_name, \"onmicrosoft.com\")\n    and\
+  \ sender.email.domain.valid == false\n  )\n)\nand length(recipients.to) < 2\nand\
+  \ length(body.links) > 0\n// bounce-back negations\nand not strings.like(sender.email.local_part,\
+  \ \"*postmaster*\", \"*mailer-daemon*\", \"*administrator*\")\nand not any(attachments,\n\
+  \            .content_type in (\n              \"message/rfc822\",\n           \
+  \   \"message/delivery-status\",\n              \"text/calendar\"\n            )\n\
+  \            or (.content_type == \"text/plain\" and .file_extension == \"ics\"\
+  )\n)\n// negating legit replies\nand not (\n  (\n    strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n    or strings.istarts_with(subject.subject, \"FW:\")\n    or strings.istarts_with(subject.subject,\
+  \ \"FWD:\")\n    or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\\
+  s?:.*')\n    or strings.istarts_with(subject.subject, \"R\xE9ponse automatique\"\
+  )\n  )\n  and (\n    length(headers.references) > 0\n    and any(headers.hops, any(.fields,\
+  \ strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n// construct the proper sender\
+  \ domain and check against known recipients\nand not strings.concat(sender.email.domain.subdomain,\
+  \  \".\", sender.email.domain.tld) in $recipient_domains\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)\nand not sender.email.domain.domain in $org_domains"
 tactics_and_techniques:
 - Free email provider
 - 'Impersonation: Brand'
