@@ -1,16 +1,16 @@
 attack_types:
 - Callback Phishing
-description: Callback Phishing via text file attachment, with a large number of recipients
-  that are unknown to the organization, and a short body and subject from an unknown
-  sender.
+description: Callback Phishing via text-based file attachment, with a large number
+  of recipients that are unknown to the organization, and a short body and subject
+  from an unknown sender.
 detection_methods:
 - Content analysis
 - File analysis
 - Header analysis
 - Sender analysis
 id: ca39c83a-b308-532d-894b-528bdaef2748
-name: 'Attachment: Callback Phishing solicitation via text file with a large unknown
-  recipient list'
+name: 'Attachment: Callback Phishing solicitation via text-based file with a large
+  unknown recipient list'
 severity: medium
 source: |-
   type.inbound
@@ -43,25 +43,26 @@ source: |-
   and (body.current_thread.text is null or length(body.current_thread.text) < 50)
   and 0 < length(attachments) < 4
   and any(attachments,
-          .content_type == "text/plain"
+          (.content_type == "text/plain" or .file_type in ("doc", "docx"))
           and any(file.explode(.),
-                  any(.scan.strings.strings,
-                      strings.ilike(.,
-                                    "*mcafee*",
-                                    "*norton*",
-                                    "*geek squad*",
-                                    "*paypal*",
-                                    "*ebay*",
-                                    "*symantec*",
-                                    "*best buy*",
-                                    "*lifelock*",
-                                    "*geek total*"
-                      )
-                      and any(..scan.strings.strings,
-                              regex.icontains(.,
-                                              '\b\+?(\d{1}.)?\(?\d{3}?\)?.\d{3}.?\d{4}\b'
-                              )
-                      )
+                  (.depth == 0 or (.depth == 1 and .flavors.mime == "text/plain"))
+                  and any(.scan.strings.strings,
+                          strings.ilike(.,
+                                        "*mcafee*",
+                                        "*norton*",
+                                        "*geek squad*",
+                                        "*paypal*",
+                                        "*ebay*",
+                                        "*symantec*",
+                                        "*best buy*",
+                                        "*lifelock*",
+                                        "*geek total*"
+                          )
+                          and any(..scan.strings.strings,
+                                  regex.icontains(.,
+                                                  '\b\+?(\d{1}.)?\(?\d{3}?\)?.~?.?\d{3}.?~?.\d{4}\b'
+                                  )
+                          )
                   )
           )
   )
