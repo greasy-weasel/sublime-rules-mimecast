@@ -16,29 +16,30 @@ source: "type.inbound\nand length(filter(attachments, .file_type not in $file_ty
   \  and any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Microsoft\"))\n\
   \  )\n  or any(attachments,\n         .file_type in $file_types_images\n       \
   \  and any(file.explode(.),\n                 strings.ilike(.scan.ocr.raw, \"*microsoft*\"\
-  , \"*office\")\n         )\n  )\n)\nand any(attachments,\n        .file_type in\
-  \ $file_types_images\n        and any(file.explode(.),\n                length(filter([\n\
-  \                                \"password\",\n                               \
-  \ \"unread messages\",\n                                \"Shared Documents\",\n\
-  \                                \"expiration\",\n                             \
-  \   \"expire\",\n                                \"expiring\",\n               \
-  \                 \"kindly\",\n                                \"renew\",\n    \
-  \                            \"review\",\n                                \"emails\
-  \ failed\",\n                                \"kicked out\",\n                 \
-  \               \"prevented\",\n                                \"storage\",\n \
-  \                               \"required now\",\n                            \
-  \    \"cache\",\n                                \"qr code\",\n                \
-  \                \"security update\",\n                                \"invoice\"\
-  ,\n                                \"retrieve\",\n                             \
-  \   \"blocked\"\n                              ],\n                            \
-  \  strings.icontains(..scan.ocr.raw, .)\n                       )\n            \
-  \    ) >= 2\n                or (\n                  any(ml.nlu_classifier(.scan.ocr.raw).intents,\n\
-  \                      .name == \"cred_theft\" and .confidence == \"high\"\n   \
-  \               )\n                and length(ml.nlu_classifier(.scan.ocr.raw).entities)\
-  \ > 1\n              )\n        )\n)\nand (\n  not any(headers.hops,\n         \
-  \ .authentication_results.compauth.verdict is not null\n          and .authentication_results.compauth.verdict\
-  \ == \"pass\"\n          and sender.email.domain.domain in (\n            \"microsoft.com\"\
-  ,\n            \"sharepointonline.com\"\n          )\n  )\n)\n\n// negate angelbeat\
+  , \"*office\")\n                 and length(.scan.ocr.raw) < 1500\n         )\n\
+  \  )\n)\nand any(attachments,\n        .file_type in $file_types_images\n      \
+  \  and any(file.explode(.),\n                length(filter([\n                 \
+  \               \"password\",\n                                \"unread messages\"\
+  ,\n                                \"Shared Documents\",\n                     \
+  \           \"expiration\",\n                                \"expire\",\n     \
+  \                           \"expiring\",\n                                \"kindly\"\
+  ,\n                                \"renew\",\n                                \"\
+  review\",\n                                \"emails failed\",\n                \
+  \                \"kicked out\",\n                                \"prevented\"\
+  ,\n                                \"storage\",\n                              \
+  \  \"required now\",\n                                \"cache\",\n             \
+  \                   \"qr code\",\n                                \"security update\"\
+  ,\n                                \"invoice\",\n                              \
+  \  \"retrieve\",\n                                \"blocked\"\n                \
+  \              ],\n                              strings.icontains(..scan.ocr.raw,\
+  \ .)\n                       )\n                ) >= 2\n                or (\n \
+  \                 any(ml.nlu_classifier(.scan.ocr.raw).intents,\n              \
+  \        .name == \"cred_theft\" and .confidence == \"high\"\n                 \
+  \ )\n                and length(ml.nlu_classifier(.scan.ocr.raw).entities) > 1\n\
+  \              )\n        )\n)\nand (\n  not any(headers.hops,\n          .authentication_results.compauth.verdict\
+  \ is not null\n          and .authentication_results.compauth.verdict == \"pass\"\
+  \n          and sender.email.domain.domain in (\n            \"microsoft.com\",\n\
+  \            \"sharepointonline.com\"\n          )\n  )\n)\n\n// negate angelbeat\
   \ urls and microsoft disclaimer links\nand (\n  length(body.links) > 0\n  and not\
   \ all(body.links,\n           any([\n            \"abeatinfo.com\",\n          \
   \  \"abeatinvite.com\",\n            \"aka.ms\",\n            \"angelbeat.com\"\n\

@@ -27,16 +27,20 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   ) <= 3\n          or (\n            strings.icontains(.display_text, \"Review\"\
   )\n            and not strings.icontains(.display_text, \"Review Us\")\n       \
   \   )\n          or strings.icontains(.display_text, \"Now\")\n          or strings.icontains(.display_text,\
-  \ \"document\")\n        )\n        and  not(any([\"docusign.com\", \"docusign.net\"\
-  ], strings.ends_with(..href_url.query_params,.)))\n)\n\n// negate highly trusted\
-  \ sender domains unless they fail DMARC authentication\nand (\n  coalesce(sender.email.domain.root_domain\
-  \ in $high_trust_sender_root_domains\n           and not headers.auth_summary.dmarc.pass,\n\
-  \           false\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
-  )\n\n// adding negation for messages originating from docusigns api\n// and the\
-  \ sender.display.name contains \"via\"\nand not (\n  any(headers.hops,\n      any(.fields,\n\
-  \          .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"\
-  )\n      )\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\nand (\n\
-  \  not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \ \"document\")\n        )\n      and not  any([\"docusign.com\", \"docusign.net\"\
+  ], strings.ends_with(..href_url.query_params,.))\n      and not (\n         strings.ends_with(.href_url.query_params,\"\
+  mimecastprotect.com\")\n        and (\n          .href_url.query_params is not null\n\
+  \          and (regex.icontains(.href_url.query_params, 'domain=(?:\\w+.)?docusign.net')\n\
+  \          or regex.icontains(.href_url.query_params, 'domain=(?:\\w+.)?docusign.com'))\n\
+  \        )\n      )\n)\n\n// negate highly trusted sender domains unless they fail\
+  \ DMARC authentication\nand (\n  coalesce(sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \           and not headers.auth_summary.dmarc.pass,\n           false\n  )\n  or\
+  \ sender.email.domain.root_domain not in $high_trust_sender_root_domains\n)\n\n\
+  // adding negation for messages originating from docusigns api\n// and the sender.display.name\
+  \ contains \"via\"\nand not (\n  any(headers.hops,\n      any(.fields,\n       \
+  \   .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\")\n  \
+  \    )\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\nand (\n  not\
+  \ profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
   \    and not profile.by_sender().any_false_positives\n  )\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
@@ -44,5 +48,5 @@ tactics_and_techniques:
 - Social engineering
 - Spoofing
 tags:
-- Mimecast Changes Complete
+- Mimecast Hard to Fix
 type: rule
