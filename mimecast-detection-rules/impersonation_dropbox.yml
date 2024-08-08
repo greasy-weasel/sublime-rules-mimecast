@@ -16,6 +16,11 @@ source: |-
     strings.ilike(sender.display_name, '*dropbox*')
     or strings.ilevenshtein(sender.display_name, 'dropbox') <= 1
     or strings.ilike(sender.email.domain.domain, '*dropbox*')
+    or any(body.links,
+           .display_url.domain.root_domain == "dropbox.com"
+           and .mismatched
+           and not  any(["mimecast.com", "mimecastprotect.com"], strings.ends_with(..href_url.query_params,.))
+    )
   )
   and sender.email.domain.root_domain !~ 'dropbox.com'
   and (

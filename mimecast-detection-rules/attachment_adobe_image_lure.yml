@@ -19,9 +19,9 @@ source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $fi
   \                 (\n                        .display_text is null\n           \
   \             and .display_url.url == sender.email.domain.root_domain\n        \
   \              )\n                      or  any([\n                        \"aka.ms\"\
-  ,\n                        \"mimecast.com\",\n                        \"cisco.com\"\
-  \n                      ], strings.ends_with(..href_url.query_params,.))\n     \
-  \          )\n        ) != length(body.links)\n      )\n  )\n  or any(attachments,\n\
+  ,\n                        \"mimecast.com\",\n                        \"mimecastprotect.com\"\
+  ,\n                        \"cisco.com\"\n                      ], strings.ends_with(..href_url.query_params,.))\n\
+  \               )\n        ) != length(body.links)\n      )\n  )\n  or any(attachments,\n\
   \          any(ml.logo_detect(.).brands,\n                 .name == \"Adobe\"\n\
   \                 and .confidence in (\"medium\", \"high\")\n                 and\
   \ any(file.explode(..),\n                         (\n                          \

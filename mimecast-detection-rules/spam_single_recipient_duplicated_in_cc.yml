@@ -78,6 +78,7 @@ source: |-
                       or  any([
                         "aka.ms",
                         "mimecast.com",
+                        "mimecastprotect.com",
                         "cisco.com"
                       ], strings.ends_with(..href_url.query_params,.))
                     )
