@@ -23,15 +23,15 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \                     .name == \"cred_theft\" and .confidence != \"low\"\n     \
   \            )\n                 or (regex.icontains(.scan.ocr.raw,\n          \
   \                          \"((re)?view|access|complete(d)?) document(s)?\",\n \
-  \                                   \"[^d][^o][^c][^u]sign\",\n                \
-  \                    \"important edocs\",\n                                    //\
-  \ German (Document (check|check|sign|sent))\n                                  \
-  \  \"Dokument (\xFCberpr\xFCfen|pr\xFCfen|unterschreiben|geschickt)\",\n       \
-  \                             // German (important|urgent|immediate)\n         \
-  \                           \"(wichtig|dringend|sofort)\"\n                 ) and\
-  \ not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\") > 3 )\n \
-  \              )\n        )\n      )\n      and not any(file.explode(.),\n     \
-  \             (\n                    strings.ilike(.scan.ocr.raw, \"*DocuSigned\
+  \                                   \"[^d][^o][^cd][^ue]sign\",\n              \
+  \                      \"important edocs\",\n                                  \
+  \  // German (Document (check|check|sign|sent))\n                              \
+  \      \"Dokument (\xFCberpr\xFCfen|pr\xFCfen|unterschreiben|geschickt)\",\n   \
+  \                                 // German (important|urgent|immediate)\n     \
+  \                               \"(wichtig|dringend|sofort)\"\n                \
+  \ ) and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\") > 3\
+  \ )\n               )\n        )\n      )\n      and not any(file.explode(.),\n\
+  \                  (\n                    strings.ilike(.scan.ocr.raw, \"*DocuSigned\
   \ By*\")\n                    and not strings.ilike(.scan.ocr.raw,\n           \
   \                               \"*DocuSign Envelope ID*\"\n                   \
   \ )\n                  )\n      )\n  )\n\n  // accomidate truncated pngs and GIF\
