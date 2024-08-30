@@ -24,8 +24,12 @@ source: "type.inbound\nand (\n  sender.email.domain.root_domain == \"onmicrosoft
   \ \"FWD:\")\n    or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\\
   s?:.*')\n    or strings.istarts_with(subject.subject, \"R\xE9ponse automatique\"\
   )\n  )\n  and (\n    length(headers.references) > 0\n    and any(headers.hops, any(.fields,\
-  \ strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n// construct the proper sender\
-  \ domain and check against known recipients\nand not strings.concat(sender.email.domain.subdomain,\
+  \ strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n// negating auto-replies\nand\
+  \ not (\n  any(headers.hops,\n      any(.fields, .name =~ \"auto-submitted\" and\
+  \ .value =~ \"auto-generated\")\n      and any(.fields,\n              .name =~\
+  \ \"X-MS-Exchange-Generated-Message-Source\"\n              and .value not in (\"\
+  Antispam Quarantine Agent\")\n      )\n  )\n)\n// construct the proper sender domain\
+  \ and check against known recipients\nand not strings.concat(sender.email.domain.subdomain,\
   \  \".\", sender.email.domain.tld) in $recipient_domains\nand (\n  not profile.by_sender().solicited\n\
   \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
   \  )\n)\nand not sender.email.domain.domain in $org_domains"
