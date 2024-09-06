@@ -11,58 +11,90 @@ detection_methods:
 id: ff8b296b-aa0d-5df0-b4d2-0e599b688f6a
 name: 'Brand impersonation: Sharepoint fake file share'
 severity: medium
-source: |-
-  type.inbound
-
-  // Sharepoint body content looks like this
-  and strings.like(body.current_thread.text, "*shared a file with you*", "*shared with you*", "*invited you to access a file*")
-  and strings.icontains(subject.subject, "shared")
-  and any(ml.logo_detect(beta.message_screenshot()).brands, .name == "Microsoft")
-
-  // Negate messages when the message-id indciates the message is from MS actual. DKIM/SPF domains can be custom and therefore are unpredictable.
-  and not (
-      strings.starts_with(headers.message_id, '<Share-')
-      and strings.ends_with(headers.message_id, '@odspnotify>')
-  )
-
-  // fake Sharepoint shares are easy to identify if there are any links
-  // that don't point to microsoft[.]com or *.sharepoint[.]com
-  and not all(body.links,
-               any(["1drv.ms", "aka.ms", "microsoft.com", "sharepoint.com"], strings.ends_with(..href_url.query_params,.))
-  )
-  and sender.email.domain.root_domain not in $org_domains
-  and sender.email.domain.root_domain not in (
-    "bing.com",
-    "microsoft.com",
-    "microsoftonline.com",
-    "microsoftsupport.com",
-    "microsoft365.com",
-    "office.com",
-    "onedrive.com",
-    "sharepointonline.com",
-    "yammer.com",
-    //ignore microsoft privacy statement links
-    "aka.ms"
-  )
-
-  // negate highly trusted sender domains unless they fail DMARC authentication
-  and (
-    (
-      sender.email.domain.root_domain in $high_trust_sender_root_domains
-      and not headers.auth_summary.dmarc.pass
-    )
-    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
-  )
-  and (
-    (
-      not profile.by_sender().solicited
-    )
-    or (
-      profile.by_sender().any_messages_malicious_or_spam
-      and not profile.by_sender().any_false_positives
-    )
-  )
-  and not profile.by_sender().any_false_positives
+source: "type.inbound\n\n// Sharepoint body content looks like this\nand any([body.current_thread.text,\
+  \ body.plain.raw],\n        strings.ilike(.,\n                      \"*shared a\
+  \ file with you*\",\n                      \"*shared with you*\",\n            \
+  \          \"*invited you to access a file*\"\n        )\n)\nand strings.ilike(subject.subject,\
+  \ \"*shared*\", \"*updated*\")\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \      strings.starts_with(.name, \"Microsoft\")\n  )\n  or any(attachments,\n \
+  \        .file_type in $file_types_images\n         and any(ml.logo_detect(.).brands,\n\
+  \                 strings.starts_with(.name, \"Microsoft\")\n         )\n  )\n \
+  \ or (\n    regex.icontains(body.html.raw,\n                    '<table[^>]*>\\\
+  s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\\
+  s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"[^>]*>\\\
+  s*&nbsp;\\s*</td>\\s*){2}'\n    )\n    or 3 of (\n      regex.icontains(body.html.raw,\
+  \ '.password-expiration'),\n      regex.icontains(body.html.raw, 'color: #2672ec;'),\n\
+  \      regex.icontains(body.html.raw, 'M\xADic\xADro\xADso\xADft')\n    )\n    or\
+  \ 4 of (\n      regex.icontains(body.html.raw, 'rgb\\(246,\\s?93,\\s?53\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(129,\\s?187,\\s?5\\)'),\n      regex.icontains(body.html.raw,\
+  \ 'rgb\\(4,\\s?165,\\s?240\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(255,\\\
+  s?186,\\s?7\\)'),\n    )\n    or 4 of (\n      regex.icontains(body.html.raw,\n\
+  \                      '(background-color:|background:|bgcolor=)(.)red'\n      ),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(19,\\s?186,\\s?132\\)'),\n      regex.icontains(body.html.raw,\
+  \ 'rgb\\(4,\\s?166,\\s?240\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(255,\\\
+  s?186,\\s?8\\)'),\n    )\n    or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\\
+  (245,\\s?189,\\s?67\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(137,\\s?184,\\\
+  s?57\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(217,\\s?83,\\s?51\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(71,\\s?160,\\s?218\\)')\n    )\n  \
+  \  or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\(73,\\s?161,\\s?232\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(224,\\s?92,\\s?53\\)'),\n      regex.icontains(body.html.raw,\
+  \ 'rgb\\(139,\\s?183,\\s?55\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(244,\\\
+  s?188,\\s?65\\)')\n    )\n    or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\\
+  (213,\\s?56,\\s?62\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(0,\\s?114,\\\
+  s?30\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(0,\\s?110,\\s?173\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(227,\\s?209,\\s?43\\)'),\n    )\n \
+  \   or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\(246,\\s?93,\\s?53\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(129,\\s?187,\\s?5\\)'),\n      regex.icontains(body.html.raw,\
+  \ 'rgb\\(4,\\s?165,\\s?240\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(255,\\\
+  s?186,\\s?7\\)')\n    )\n    or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\\
+  (242,\\s?80,\\s?34\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(127,\\s?186,\\\
+  s?0\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(0,\\s?164,\\s?239\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(255,\\s?185,\\s?0\\)'),\n    )\n  \
+  \  or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\(243,\\s?83,\\s?37\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(129,\\s?188,\\s?6\\)'),\n      regex.icontains(body.html.raw,\
+  \ 'rgb\\(5,\\s?166,\\s?240\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(255,\\\
+  s?186,\\s?8\\)')\n    )\n    or 4 of (\n      regex.icontains(body.html.raw, 'rgb\\\
+  (243,\\s?80,\\s?34\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(128,\\s?187,\\\
+  s?3\\)'),\n      regex.icontains(body.html.raw, 'rgb\\(3,\\s?165,\\s?240\\)'),\n\
+  \      regex.icontains(body.html.raw, 'rgb\\(255,\\s?185,\\s?3\\)')\n    )\n   \
+  \ or 4 of (\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?(#)?(FF1940|eb5024|F25022|FF1941|red)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?(#)?(36ba57|3eb55d|7db606|7FBA00|36ba58|green)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?#(04a1d6|04B5F0|05a1e8|00A4EF|01a4ef|04a5f0)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?#(FFCA07|f7b408|FFB900|FFCA08|ffb901|ffba07)'\n\
+  \      ),\n    )\n    or 4 of (\n      regex.icontains(body.html.raw,\n        \
+  \              '(background-color:|background:|bgcolor=)(.)?#(f65314|f65d35|49a1e8|E74F23|F35325)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?#(7cbf42|81bb05|e05c35|7AB206|81BC06)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?#(00a4ef|0078d7|8bb737|04a5f0|059EE4|05A6F0)'\n\
+  \      ),\n      regex.icontains(body.html.raw,\n                      '(background-color:|background:|bgcolor=)(.)?#(ffb900|ffba07|f4bc41|F2B108|FFBA08)'\n\
+  \      ),\n    )\n    // fuzzy approach\n    or 4 of (\n      regex.icontains(body.html.raw,\n\
+  \                      'rgb\\((2[1-4][0-9]|250),\\s?(7[0-9]|8[0-9]|9[0-3]),\\s?(3[0-9]|4[0-9]|5[0-3])\\\
+  )'\n      ),\n      regex.icontains(body.html.raw,\n                      'rgb\\\
+  ((12[0-9]|13[0-9]),\\s?(18[0-9]|190),\\s?([0-9]|10)\\)'\n      ),\n      regex.icontains(body.html.raw,\n\
+  \                      'rgb\\(([0-9]|1[0-5]),\\s?(16[0-5]|166),\\s?(23[0-9]|240)\\\
+  )'\n      ),\n      regex.icontains(body.html.raw,\n                      'rgb\\\
+  ((25[0-5]),\\s?(18[5-9]|19[0-9]),\\s?([0-9]|10)\\)'\n      )\n    )\n    or 4 of\
+  \ (\n      regex.icontains(body.html.raw, 'rgb\\((25[0-5]),\\s?(2[0-5]),\\s?(6[0-4])\\\
+  )'),\n      regex.icontains(body.html.raw, 'rgb\\((6[0-2]),\\s?(18[0-1]),\\s?(9[0-3])\\\
+  )'),\n      regex.icontains(body.html.raw, 'rgb\\(([0-4]),\\s?(18[0-1]),\\s?(24[0])\\\
+  )'),\n      regex.icontains(body.html.raw, 'rgb\\((25[0-5]),\\s?(20[0-2]),\\s?([0-7])\\\
+  )')\n    )\n  )\n)\n\n// Negate messages when the message-id indciates the message\
+  \ is from MS actual. DKIM/SPF domains can be custom and therefore are unpredictable.\n\
+  and not (\n  strings.starts_with(headers.message_id, '<Share-')\n  and strings.ends_with(headers.message_id,\
+  \ '@odspnotify>')\n)\n\n// fake Sharepoint shares are easy to identify if there\
+  \ are any links\n// that don't point to microsoft[.]com or *.sharepoint[.]com\n\
+  and not all(body.links,\n             any([\n              \"1drv.ms\",\n      \
+  \        \"aka.ms\",\n              \"microsoft.com\",\n              \"sharepoint.com\"\
+  \n            ], strings.ends_with(..href_url.query_params,.))\n)\nand sender.email.domain.root_domain\
+  \ not in $org_domains\nand sender.email.domain.root_domain not in (\n  \"bing.com\"\
+  ,\n  \"microsoft.com\",\n  \"microsoftonline.com\",\n  \"microsoftsupport.com\"\
+  ,\n  \"microsoft365.com\",\n  \"office.com\",\n  \"onedrive.com\",\n  \"sharepointonline.com\"\
+  ,\n  \"yammer.com\",\n  // ignore microsoft privacy statement links\n  \"aka.ms\"\
+  \n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)\nand (\n  (not profile.by_sender().solicited)\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
