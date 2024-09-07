@@ -1,11 +1,18 @@
-name: "Extortion / sextortion (untrusted sender)"
-description: |
+attack_types:
+- Extortion
+description: |-
   Detects extortion and sextortion attempts by analyzing the email body text from an untrusted sender.
+detection_methods:
+- Content analysis
+- Header analysis
+- Natural Language Understanding
+- Sender analysis
+id: 265913eb-2ccd-5f77-9a09-f6d8539fd2f6
+name: Extortion / sextortion (untrusted sender)
 references:
-  - "https://krebsonsecurity.com/2018/07/sextortion-scam-uses-recipients-hacked-passwords/"
-type: "rule"
-severity: "low"
-source: |
+- https://krebsonsecurity.com/2018/07/sextortion-scam-uses-recipients-hacked-passwords/
+severity: low
+source: |-
   type.inbound
   and (
     (
@@ -24,8 +31,25 @@ source: |
       ),
       regex.icontains(body.current_thread.text, "pervert|perversion|masturbat"),
       regex.icontains(body.current_thread.text, '\d\d hours'),
-      regex.icontains(body.current_thread.text, 'bitcoin|\bbtc\b|blockchain'),
-      strings.icontains(body.current_thread.text, "permanently delete"),
+    (
+      regex.icontains(body.current_thread.text, 'bitcoin|\bbtc\b|blockchain')
+      // negate cryptocurrency newsletters
+      and not (
+        any(body.links,
+            strings.icontains(.display_text, "unsubscribe")
+            and (
+              strings.icontains(.href_url.path, "unsubscribe")
+              // handle mimecast URL rewrites
+              or (
+                .href_url.domain.root_domain == 'mimecastprotect.com'
+                and strings.icontains(.href_url.query_params,
+                                      sender.email.domain.root_domain
+                )
+              )
+            )
+        )
+      )
+    ),
       (
         strings.icontains(body.current_thread.text, "contact the police")
         and regex.icontains(body.current_thread.text,
@@ -42,7 +66,7 @@ source: |
       and not profile.by_sender().any_false_positives
     )
     or any(headers.hops, any(.fields, .name == "X-Google-Group-Id"))
-  
+
     // many extortion emails spoof sender domains and fail sender authentication
     or (
       not headers.auth_summary.dmarc.pass
@@ -51,15 +75,9 @@ source: |
     )
   )
   and length(body.current_thread.text) < 6000
-
-attack_types:
-  - "Extortion"
 tactics_and_techniques:
-  - "Social engineering"
-  - "Spoofing"
-detection_methods:
-  - "Content analysis"
-  - "Header analysis"
-  - "Natural Language Understanding"
-  - "Sender analysis"
-id: "265913eb-2ccd-5f77-9a09-f6d8539fd2f6"
+- Social engineering
+- Spoofing
+tags:
+- Mimecast Hard to Fix
+type: rule
