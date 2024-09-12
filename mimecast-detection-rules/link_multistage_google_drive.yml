@@ -1,0 +1,100 @@
+attack_types:
+- Credential Phishing
+description: The detection rule matches on message groups which make use of Google
+  Drive as a landing page. The landing page contains links which are newly registered,
+  use free file or subdomain hosts, url shortners or when visited are phishing pages,
+  lead to a captcha or redirect to a common website.
+detection_methods:
+- Content analysis
+- Sender analysis
+- URL analysis
+- Whois
+- HTML analysis
+id: c86288b4-98f3-5d71-850e-c001a628600a
+name: 'Link: Multistage Landing - Abused Google Drive'
+severity: high
+source: |-
+  type.inbound
+
+  // reply-to email address as never been sent an email by the org
+  and not any(headers.reply_to, .email.email in $recipient_emails)
+
+  // message is from google actual
+  and sender.email.domain.domain == 'google.com'
+  and (
+    sender.email.local_part == "drive-shares-noreply"
+    or sender.email.local_part == " drive-shares-dm-noreply"
+  )
+  and headers.auth_summary.spf.pass
+  and strings.ends_with(headers.auth_summary.spf.details.designator,
+                        'doclist.bounces.google.com'
+  )
+  and headers.auth_summary.dmarc.pass
+
+  // filter out all the links, keeping only the links of interest
+  and any(filter(body.links,
+                 // target the "Open" link
+                 (
+                    .href_url.query_params == "domain=drive.google.com"
+                   and strings.icontains(.href_url.path, '/view')
+                   // this isn't controlled by the actor
+                   and .display_text == "Open"
+                 )
+          ),
+          // the Google Drive page has been taken down due to TOS violations
+          strings.icontains(ml.link_analysis(., mode="aggressive").final_dom.display_text, "You can't access this item because it is in violation of our Terms of Service")
+
+          // if not taken down
+          // filter down the links on the google drive page to those that are external to google
+          or any(filter(ml.link_analysis(., mode="aggressive").final_dom.links,
+                     .href_url.domain.root_domain != 'google.com'
+                     // relative links (no domains)
+                     and .href_url.domain.domain is not null
+              ),
+              (
+                // any of those links domains are new
+                network.whois(.href_url.domain).days_old < 30
+                // go to free file hosts
+                or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+                or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+
+                // go to free subdomains hosts
+                or (
+                   any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+                  // where there is a subdomain
+                  and .href_url.domain.subdomain is not null
+                  and  strings.starts_with(.href_url.query_params,"domain=www."))
+                )
+                // go to url shortners
+                or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                or (
+                  // find any links that mention common "action" words
+                  regex.icontains(.display_text,
+                                  '(?:view|click|show|access|download|continue|goto|Validate|Va[il]idar|login|verify|account)'
+                  )
+                  and (
+                    // and when visiting those links, are phishing
+                    ml.link_analysis(., mode="aggressive").credphish.disposition == "phishing"
+
+                    // hit a captcha page
+                    or ml.link_analysis(., mode="aggressive").credphish.contains_captcha
+
+                    // or the page redirects to common website, observed when evasion happens
+                    or (
+                      length(ml.link_analysis(., mode="aggressive").redirect_history
+                      ) > 0
+                      and ml.link_analysis(., mode="aggressive").effective_url.domain.root_domain in $tranco_10k
+                    )
+                  )
+                )
+              )
+          )
+  )
+tactics_and_techniques:
+- Evasion
+- Free email provider
+- Free file host
+tags:
+- Mimecast Hard to Fix
+type: rule

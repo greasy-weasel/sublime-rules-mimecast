@@ -1,0 +1,40 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains use of the Dell open redirect, but the sender is not Dell.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 718c2b0f-7ac3-5473-bb7c-12900b3da54a
+name: 'Open redirect: Dell'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+          .href_url.domain.domain == 't.em.home.dell.com'
+          and .href_url.path =~ '/r/'
+  )
+  and sender.email.domain.root_domain != 'dell.com'
+  and (
+    not profile.by_sender().solicited
+    or (
+      profile.by_sender().any_messages_malicious_or_spam
+      and not profile.by_sender().any_false_positives
+    )
+  )
+
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and not headers.auth_summary.dmarc.pass
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule
