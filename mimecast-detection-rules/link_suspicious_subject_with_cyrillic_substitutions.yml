@@ -33,23 +33,24 @@ source: "type.inbound\n\nand 0 < length(body.links) < 10\n\n//  display name or 
   \       \"almost.full\",\n                    \"app[li]e.[il]d\",\n            \
   \        \"authenticate.*account\",\n                    \"been.*suspend\",\n  \
   \                  \"clos.*of.*account.*processed\",\n                    \"confirm.your.account\"\
-  ,\n                    \"courier.*able\",\n                    \"deactivation.*in.*progress\"\
-  ,\n                    \"delivery.*attempt.*failed\",\n                    \"document.received\"\
-  ,\n                    \"documented.*shared.*with.*you\",\n                    \"\
-  dropbox.*document\",\n                    \"e-?ma[il1]+ .{010}suspen\",\n      \
-  \              \"e-?ma[il1]{1} user\",\n                    \"e-?ma[il1]{2} acc\"\
-  ,\n                    \"e-?ma[il1]{2}.*up.?grade\",\n                    \"e.?ma[il1]{2}.*server\"\
-  ,\n                    \"e.?ma[il1]{2}.*suspend\",\n                    \"email.update\"\
-  ,\n                    \"faxed you\",\n                    \"fraud(ulent)?.*charge\"\
-  ,\n                    \"from.helpdesk\",\n                    \"fu[il1]{2}.*ma[il1]+[\
-  \ -]?box\",\n                    \"has.been.*suspended\",\n                    \"\
-  has.been.limited\",\n                    \"have.locked\",\n                    \"\
-  he[li]p ?desk upgrade\",\n                    \"heipdesk\",\n                  \
-  \  \"i[il]iega[il]\",\n                    \"ii[il]ega[il]\",\n                \
-  \    \"incoming e?mail\",\n                    \"incoming.*fax\",\n            \
-  \        \"lock.*security\",\n                    \"ma[il1]{1}[ -]?box.*quo\",\n\
-  \                    \"ma[il1]{2}[ -]?box.*fu[il1]\",\n                    \"ma[il1]{2}box.*[il1]{2}mit\"\
-  ,\n                    \"ma[il1]{2}box stor\",\n                    \"mail on.?hold\"\
+  ,\n                    \"courier.*able\",\n                    \"crediential.*notif\"\
+  ,\n                    \"deactivation.*in.*progress\",\n                    \"delivery.*attempt.*failed\"\
+  ,\n                    \"document.received\",\n                    \"documented.*shared.*with.*you\"\
+  ,\n                    \"dropbox.*document\",\n                    \"e-?ma[il1]+\
+  \ .{010}suspen\",\n                    \"e-?ma[il1]{1} user\",\n               \
+  \     \"e-?ma[il1]{2} acc\",\n                    \"e-?ma[il1]{2}.*up.?grade\",\n\
+  \                    \"e.?ma[il1]{2}.*server\",\n                    \"e.?ma[il1]{2}.*suspend\"\
+  ,\n                    \"email.update\",\n                    \"faxed you\",\n \
+  \                   \"fraud(ulent)?.*charge\",\n                    \"from.helpdesk\"\
+  ,\n                    \"fu[il1]{2}.*ma[il1]+[ -]?box\",\n                    \"\
+  has.been.*suspended\",\n                    \"has.been.limited\",\n            \
+  \        \"have.locked\",\n                    \"he[li]p ?desk upgrade\",\n    \
+  \                \"heipdesk\",\n                    \"i[il]iega[il]\",\n       \
+  \             \"ii[il]ega[il]\",\n                    \"incoming e?mail\",\n   \
+  \                 \"incoming.*fax\",\n                    \"lock.*security\",\n\
+  \                    \"ma[il1]{1}[ -]?box.*quo\",\n                    \"ma[il1]{2}[\
+  \ -]?box.*fu[il1]\",\n                    \"ma[il1]{2}box.*[il1]{2}mit\",\n    \
+  \                \"ma[il1]{2}box stor\",\n                    \"mail on.?hold\"\
   ,\n                    \"mail.*box.*migration\",\n                    \"mail.*de-?activat\"\
   ,\n                    \"mail.update.required\",\n                    \"mails.*pending\"\
   ,\n                    \"messages.*pending\",\n                    \"missed.*shipping.*notification\"\
