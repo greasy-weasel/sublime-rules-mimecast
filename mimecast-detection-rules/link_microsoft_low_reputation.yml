@@ -41,7 +41,8 @@ source: "type.inbound\n// suspicious link\nand any(body.links,\n        (\n     
   \ == 0\n    or not any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\"\
   )))\n)\n\n// Microsoft logo\nand (\n  any(attachments,\n      .file_type in $file_types_images\n\
   \      and any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Microsoft\"\
-  ))\n  )\n  or any(ml.logo_detect(beta.message_screenshot()).brands,\n         strings.starts_with(.name,\
+  ))\n  )\n  or strings.istarts_with(body.current_thread.text, \"Microsoft \")\n \
+  \ or any(ml.logo_detect(beta.message_screenshot()).brands,\n         strings.starts_with(.name,\
   \ \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n            \
   \        '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
   [^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
@@ -111,42 +112,47 @@ source: "type.inbound\n// suspicious link\nand any(body.links,\n        (\n     
   \                    'rgb\\(([0-9]|1[0-5]),\\s?(16[0-5]|166),\\s?(23[0-9]|240)\\\
   )'\n    ),\n    regex.icontains(body.html.raw,\n                    'rgb\\((25[0-5]),\\\
   s?(18[5-9]|19[0-9]),\\s?([0-9]|10)\\)'\n    )\n  )\n)\n\n// suspicious content\n\
-  and (\n  (\n    strings.ilike(body.plain.raw,\n                  \"*password*\"\
-  ,\n                  \"*document*\",\n                  \"*voicemail*\",\n     \
-  \             \"*cache*\",\n                  \"*fax*\",\n                  \"*storage*\"\
-  ,\n                  \"*quota*\",\n                  \"*message*\"\n    )\n    and\
-  \ strings.ilike(body.plain.raw,\n                      \"*terminated*\",\n     \
-  \                 \"*review*\",\n                      \"*expire*\",\n         \
-  \             \"*click*\",\n                      \"*view*\",\n                \
-  \      \"*exceed*\",\n                      \"*clear*\",\n                     \
-  \ \"*only works*\",\n                      \"*failed*\",\n                     \
-  \ \"*deleted*\",\n                      \"*revalidated*\",\n                   \
-  \   \"*renewal*\"\n    )\n  )\n  or (\n    any(attachments,\n        .file_type\
-  \ in $file_types_images\n        and any(file.explode(.),\n                strings.ilike(.scan.ocr.raw,\n\
-  \                              \"*password*\",\n                              \"\
-  *document*\",\n                              \"*voicemail*\",\n                \
-  \              \"*cache*\",\n                              \"*fax*\",\n        \
-  \                      \"*storage*\",\n                              \"*quota*\"\
-  ,\n                              \"*messages*\"\n                )\n           \
-  \     and strings.ilike(.scan.ocr.raw,\n                                  \"*terminated*\"\
-  ,\n                                  \"*review*\",\n                           \
-  \       \"*expire*\",\n                                  \"*click*\",\n        \
-  \                          \"*view*\",\n                                  \"*exceed*\"\
-  ,\n                                  \"*clear*\",\n                            \
-  \      \"*only works*\",\n                                  \"*failed*\",\n    \
-  \                              \"*deleted*\"\n                )\n        )\n   \
-  \ )\n  )\n  or (\n    any(file.explode(beta.message_screenshot()),\n        strings.ilike(.scan.ocr.raw,\n\
-  \                      \"*password*\",\n                      \"*document*\",\n\
-  \                      \"*voicemail*\",\n                      \"*cache*\",\n  \
-  \                    \"*fax*\",\n                      \"*storage*\",\n        \
-  \              \"*quota*\",\n                      \"*messages*\"\n        )\n \
-  \       and strings.ilike(.scan.ocr.raw,\n                          \"*terminated*\"\
-  ,\n                          \"*review*\",\n                          \"*expire*\"\
-  ,\n                          \"*click*\",\n                          \"*view*\"\
-  ,\n                          \"*exceed*\",\n                          \"*clear*\"\
-  ,\n                          \"*only works*\",\n                          \"*failed*\"\
-  ,\n                          \"*deleted*\",\n                          \"*revalidated*\"\
-  ,\n                          \"*renewal*\"\n        )\n    )\n  )\n  or (\n    any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  and (\n  // current thread is empty, but an image attachment is branded as microsoft.\n\
+  \  // common in image as content\n  (\n    body.current_thread.text == \"\"\n  \
+  \  and any(attachments,\n            .file_type in $file_types_images\n        \
+  \    and any(ml.logo_detect(.).brands,\n                    strings.starts_with(.name,\
+  \ \"Microsoft\")\n            )\n    )\n  )\n  or (\n    strings.ilike(body.plain.raw,\n\
+  \                  \"*password*\",\n                  \"*document*\",\n        \
+  \          \"*voicemail*\",\n                  \"*cache*\",\n                  \"\
+  *fax*\",\n                  \"*storage*\",\n                  \"*quota*\",\n   \
+  \               \"*message*\"\n    )\n    and strings.ilike(body.plain.raw,\n  \
+  \                    \"*terminated*\",\n                      \"*review*\",\n  \
+  \                    \"*expire*\",\n                      \"*click*\",\n       \
+  \               \"*view*\",\n                      \"*exceed*\",\n             \
+  \         \"*clear*\",\n                      \"*only works*\",\n              \
+  \        \"*failed*\",\n                      \"*deleted*\",\n                 \
+  \     \"*revalidated*\",\n                      \"*renewal*\"\n    )\n  )\n\n  or\
+  \ (\n    any(attachments,\n        .file_type in $file_types_images\n        and\
+  \ any(file.explode(.),\n                strings.ilike(.scan.ocr.raw,\n         \
+  \                     \"*password*\",\n                              \"*document*\"\
+  ,\n                              \"*voicemail*\",\n                            \
+  \  \"*cache*\",\n                              \"*fax*\",\n                    \
+  \          \"*storage*\",\n                              \"*quota*\",\n        \
+  \                      \"*messages*\"\n                )\n                and strings.ilike(.scan.ocr.raw,\n\
+  \                                  \"*terminated*\",\n                         \
+  \         \"*review*\",\n                                  \"*expire*\",\n     \
+  \                             \"*click*\",\n                                  \"\
+  *view*\",\n                                  \"*exceed*\",\n                   \
+  \               \"*clear*\",\n                                  \"*only works*\"\
+  ,\n                                  \"*failed*\",\n                           \
+  \       \"*deleted*\"\n                )\n        )\n    )\n  )\n  or (\n    any(file.explode(beta.message_screenshot()),\n\
+  \        strings.ilike(.scan.ocr.raw,\n                      \"*password*\",\n \
+  \                     \"*document*\",\n                      \"*voicemail*\",\n\
+  \                      \"*cache*\",\n                      \"*fax*\",\n        \
+  \              \"*storage*\",\n                      \"*quota*\",\n            \
+  \          \"*messages*\"\n        )\n        and strings.ilike(.scan.ocr.raw,\n\
+  \                          \"*terminated*\",\n                          \"*review*\"\
+  ,\n                          \"*expire*\",\n                          \"*click*\"\
+  ,\n                          \"*view*\",\n                          \"*exceed*\"\
+  ,\n                          \"*clear*\",\n                          \"*only works*\"\
+  ,\n                          \"*failed*\",\n                          \"*deleted*\"\
+  ,\n                          \"*revalidated*\",\n                          \"*renewal*\"\
+  \n        )\n    )\n  )\n  or (\n    any(ml.nlu_classifier(body.current_thread.text).intents,\n\
   \        .name == \"cred_theft\" and .confidence in~ (\"medium\", \"high\")\n  \
   \  )\n    or any(attachments,\n           .file_type in $file_types_images\n   \
   \        and any(file.explode(.),\n                   any(ml.nlu_classifier(.scan.ocr.raw).intents,\n\
