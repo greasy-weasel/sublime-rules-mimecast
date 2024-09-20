@@ -19,11 +19,11 @@ source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  
   \ \"open\",\n                    \"*completed document*\",\n                   \
   \ \"*open agreement*\",\n                    \"*open document*\"\n      )\n    \
   \  and not strings.ilike(.scan.ocr.raw,\n                                \"*view\
-  \ this email*\", \"*view*browser*\"\n      )\n  )\n  or any(body.links,\n      \
-  \   strings.ilike(.display_text,\n                       \"*review*\",\n       \
-  \                \"*sign*\",\n                       \"*view*\",\n             \
-  \          \"open\",\n                       \"*completed document*\",\n       \
-  \                \"*open agreement*\",\n                       \"*open document*\"\
+  \ this email*\", \"*view*browser*\", \"*business review*\"\n      )\n  )\n  or any(body.links,\n\
+  \         strings.ilike(.display_text,\n                       \"*review*\",\n \
+  \                      \"*sign*\",\n                       \"*view*\",\n       \
+  \                \"open\",\n                       \"*completed document*\",\n \
+  \                      \"*open agreement*\",\n                       \"*open document*\"\
   \n         )\n         and not strings.ilike(.display_text,\n                  \
   \                 \"*view this email*\", \"*view*browser*\"\n         )\n  )\n)\n\
   and (\n  (\n    (\n      length(headers.references) > 0\n      or not any(headers.hops,\n\
