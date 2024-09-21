@@ -1,5 +1,5 @@
 attack_types:
-- Malware/Ransomware
+- Credential Phishing
 description: Detects Adobe phishing messages with an Adobe logo in the body or attachment,
   with suspicious link language.
 detection_methods:
