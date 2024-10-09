@@ -162,7 +162,19 @@ source: "type.inbound\n// suspicious link\nand any(body.links,\n        (\n     
   ,\n  \"microsoftonline.com\",\n  \"microsoftproject.com\",\n  \"microsoftstoreemail.com\"\
   ,\n  \"microsoftsupport.com\",\n  \"microsoft365.com\",\n  \"office.com\",\n  \"\
   office365.com\",\n  \"onedrive.com\",\n  \"sharepointonline.com\",\n  \"yammer.com\"\
-  ,\n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  ,\n)\n\n// negate legitimate Office 365 bouncebacks\nand not (\n    length(attachments)\
+  \ > 0\n    and all(attachments,\n        .content_type in (\"message/delivery-status\"\
+  , \"message/rfc822\")\n    )\n    and (sender.email.local_part in ('postmaster',\
+  \ 'mailer-daemon'))\n)\n\n// negate Microsoft \"welcome to the X group\" notifications\n\
+  and not (\n  headers.auth_summary.dmarc.pass\n  and length(attachments) == 6\n \
+  \ and length(filter(attachments,\n                    strings.istarts_with(.file_name,\
+  \ \"GuestWelcomeEmail\")\n             )\n  ) == 5\n  and length(filter(body.links,\n\
+  \                    (\n                      .href_url.domain.domain not in (\n\
+  \                        \"outlook.office365.com\",\n                        \"\
+  aka.ms\",\n                        \"go.microsoft.com\"\n                      )\n\
+  \                    )\n                    and not .href_url.domain.domain == sender.email.domain.domain\n\
+  \             )\n  ) == 0\n  and subject.subject == strings.replace_confusables(subject.subject)\n\
+  )\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender().solicited\n\
