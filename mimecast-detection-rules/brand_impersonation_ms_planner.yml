@@ -65,7 +65,7 @@ source: |-
           and  not(any($org_domains, strings.ends_with(..href_url.query_params,.)))
           and .href_url.domain.valid
           and regex.icontains(.display_text,
-                              "(go.?to|view|show|display|access) (team|planner|group|task)"
+                              "(go.?to|view|show|display|access|open.?in) (team|planner|group|task|browser)"
           )
   )
 
@@ -95,12 +95,22 @@ source: |-
     2 of (
       strings.ilike(body.current_thread.text, "*assigned*new team*"),
       strings.ilike(body.current_thread.text, "*Microsoft Office 365*"),
-      strings.ilike(body.current_thread.text, "*internal planner*")
+      strings.ilike(body.current_thread.text, "*internal planner*"),
+      strings.ilike(body.current_thread.text, "*internal task*"),
+      any(recipients.to,
+          strings.icontains(body.current_thread.text, .email.domain.sld)
+      )
     )
     or (
       any(ml.nlu_classifier(body.current_thread.text).intents,
           .name == "cred_theft" and .confidence in~ ("medium", "high")
       )
+    )
+    // multiple links, but all the same root domain
+    or (
+      length(distinct(body.links, .href_url.domain.root_domain)) == 1
+      and 2 < length(body.links) < 10
+      and all(body.links,  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)) )
     )
   )
   and sender.email.domain.root_domain not in (
