@@ -12,90 +12,46 @@ detection_methods:
 id: eb086f7d-3ad7-52cd-8e16-3ce08726b9ea
 name: 'Spam: Fake photo share'
 severity: low
-source: |-
-  type.inbound
-  and (
-    (
-      (
-        (
-          (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)
-          or (
-            length(body.html.display_text) < 500
-            and length(body.current_thread.text) == 0
-          )
-          or (length(body.current_thread.text) < 500)
-        )
-        and strings.ilike(subject.subject,
-                          "*picture*",
-                          "*photo*",
-                          "*image*",
-                          "*sad news*"
-        )
-      )
-      or (
-        (
-          (
-            length(body.html.display_text) < 500
-            and length(body.current_thread.text) == 0
-          )
-          and strings.ilike(body.html.display_text,
-                            "*picture*",
-                            "*photo*",
-                            "*image*",
-                            "*sad news*"
-          )
-        )
-        or (
-          (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)
-          and strings.ilike(body.plain.raw,
-                            "*picture*",
-                            "*photo*",
-                            "*image*",
-                            "*sad news*"
-          )
-          and not strings.istarts_with(body.plain.raw, "[cid:image")
-        )
-        or (
-          length(body.current_thread.text) < 500
-          and strings.ilike(body.current_thread.text,
-                            "*picture*",
-                            "*photo*",
-                            "*image*",
-                            "*sad news*"
-          )
-        )
-      )
-      or (
-        body.plain.raw is not null
-        and body.html.display_text is null
-        and length(body.current_thread.text) == 0
-        and strings.ilike(body.plain.raw,
-                          "*picture*",
-                          "*photo*",
-                          "*image*",
-                          "*sad news*",
-                          "*pics*"
-        )
-        and not strings.istarts_with(body.plain.raw, "[cid:image")
-        and strings.icontains(subject.subject, sender.display_name)
-      )
-    )
-    and length(body.links) < 5
-    and any(body.links,
-            (
-              (
-                network.whois(.href_url.domain).days_old < 30
-                or not network.whois(.href_url.domain).found
-                or network.whois(.href_url.domain).found is null
-              )
-              and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
-            )
-            or (
-              length(.display_text) == 1
-              and  any(["facebook.com", "youtube.com"], strings.ends_with(..href_url.query_params,.))
-            )
-    )
-  )
+source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.raw)\
+  \ < 500 and length(body.current_thread.text) == 0)\n        or (\n          length(body.html.display_text)\
+  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
+  \  or (length(body.current_thread.text) < 500)\n      )\n      and strings.ilike(subject.subject,\n\
+  \                        \"*picture*\",\n                        \"*photo*\",\n\
+  \                        \"*image*\",\n                        \"*sad news*\"\n\
+  \      )\n    )\n    or (\n      (\n        (\n          length(body.html.display_text)\
+  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
+  \  and strings.ilike(body.html.display_text,\n                          \"*picture*\"\
+  ,\n                          \"*photo*\",\n                          \"*image*\"\
+  ,\n                          \"*sad news*\"\n        )\n      )\n      or (\n  \
+  \      (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
+  \        and strings.ilike(body.plain.raw,\n                          \"*picture*\"\
+  ,\n                          \"*photo*\",\n                          \"*image*\"\
+  ,\n                          \"*sad news*\"\n        )\n        and not strings.istarts_with(body.plain.raw,\
+  \ \"[cid:image\")\n      )\n      or (\n        length(body.current_thread.text)\
+  \ < 500\n        and strings.ilike(body.current_thread.text,\n                 \
+  \         \"*picture*\",\n                          \"*photo*\",\n             \
+  \             \"*image*\",\n                          \"*sad news*\"\n        )\n\
+  \      )\n    )\n    or (\n      body.plain.raw is not null\n      and body.html.display_text\
+  \ is null\n      and length(body.current_thread.text) == 0\n      and strings.ilike(body.plain.raw,\n\
+  \                        \"*picture*\",\n                        \"*photo*\",\n\
+  \                        \"*image*\",\n                        \"*sad news*\",\n\
+  \                        \"*pics*\"\n      )\n      and not strings.istarts_with(body.plain.raw,\
+  \ \"[cid:image\")\n      and strings.icontains(subject.subject, sender.display_name)\n\
+  \    )\n  )\n  and length(body.links) < 5\n  and any(body.links,\n          (\n\
+  \            (\n              network.whois(.href_url.domain).days_old < 30\n  \
+  \            or not network.whois(.href_url.domain).found\n              or network.whois(.href_url.domain).found\
+  \ is null\n            )\n            and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
+  \          )\n          or (\n            length(.display_text) == 1\n         \
+  \   and  any([\"facebook.com\", \"youtube.com\"], strings.ends_with(..href_url.query_params,.))\n\
+  \          )\n  )\n)\nand (\n  (\n    (\n      length(headers.references) > 0\n\
+  \      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
+  \ \"In-Reply-To\"))\n      )\n    )\n    and not (\n      (\n        strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"R:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"ODG:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
+  \        or strings.istarts_with(subject.subject, \"TR:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"FWD:\")\n        or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\\
+  s?:')\n      )\n    )\n  )\n  or length(headers.references) == 0\n)"
 tactics_and_techniques:
 - Evasion
 - Social engineering
