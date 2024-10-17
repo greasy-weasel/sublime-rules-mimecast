@@ -51,7 +51,7 @@ source: "type.inbound\nand length(filter(attachments, .file_type not in $file_ty
   \ strings.istarts_with(subject.subject, \"ODG:\")\n        or strings.istarts_with(subject.subject,\
   \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
   \        or strings.istarts_with(subject.subject, \"TR:\")\n        or strings.istarts_with(subject.subject,\
-  \ \"FWD:\")\n        or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\\
+  \ \"FWD:\")\n        or regex.icontains(subject.subject, '^(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\\
   s?:')\n      )\n    )\n  )\n  or length(headers.references) == 0\n)\n\nand (\n \
   \ not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
   \    and not profile.by_sender().any_false_positives\n  )\n)\n\n// negate highly\
