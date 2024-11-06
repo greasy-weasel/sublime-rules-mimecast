@@ -71,6 +71,7 @@ source: |-
                   )
           )
   )
+  and profile.by_sender().prevalence != "common"
 tactics_and_techniques:
 - Evasion
 - Free subdomain host
