@@ -15,7 +15,12 @@ source: |-
   and length(body.links) > 0
   and 2 of (
     any(body.links,
-        strings.ilike(.display_text, "*check now*", "*track*", "*package*")
+        strings.ilike(.display_text,
+                      "*check now*",
+                      "*track*",
+                      "*package*",
+                      '*view your order*'
+        )
     ),
     strings.ilike(body.current_thread.text,
                   "*returned*to*sender*",
@@ -24,12 +29,20 @@ source: |-
     // impersonal greeting
     any(ml.nlu_classifier(body.current_thread.text).entities,
         .name == "recipient" and .text =~ "Customer"
+    ),
+    // no links go to usps.com
+    all(body.links, .href_url.domain.root_domain != "usps.com")
+  )
+
+  and (
+    sender.email.domain.root_domain not in ("usps.com")
+    or (
+      sender.email.domain.root_domain in ("usps.com")
+      and not headers.auth_summary.dmarc.pass
     )
   )
-  and sender.email.domain.root_domain not in ("usps.com")
-  and profile.by_sender().prevalence in ("new", "outlier", "rare")
 
-   // negate highly trusted sender domains unless they fail DMARC authentication
+  // negate highly trusted sender domains unless they fail DMARC authentication
   and (
     (
       sender.email.domain.root_domain in $high_trust_sender_root_domains
@@ -41,5 +54,6 @@ tactics_and_techniques:
 - Image as content
 - 'Impersonation: Brand'
 - Social engineering
-tags: []
+tags:
+- Mimecast Needs Fix
 type: rule

@@ -22,7 +22,7 @@ source: |-
            and not  any(["mimecast.com", "mimecastprotect.com"], strings.ends_with(..href_url.query_params,.))
     )
   )
-  and sender.email.domain.root_domain !~ 'dropbox.com'
+  and sender.email.domain.root_domain not in~ ('dropbox.com', 'dropboxforum.com')
   and (
     any(attachments,
         .file_type in $file_types_images
