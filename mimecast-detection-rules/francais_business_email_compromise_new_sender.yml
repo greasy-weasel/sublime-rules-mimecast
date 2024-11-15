@@ -1,0 +1,34 @@
+attack_types:
+- BEC/Fraud
+description: Detects potential Business Email Compromise (BEC) attacks by searching
+  for common French BEC language within the email body from first-time senders.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: b7d1e096-d9cc-5a79-9753-5d9565794433
+name: "Business Email Compromise (BEC) attempt from untrusted sender (French/Fran\xE7\
+  ais)"
+severity: medium
+source: "type.inbound\nand length(body.links) == 0\nand ml.nlu_classifier(body.current_thread.text).language\
+  \ == \"french\"\nand 1 of (\n  regex.icontains(subject.subject,\n              \
+  \    '(mise (a|\xE0) jour|chang\xE9|changement).{0,20}(bancaire|de banque)'\n  ),\n\
+  \  regex.icontains(body.current_thread.text,\n                  '(changement|chang\xE9\
+  ) de (banque)|changement bancaire|coordonn\xE9es.{0,20}(compte|banque|bancaire|salaire)',\n\
+  \  ),\n  (regex.icontains(body.current_thread.text, 'parler.{0,20}confiance'))\n\
+  )\n// negating legit replies\nand not (\n  (\n    strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n    // out of office auto-reply\n    // the NLU model will handle these\
+  \ better natively soon\n    or strings.istarts_with(subject.subject, \"Automatic\
+  \ reply:\")\n    or regex.imatch(subject.subject,\n                    '(\\[[^\\\
+  ]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\s?:.*'\n    )\n  )\n  and (\n    length(headers.references)\
+  \ > 0\n    or any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\"\
+  )))\n  )\n)\nand (\n  not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_false_positives\n  )\n)\n\n// negate highly\
+  \ trusted sender domains unless they fail DMARC authentication\nand (\n  (\n   \
+  \ sender.email.domain.root_domain in $high_trust_sender_root_domains\n    and not\
+  \ headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain not\
+  \ in $high_trust_sender_root_domains\n)"
+tactics_and_techniques:
+- Social engineering
+tags: []
+type: rule

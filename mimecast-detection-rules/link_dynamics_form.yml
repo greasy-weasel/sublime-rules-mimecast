@@ -21,8 +21,13 @@ source: |-
           and ml.link_analysis(.).effective_url.domain.domain == "customervoice.microsoft.com"
 
           // confirm it is a form
-          and any(ml.link_analysis(.).final_dom.links,
-                   .href_url.query_params == "domain=cdn.forms.office.net"
+          and (
+            any(ml.link_analysis(.).final_dom.links,
+                 .href_url.query_params == "domain=cdn.forms.office.net"
+            )
+            or strings.icontains(ml.link_analysis(.).final_dom.raw,
+                                 "cdn.forms.office.net"
+            )
           )
 
           // analyze for credential phishing signals
