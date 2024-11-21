@@ -10,67 +10,34 @@ detection_methods:
 id: 4fd791d1-a053-5c2d-80dd-c6dcdc112a62
 name: 'Brand impersonation: Quickbooks'
 severity: medium
-source: |-
-  type.inbound
-  and (
-    (
-      strings.ilike(sender.display_name, '*quickbooks*')
-      or strings.ilevenshtein(sender.display_name, 'quickbooks') <= 1
-      or strings.ilike(sender.email.domain.domain, '*quickbooks*')
-    )
-    or strings.ilike(body.current_thread.text, "*invoice*")
-  )
-  and (
-    any(ml.logo_detect(beta.message_screenshot()).brands,
-        .name == "Quickbooks" and .confidence in ("medium", "high")
-    )
-    or strings.icontains(body.current_thread.text, 'Powered by QuickBooks')
-  )
-  and sender.email.domain.root_domain not in~ (
-    'intuit.com',
-    'turbotax.com',
-    'intuit.ca',
-    'meliopayments.com',
-    'qemailserver.com',
-    'intuit.co.uk',
-    'quickbooksonline.com',
-    'tsheets.com'
-  )
-  and (
-    not profile.by_sender().any_false_positives
-    and not profile.by_sender().solicited
-  )
-  // links in body are not known QB domains or the senders root website (both indicative of a legitimate QuickBooks invoice message)
-  and (
-    length(filter(body.links,
-                  .href_url.domain.root_domain in~ (
-                    'intuit.com',
-                    'turbotax.com',
-                    'intuit.ca',
-                    'meliopayments.com',
-                    'qemailserver.com',
-                    'intuit.co.uk',
-                    'quickbooksonline.com'
-                  )
-                  or (
-                    .href_url.domain.domain == sender.email.domain.domain
-                    and (.href_url.path is null or .href_url.path == "/")
-                  )
-           )
-    ) != length(body.links)
-    // or no valid links
-    or length(filter(body.links, .href_url.domain.domain is not null)) == 0
-  )
-  // negate common sender of quickbooks reseller
-  and not strings.icontains(body.current_thread.text, 'Purchasing Reviews, Inc')
-  // negate highly trusted sender domains unless they fail DMARC authentication
-  and (
-    (
-      sender.email.domain.root_domain in $high_trust_sender_root_domains
-      and not headers.auth_summary.dmarc.pass
-    )
-    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
-  )
+source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, '*quickbooks*')\n\
+  \    or strings.ilevenshtein(sender.display_name, 'quickbooks') <= 1\n    or strings.ilike(sender.email.domain.domain,\
+  \ '*quickbooks*')\n  )\n  or strings.ilike(body.current_thread.text, \"*invoice*\"\
+  )\n)\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n      .name\
+  \ == \"Quickbooks\" and .confidence in (\"medium\", \"high\")\n  )\n  // contains\
+  \ the address and copyright\n  or\n  (\n    strings.icontains(body.current_thread.text,\n\
+  \                      '2800 E. Commerce Center Place, Tucson, AZ 85706'\n    )\n\
+  \    and regex.icontains(body.current_thread.text, '\xA9\\s*(?:\\d+)\\s*Intuit')\n\
+  \  )\n  or strings.icontains(body.current_thread.text, 'Powered by QuickBooks')\n\
+  )\nand sender.email.domain.root_domain not in~ (\n  'intuit.com',\n  'turbotax.com',\n\
+  \  'intuit.ca',\n  'meliopayments.com',\n  'qemailserver.com',\n  'intuit.co.uk',\n\
+  \  'quickbooksonline.com',\n  'tsheets.com'\n)\nand (\n  not profile.by_sender().any_false_positives\n\
+  \  and not profile.by_sender().solicited\n)\n// links in body are not known QB domains\
+  \ or the senders root website (both indicative of a legitimate QuickBooks invoice\
+  \ message)\nand (\n  length(filter(body.links,\n                .href_url.domain.root_domain\
+  \ in~ (\n                  'intuit.com',\n                  'turbotax.com',\n  \
+  \                'intuit.ca',\n                  'meliopayments.com',\n        \
+  \          'qemailserver.com',\n                  'intuit.co.uk',\n            \
+  \      'quickbooksonline.com'\n                )\n                or (\n       \
+  \           .href_url.domain.domain == sender.email.domain.domain\n            \
+  \      and (.href_url.path is null or .href_url.path == \"/\")\n               \
+  \ )\n         )\n  ) != length(body.links)\n  // or no valid links\n  or length(filter(body.links,\
+  \ .href_url.domain.domain is not null)) == 0\n)\n// negate common sender of quickbooks\
+  \ reseller\nand not strings.icontains(body.current_thread.text, 'Purchasing Reviews,\
+  \ Inc')\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering

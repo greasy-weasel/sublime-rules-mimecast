@@ -26,7 +26,7 @@ source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.ra
   \      (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
   \        and strings.ilike(body.plain.raw,\n                          \"*picture*\"\
   ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\"\n        )\n        and not strings.istarts_with(body.plain.raw,\
+  ,\n                          \"*sad news*\"\n        )\n        and not strings.icontains(body.plain.raw,\
   \ \"[cid:image\")\n      )\n      or (\n        length(body.current_thread.text)\
   \ < 500\n        and strings.ilike(body.current_thread.text,\n                 \
   \         \"*picture*\",\n                          \"*photo*\",\n             \
