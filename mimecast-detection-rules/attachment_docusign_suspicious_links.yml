@@ -36,14 +36,13 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \                                  \"(wichtig|dringend|sofort)\"\n             \
   \      )\n                   and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\\
   n\\n\\n\\n\\n\\n\\n\") > 3\n                 )\n               )\n        )\n  \
-  \    )\n      and not any(file.explode(.),\n                  (\n              \
-  \      strings.ilike(.scan.ocr.raw, \"*DocuSigned By*\")\n                    and\
-  \ not strings.ilike(.scan.ocr.raw,\n                                          \"\
-  *DocuSign Envelope ID*\"\n                    )\n                  )\n         \
-  \         or (.depth == 0 and .scan.exiftool.page_count > 10 and length(.scan.strings.strings)\
-  \ > 8000)\n      )\n  )\n\n  // accomidate truncated pngs and GIF files which can\
-  \ cause logodetect/OCR failures\n  or any(attachments,\n         (\n           .file_type\
-  \ =~ \"gif\"\n           or any(file.explode(.),\n                  any(.scan.exiftool.fields,\n\
+  \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\
+  \ \"*DocuSign Envelope ID*\")\n                  or (\n                    .depth\
+  \ == 0\n                    and .scan.exiftool.page_count > 10\n               \
+  \     and length(.scan.strings.strings) > 8000\n                  )\n      )\n \
+  \ )\n\n  // accomidate truncated pngs and GIF files which can cause logodetect/OCR\
+  \ failures\n  or any(attachments,\n         (\n           .file_type =~ \"gif\"\n\
+  \           or any(file.explode(.),\n                  any(.scan.exiftool.fields,\n\
   \                      .key == \"Warning\" and .value == \"Truncated PNG image\"\
   \n                  )\n           )\n         )\n         and (\n           any(ml.logo_detect(beta.message_screenshot()).brands,\n\
   \               (\n                 .name == \"DocuSign\"\n                 or any(file.explode(beta.message_screenshot()),\n\
