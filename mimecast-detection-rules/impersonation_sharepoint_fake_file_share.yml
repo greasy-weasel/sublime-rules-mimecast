@@ -130,7 +130,7 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)\nand (\n  (not profile.by_sender().solicited)\n\
+  \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender_email().solicited\n\
   \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
   \  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
