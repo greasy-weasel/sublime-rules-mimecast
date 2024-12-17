@@ -15,39 +15,45 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \    (\n      any([body.current_thread.text, body.plain.raw],\n          strings.ilike(.,\n\
   \                        \"*shared a file with you*\",\n                       \
   \ \"*shared with you*\",\n                        \"*invited you to access a file*\"\
-  ,\n                        \"*you've received a document*\"\n          )\n     \
-  \ )\n      or any(file.explode(beta.message_screenshot()),\n             strings.ilike(.scan.ocr.raw,\n\
-  \                           \"*shared a file with you*\",\n                    \
-  \       \"*shared with you*\",\n                           \"*invited you to access\
-  \ a file*\",\n                           \"*you've received a document*\"\n    \
-  \         )\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n \
-  \                   \"*shared*\",\n                    \"*updated*\",\n        \
-  \            \"*sign*\",\n                    \"*review*\"\n      )\n      or strings.ilike(subject.subject,\n\
+  ,\n                        \"*received a document*\",\n                        \"\
+  *shared a document*\",\n                        \"*shared this document*\"\n   \
+  \       )\n      )\n      or any(file.explode(beta.message_screenshot()),\n    \
+  \         strings.ilike(.scan.ocr.raw,\n                           \"*shared a file\
+  \ with you*\",\n                           \"*shared with you*\",\n            \
+  \               \"*invited you to access a file*\",\n                          \
+  \ \"*received a document*\",\n                           \"*shared a document*\"\
+  ,\n                           \"*shared this document*\"\n             )\n     \
+  \ )\n    )\n    and (\n      strings.ilike(subject.subject,\n                  \
+  \  \"*shared*\",\n                    \"*updated*\",\n                    \"*sign*\"\
+  ,\n                    \"*review*\"\n      )\n      or strings.ilike(subject.subject,\n\
   \                       \"*Excel*\",\n                       \"*SharePoint*\",\n\
   \                       \"*PowerPoint*\",\n                       \"*OneNote*\"\n\
-  \      )\n      or subject.subject is null\n      or subject.subject == \"\"\n \
-  \   )\n  )\n  or any([\n           \"Contigo\", // Spanish\n           \"Avec vous\"\
-  , // French\n           \"Mit Ihnen\", // German\n           \"Con te\", // Italian\n\
-  \           \"Com voc\xEA\", // Portuguese\n           \"Met u\", // Dutch\n   \
-  \        \"\u0421 \u0432\u0430\u043C\u0438\", // Russian\n           \"\u4E0E\u4F60\
-  \", // Chinese (Simplified)\n           \"\u8207\u60A8\", // Chinese (Traditional)\n\
-  \           \"\u3042\u306A\u305F\u3068\", // Japanese\n           \"\uB2F9\uC2E0\
-  \uACFC\", // Korean\n           \"\u0645\u0639\u0643\", // Arabic\n           \"\
-  \u0622\u067E \u06A9\u06D2 \u0633\u0627\u062A\u06BE\", // Urdu\n           \"\u0986\
-  \u09AA\u09A8\u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7\", // Bengali\n           \"\u0906\
-  \u092A\u0915\u0947 \u0938\u093E\u0925\", // Hindi\n           \"Sizinle\", // Turkish\
-  \ // Azerbaijani\n           \"Med dig\", // Swedish\n           \"Z tob\u0105\"\
-  , // Polish\n           \"\u0417 \u0432\u0430\u043C\u0438\", // Ukrainian\n    \
-  \       \"\xD6nnel\", // Hungarian\n           \"\u039C\u03B1\u03B6\u03AF \u03C3\
-  \u03B1\u03C2\", // Greek\n           \"\u05D0\u05D9\u05EA\u05DA\", // Hebrew\n \
-  \          \"\u0E01\u0E31\u0E1A\u0E04\u0E38\u0E13\", // Thai\n           \"V\u1EDB\
-  i b\u1EA1n\", // Vietnamese\n           \"Dengan Anda\", // Indonesian // Malay\n\
-  \           \"Nawe\", // Swahili\n           \"Cu dumneavoastr\u0103\", // Romanian\n\
-  \           \"S v\xE1mi\", // Czech\n           \"Med deg\", // Norwegian\n    \
-  \       \"S vami\", // Slovak\n           \"Med dig\", // Danish\n           \"\
-  Amb vost\xE8\", // Catalan\n           \"Teiega\", // Estonian\n           \"S vama\"\
-  , // Serbian\n         ],\n         strings.icontains(subject.subject, .)\n  )\n\
-  )\n\n// contains logic that impersonates Microsoft\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \      )\n      or any(body.links, strings.icontains(.display_text, \"OPEN DOCUMENT\"\
+  ))\n      or subject.subject is null\n      or subject.subject == \"\"\n      //\
+  \ the org as determined by NLU is in the subject\n      or any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \             .name == \"org\" and strings.icontains(subject.subject, .text)\n \
+  \     )\n\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n        \
+  \   \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n           \"\
+  Con te\", // Italian\n           \"Com voc\xEA\", // Portuguese\n           \"Met\
+  \ u\", // Dutch\n           \"\u0421 \u0432\u0430\u043C\u0438\", // Russian\n  \
+  \         \"\u4E0E\u4F60\", // Chinese (Simplified)\n           \"\u8207\u60A8\"\
+  , // Chinese (Traditional)\n           \"\u3042\u306A\u305F\u3068\", // Japanese\n\
+  \           \"\uB2F9\uC2E0\uACFC\", // Korean\n           \"\u0645\u0639\u0643\"\
+  , // Arabic\n           \"\u0622\u067E \u06A9\u06D2 \u0633\u0627\u062A\u06BE\",\
+  \ // Urdu\n           \"\u0986\u09AA\u09A8\u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7\"\
+  , // Bengali\n           \"\u0906\u092A\u0915\u0947 \u0938\u093E\u0925\", // Hindi\n\
+  \           \"Sizinle\", // Turkish // Azerbaijani\n           \"Med dig\", // Swedish\n\
+  \           \"Z tob\u0105\", // Polish\n           \"\u0417 \u0432\u0430\u043C\u0438\
+  \", // Ukrainian\n           \"\xD6nnel\", // Hungarian\n           \"\u039C\u03B1\
+  \u03B6\u03AF \u03C3\u03B1\u03C2\", // Greek\n           \"\u05D0\u05D9\u05EA\u05DA\
+  \", // Hebrew\n           \"\u0E01\u0E31\u0E1A\u0E04\u0E38\u0E13\", // Thai\n  \
+  \         \"V\u1EDBi b\u1EA1n\", // Vietnamese\n           \"Dengan Anda\", // Indonesian\
+  \ // Malay\n           \"Nawe\", // Swahili\n           \"Cu dumneavoastr\u0103\"\
+  , // Romanian\n           \"S v\xE1mi\", // Czech\n           \"Med deg\", // Norwegian\n\
+  \           \"S vami\", // Slovak\n           \"Med dig\", // Danish\n         \
+  \  \"Amb vost\xE8\", // Catalan\n           \"Teiega\", // Estonian\n          \
+  \ \"S vama\", // Serbian\n         ],\n         strings.icontains(subject.subject,\
+  \ .)\n  )\n)\n\n// contains logic that impersonates Microsoft\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
   \      strings.starts_with(.name, \"Microsoft\")\n  )\n  or any(attachments,\n \
   \        .file_type in $file_types_images\n         and any(ml.logo_detect(.).brands,\n\
   \                 strings.starts_with(.name, \"Microsoft\")\n         )\n  )\n \
@@ -109,7 +115,7 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   )'),\n      regex.icontains(body.html.raw, 'rgb\\((6[0-2]),\\s?(18[0-1]),\\s?(9[0-3])\\\
   )'),\n      regex.icontains(body.html.raw, 'rgb\\(([0-4]),\\s?(18[0-1]),\\s?(24[0])\\\
   )'),\n      regex.icontains(body.html.raw, 'rgb\\((25[0-5]),\\s?(20[0-2]),\\s?([0-7])\\\
-  )')\n    )\n    or regex.icontains(body.html.raw,\n                     '<a[^>]+style=\"\
+  )')\n    )\n    or regex.icontains(body.html.raw,\n                       '<a[^>]+style=\"\
   [^\"]*background-color:\\s*#[0-9A-F]{2}[5-9A-F]{2}[0-9A-F]{2}[^\"]*\"[^>]*>[^<]*(?:open)[^<]*</a>'\
   \ // blue button containing the word \"open\"\n    )\n    or (\n      any(recipients.to,\n\
   \          strings.icontains(body.current_thread.text,\n                       \
@@ -130,9 +136,9 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender_email().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives"
+  \ not in $high_trust_sender_root_domains\n)\nand (\n  profile.by_sender().solicited\
+  \ == false\n  or profile.by_sender_email().prevalence == \"new\"\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_false_positives\n  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering

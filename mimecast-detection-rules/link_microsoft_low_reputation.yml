@@ -14,7 +14,7 @@ detection_methods:
 id: b59201b6-f253-55a6-9c0a-e1500a32a751
 name: 'Brand impersonation: Microsoft with low reputation links'
 severity: medium
-source: "type.inbound\nand 0 < length(body.links) < 100\n// suspicious link\nand any(body.links,\n\
+source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand any(body.links,\n\
   \        (\n           not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))\n\
   \          or  any($free_file_hosts, ..href_url.query_params == strings.concat(\"\
   domain=\",.))\n          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))\n\
@@ -41,12 +41,13 @@ source: "type.inbound\nand 0 < length(body.links) < 100\n// suspicious link\nand
   \ == 0\n    or not any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\"\
   )))\n)\n\n// Microsoft logo\nand (\n  any(attachments,\n      .file_type in $file_types_images\n\
   \      and any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Microsoft\"\
-  ))\n  )\n  or strings.istarts_with(body.current_thread.text, \"Microsoft \")\n \
-  \ or any(ml.logo_detect(beta.message_screenshot()).brands,\n         strings.starts_with(.name,\
-  \ \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n            \
-  \        '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
-  [^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"\
-  [^>]*>\\s*&nbsp;\\s*</td>\\s*){2}'\n    )\n    or regex.icontains(body.html.raw,\n\
+  ))\n  )\n  or strings.istarts_with(strings.replace_confusables(body.current_thread.text),\
+  \ \"Microsoft \")\n  or regex.icontains(strings.replace_confusables(body.current_thread.text),\
+  \ '(?:^|\\n)[o0O]ff[il1]ce\\b')\n  or any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \         strings.starts_with(.name, \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n\
+  \                    '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
+  #[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
+  #[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\s*){2}'\n    )\n    or regex.icontains(body.html.raw,\n\
   \                       '<td style=\"background:\\s*rgb\\(246,\\s*93,\\s*53\\);\\\
   s*height:\\d+px;\">.*?<td style=\"background:\\s*rgb\\(129,\\s*187,\\s*5\\);\\s*height:\\\
   d+px;\">.*?<td style=\"background:\\s*rgb\\(4,\\s*165,\\s*240\\);\\s*height:\\d+px;\"\
