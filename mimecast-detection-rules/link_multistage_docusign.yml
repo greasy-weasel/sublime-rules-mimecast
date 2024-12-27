@@ -89,6 +89,10 @@ source: |-
                 )
               )
           )
+          or
+          length(filter(ml.link_analysis(., mode="aggressive").final_dom.links,
+                   not(any(["docusign.net", "docusign.com"], strings.ends_with(..href_url.query_params,.)))
+          )) > 0
   )
 tactics_and_techniques:
 - Evasion
