@@ -128,7 +128,10 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \ are any links\n// that don't point to microsoft[.]com or *.sharepoint[.]com\n\
   and not all(body.links,\n             any([\n              \"1drv.ms\",\n      \
   \        \"aka.ms\",\n              \"microsoft.com\",\n              \"sharepoint.com\"\
-  \n            ], strings.ends_with(..href_url.query_params,.))\n)\nand sender.email.domain.root_domain\
+  \n            ], strings.ends_with(..href_url.query_params,.))\n)\n// if there is\
+  \ a Sharepoint link, ensure the link doesn't match any org SLDs\nand not any(body.links,\n\
+  \             strings.ends_with(.href_url.query_params,\"sharepoint.com\")\n   \
+  \         and any($org_slds, . == ..href_url.domain.subdomain)\n)\nand sender.email.domain.root_domain\
   \ not in $org_domains\nand sender.email.domain.root_domain not in (\n  \"bing.com\"\
   ,\n  \"microsoft.com\",\n  \"microsoftonline.com\",\n  \"microsoftsupport.com\"\
   ,\n  \"microsoft365.com\",\n  \"office.com\",\n  \"onedrive.com\",\n  \"sharepointonline.com\"\
@@ -143,5 +146,5 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Changes Complete
+- Mimecast Hard to Fix
 type: rule

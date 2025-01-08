@@ -43,9 +43,10 @@ source: "type.inbound\nand (\n  0 < length(body.links) < 100\n  or 0 < length(fi
   // https://docs.sharefile.com/en-us/sharefile/configure/admin-settings/advanced-preferences.html#smtp-server\n\
   // when this happens, we cannot depend on the sender.email.domain.root_domain\n\
   // there does appear to be a custom header value added though.\nand not (\n  any(headers.hops,\n\
-  \          .index == 0\n          and any(.fields,\n                  .name == \"\
-  X-SMTPAPI\"\n                  and strings.icontains(.value, 'sf_event_id')\n  \
-  \        )\n  )\n)\n\n// negate highly trusted sender domains unless they fail DMARC\
+  \      .index == 0\n      and any(.fields,\n              (\n                .name\
+  \ =~ \"X-SMTPAPI\"\n                and strings.icontains(.value, 'sf_event_id')\n\
+  \              )\n              or .name in~ (\"x-sf-messageclass\", \"x-sf-uri\"\
+  )\n      )\n  )\n)\n// negate highly trusted sender domains unless they fail DMARC\
   \ authentication\nand (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)"
