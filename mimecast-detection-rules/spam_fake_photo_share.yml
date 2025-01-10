@@ -17,22 +17,33 @@ source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.ra
   \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
   \  or (length(body.current_thread.text) < 500)\n      )\n      and strings.ilike(subject.subject,\n\
   \                        \"*picture*\",\n                        \"*photo*\",\n\
-  \                        \"*image*\",\n                        \"*sad news*\"\n\
-  \      )\n    )\n    or (\n      (\n        (\n          length(body.html.display_text)\
-  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
-  \  and strings.ilike(body.html.display_text,\n                          \"*picture*\"\
-  ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\"\n        )\n      )\n      or (\n  \
-  \      (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
+  \                        \"*image*\",\n                        \"*sad news*\",\n\
+  \                        \"*new pics*\"\n      )\n    )\n    or (\n      (\n   \
+  \     (\n          length(body.html.display_text) < 500\n          and length(body.current_thread.text)\
+  \ == 0\n        )\n        and strings.ilike(body.html.display_text,\n         \
+  \                 \"*picture*\",\n                          \"*photo*\",\n     \
+  \                     \"*image*\",\n                          \"*sad news*\",\n\
+  \                          \"*new pics*\"\n        )\n      )\n      or (\n    \
+  \    (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
   \        and strings.ilike(body.plain.raw,\n                          \"*picture*\"\
   ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\"\n        )\n        and not strings.icontains(body.plain.raw,\
-  \ \"[cid:image\")\n      )\n      or (\n        length(body.current_thread.text)\
-  \ < 500\n        and strings.ilike(body.current_thread.text,\n                 \
-  \         \"*picture*\",\n                          \"*photo*\",\n             \
-  \             \"*image*\",\n                          \"*sad news*\"\n        )\n\
-  \      )\n    )\n    or (\n      body.plain.raw is not null\n      and body.html.display_text\
-  \ is null\n      and length(body.current_thread.text) == 0\n      and strings.ilike(body.plain.raw,\n\
+  ,\n                          \"*sad news*\",\n                          \"*new pics*\"\
+  \n        )\n        and not strings.icontains(body.plain.raw, \"[cid:image\")\n\
+  \      )\n      or (\n        length(body.current_thread.text) < 500\n        and\
+  \ strings.ilike(body.current_thread.text,\n                          \"*picture*\"\
+  ,\n                          \"*photo*\",\n                          \"*image*\"\
+  ,\n                          \"*sad news*\",\n                          \"*new pics*\"\
+  \n        )\n      )\n    )\n    or (\n      body.plain.raw is not null\n      and\
+  \ body.html.display_text is null\n      and (\n        length(body.current_thread.text)\
+  \ == 0\n        or (\n          length(body.current_thread.text) < 500\n       \
+  \   // fake forward indicator in the plain text body\n          and (\n        \
+  \    regex.contains(body.plain.raw,\n                           'On (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday).{0,50}\
+  \ wrote'\n            )\n            or strings.icontains(body.plain.raw, 'Original\
+  \ Message')\n          )\n          and not regex.contains(body.current_thread.text,\n\
+  \                                 'On (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday).{0,50}\
+  \ wrote'\n          )\n          and not strings.icontains(body.current_thread.text,\
+  \ 'Original Message')\n          and not any(headers.hops, any(.fields, .name ==\
+  \ \"Resent-From\"))\n        )\n      )\n      and strings.ilike(body.plain.raw,\n\
   \                        \"*picture*\",\n                        \"*photo*\",\n\
   \                        \"*image*\",\n                        \"*sad news*\",\n\
   \                        \"*pics*\"\n      )\n      and not strings.istarts_with(body.plain.raw,\
