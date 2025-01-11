@@ -28,10 +28,13 @@ source: "type.inbound\nand (\n  sender.email.domain.root_domain == \"onmicrosoft
   \ not (\n  any(headers.hops,\n      any(.fields, .name =~ \"auto-submitted\" and\
   \ .value =~ \"auto-generated\")\n      and any(.fields,\n              .name =~\
   \ \"X-MS-Exchange-Generated-Message-Source\"\n              and .value not in (\"\
-  Antispam Quarantine Agent\")\n      )\n  )\n)\n// construct the proper sender domain\
-  \ and check against known recipients\nand not strings.concat(sender.email.domain.subdomain,\
-  \  \".\", sender.email.domain.tld) in $recipient_domains\nand (\n  not profile.by_sender().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  Antispam Quarantine Agent\")\n      )\n  )\n)\n// Microsoft has some legit onmicrosoft\
+  \ domains...\nand not (\n  sender.email.domain.domain == \"microsoft.onmicrosoft.com\"\
+  \n  and headers.auth_summary.spf.pass\n  and all(body.links,  strings.ends_with(.href_url.query_params,\"\
+  microsoft.com\") )\n)\n// construct the proper sender domain and check against known\
+  \ recipients\nand not strings.concat(sender.email.domain.subdomain,  \".\", sender.email.domain.tld)\
+  \ in $recipient_domains\nand (\n  not profile.by_sender().solicited\n  or (\n  \
+  \  profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
   \  )\n)\nand not sender.email.domain.domain in $org_domains"
 tactics_and_techniques:
 - Free email provider
@@ -39,4 +42,5 @@ tactics_and_techniques:
 - Social engineering
 tags:
 - Attack surface reduction
+- Mimecast Changes Complete
 type: rule

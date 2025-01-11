@@ -51,17 +51,18 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \ \"Review Now\") <= 3\n        or (\n          strings.icontains(.display_text,\
   \ \"Review\")\n          and not strings.icontains(.display_text, \"Review Us\"\
   )\n        )\n        or strings.icontains(.display_text, \"Now\")\n        or strings.icontains(.display_text,\
-  \ \"document\")\n      )\n      and not  any([\"docusign.com\", \"docusign.net\"\
-  ], strings.ends_with(..href_url.query_params,.))\n      and not (\n         strings.ends_with(.href_url.query_params,\"\
-  mimecastprotect.com\")\n        and (\n          .href_url.query_params is not null\n\
-  \          and (\n            regex.icontains(.href_url.query_params,\n        \
-  \                    'domain=(?:\\w+.)?docusign.net'\n            )\n          \
-  \  or regex.icontains(.href_url.query_params,\n                               'domain=(?:\\\
-  w+.)?docusign.com'\n            )\n          )\n        )\n      )\n  )\n  // Suspicious\
-  \ attachment\n  or any(attachments,\n         (\n           .file_extension in~\
-  \ (\"html\", \"htm\", \"shtml\", \"dhtml\")\n           or .file_extension in~ $file_extensions_common_archives\n\
-  \           or .file_type == \"html\"\n           or .content_type == \"text/html\"\
-  \n         )\n         and 1 of (\n           (\n             regex.icontains(file.parse_html(.).raw,\
+  \ \"document\")\n        or strings.icontains(.display_text, \"docusign\")\n   \
+  \   )\n      and not  any([\"docusign.com\", \"docusign.net\"], strings.ends_with(..href_url.query_params,.))\n\
+  \      and not (\n         strings.ends_with(.href_url.query_params,\"mimecastprotect.com\"\
+  )\n        and (\n          .href_url.query_params is not null\n          and (\n\
+  \            regex.icontains(.href_url.query_params,\n                         \
+  \   'domain=(?:\\w+.)?docusign.net'\n            )\n            or regex.icontains(.href_url.query_params,\n\
+  \                               'domain=(?:\\w+.)?docusign.com'\n            )\n\
+  \          )\n        )\n      )\n  )\n  // Suspicious attachment\n  or any(attachments,\n\
+  \         (\n           .file_extension in~ (\"html\", \"htm\", \"shtml\", \"dhtml\"\
+  )\n           or .file_extension in~ $file_extensions_common_archives\n        \
+  \   or .file_type == \"html\"\n           or .content_type == \"text/html\"\n  \
+  \       )\n         and 1 of (\n           (\n             regex.icontains(file.parse_html(.).raw,\
   \ '\\s{0,}<script.*')\n             and regex.icontains(file.parse_html(.).raw,\
   \ \"</script>\")\n           ),\n           strings.ilike(file.parse_html(.).raw,\n\
   \                         \"*createElement*\",\n                         \"*appendChild*\"\
