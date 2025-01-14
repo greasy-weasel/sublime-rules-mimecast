@@ -12,8 +12,14 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-           any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
-          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+          (
+             any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+          )
+          // remove free_file_hosts used to host images as links
+          and not any($file_types_images,
+                      strings.iends_with(..href_url.url, strings.concat('.', .))
+          )
   )
   and sender.email.domain.tld in $suspicious_tlds
   and (
@@ -27,5 +33,5 @@ tactics_and_techniques:
 - Free file host
 tags:
 - Attack surface reduction
-- Mimecast Changes Complete
+- Mimecast Hard to Fix
 type: rule
