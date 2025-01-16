@@ -1,0 +1,23 @@
+attack_types:
+- Credential Phishing
+description: |-
+  Message contains use of a redirect chain which involves Meta and YouTube. This has been exploited in the wild.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: f217fd10-48fe-553a-8e63-4da9fb3fbc64
+name: 'Open Redirect: Meta --> YouTube Redirection Chain'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+           .href_url.query_params == "domain=l.work.meta.com"
+          // the redirect field
+          and strings.icontains(.href_url.query_params, "u=")
+          and regex.icontains(.href_url.query_params, 'u=(?:https?)?(?:(?:%3a|\:)?(?:\/|%2f){2})?youtube\.com[^\&]*\/+logout.*continue=')
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule
