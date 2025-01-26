@@ -31,13 +31,18 @@ source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, '*quic
   \      'quickbooksonline.com'\n                )\n                or (\n       \
   \           .href_url.domain.domain == sender.email.domain.domain\n            \
   \      and (.href_url.path is null or .href_url.path == \"/\")\n               \
-  \ )\n         )\n  ) != length(body.links)\n  // or no valid links\n  or length(filter(body.links,\
-  \ .href_url.domain.domain is not null)) == 0\n)\n// negate common sender of quickbooks\
-  \ reseller\nand not strings.icontains(body.current_thread.text, 'Purchasing Reviews,\
-  \ Inc')\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
-  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
-  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)"
+  \ )\n                // handle links to the root website when the sender uses a\
+  \ freemail address to send invoices\n                or (\n                  .href_url.domain.sld\
+  \ == sender.email.local_part\n                  and (.href_url.path is null or .href_url.path\
+  \ == \"/\")\n                  and sender.email.domain.root_domain in $free_email_providers\n\
+  \                )\n         )\n  ) != length(body.links)\n  // or no valid links\n\
+  \  or length(filter(body.links, .href_url.domain.domain is not null)) == 0\n)\n\
+  // negate common sender of quickbooks reseller\nand not strings.icontains(body.current_thread.text,\
+  \ 'Purchasing Reviews, Inc')\n// negate highly trusted sender domains unless they\
+  \ fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain in\
+  \ $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
+  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
