@@ -97,8 +97,15 @@ source: |-
       )
     )
   )
+  // negate Zendesk support tickets
+  and not any(body.links,
+             any(['zendesk.com'], strings.ends_with(..href_url.query_params,.))
+            and .display_text == 'Zendesk'
+  )
+
   and not profile.by_sender().solicited
   and not profile.by_sender().any_false_positives
 tags:
 - Attack surface reduction
+- Mimecast Changes Complete
 type: rule
