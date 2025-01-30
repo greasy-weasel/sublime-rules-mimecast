@@ -20,24 +20,25 @@ source: "type.inbound\nand (\n  0 < length(body.links) < 100\n  or 0 < length(fi
   \  )\n  or strings.icontains(body.current_thread.text,\n                       'uses\
   \ ShareFile to share documents securely'\n  )\n  or strings.icontains(body.current_thread.text,\n\
   \                       'ShareFile is a tool for sending, receiving, and organizing\
-  \ your business files online'\n  )\n  or strings.icontains(body.current_thread.text,\
-  \ 'Powered By Citrix ShareFile')\n  or regex.icontains(body.current_thread.text,\
-  \ '\xA9 20\\d\\d ShareFile')\n\n  // any of the attached images contain the same\
-  \ message body wording\n  or (\n    0 < length(attachments) <= 5\n    and all(attachments,\
-  \ .file_type in $file_types_images)\n    and any(attachments,\n            any(file.explode(.),\n\
-  \                strings.icontains(.scan.ocr.raw, 'ShareFile Attachments')\n   \
-  \             or strings.icontains(.scan.ocr.raw,\n                            \
-  \         'Click here to change how often ShareFile sends emails'\n            \
-  \    )\n                or strings.icontains(.scan.ocr.raw,\n                  \
-  \                   'uses ShareFile to share documents securely'\n             \
-  \   )\n                or strings.icontains(.scan.ocr.raw,\n                   \
-  \                  'ShareFile is a tool for sending, receiving, and organizing your\
-  \ business files online'\n                )\n                or strings.icontains(.scan.ocr.raw,\n\
-  \                                     'Powered By Citrix ShareFile'\n          \
-  \      )\n                or regex.icontains(body.current_thread.text,\n       \
-  \                            '\xA9 20\\d\\d ShareFile'\n                )\n    \
-  \        )\n    )\n  )\n)\nand not (\n  sender.email.domain.root_domain in (\n \
-  \   'sf-notifications.com',\n    'sharefile.com',\n    'cloud.com' // cloud.com\
+  \ your business files online'\n  )\n or regex.icontains(body.current_thread.text,\n\
+  \                     'shared a (?:file|document)\\s*(?:\\w+\\s+){0,3}\\s*via sharefile'\n\
+  \n  )\n  or strings.icontains(body.current_thread.text, 'Powered By Citrix ShareFile')\n\
+  \  or regex.icontains(body.current_thread.text, '\xA9 20\\d\\d ShareFile')\n\n \
+  \ // any of the attached images contain the same message body wording\n  or (\n\
+  \    0 < length(attachments) <= 5\n    and all(attachments, .file_type in $file_types_images)\n\
+  \    and any(attachments,\n            any(file.explode(.),\n                strings.icontains(.scan.ocr.raw,\
+  \ 'ShareFile Attachments')\n                or strings.icontains(.scan.ocr.raw,\n\
+  \                                     'Click here to change how often ShareFile\
+  \ sends emails'\n                )\n                or strings.icontains(.scan.ocr.raw,\n\
+  \                                     'uses ShareFile to share documents securely'\n\
+  \                )\n                or strings.icontains(.scan.ocr.raw,\n      \
+  \                               'ShareFile is a tool for sending, receiving, and\
+  \ organizing your business files online'\n                )\n                or\
+  \ strings.icontains(.scan.ocr.raw,\n                                     'Powered\
+  \ By Citrix ShareFile'\n                )\n                or regex.icontains(body.current_thread.text,\n\
+  \                                   '\xA9 20\\d\\d ShareFile'\n                )\n\
+  \            )\n    )\n  )\n)\nand not (\n  sender.email.domain.root_domain in (\n\
+  \    'sf-notifications.com',\n    'sharefile.com',\n    'cloud.com' // cloud.com\
   \ is the parent org of ShareFile\n  )\n  and headers.auth_summary.dmarc.pass\n)\n\
   // ShareFile also allows you customers to send from customer domains/mail servers\n\
   // https://docs.sharefile.com/en-us/sharefile/configure/admin-settings/advanced-preferences.html#smtp-server\n\
