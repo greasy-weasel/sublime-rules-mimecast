@@ -1,0 +1,38 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains use of the museepicassoparis.fr open redirect. This has been exploited in the wild.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: 7ac8f887-28c7-5934-9839-967d2751035d
+name: 'Open Redirect: museepicassoparis.fr'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"museepicassoparis.fr")
+          and strings.iends_with(.href_url.path, 'registerVisit')
+          and strings.icontains(.href_url.query_params, 'tracker=')
+          and strings.icontains(.href_url.query_params, 'organization=')
+          and strings.icontains(.href_url.query_params, 'seasonId=')
+          and strings.icontains(.href_url.query_params, 'redirectTo=')
+          and not regex.icontains(.href_url.query_params,
+                                  'redirectTo=(?:https?(?:%3a|:))?(?:%2f|\/){2}[^&]*museepicassoparis\.fr(?:\&|\/|$|%2f)'
+          )
+  )
+  and not sender.email.domain.root_domain == "museepicassoparis.fr"
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and not headers.auth_summary.dmarc.pass
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule
