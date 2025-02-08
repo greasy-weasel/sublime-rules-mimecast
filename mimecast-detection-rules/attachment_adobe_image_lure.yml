@@ -13,37 +13,35 @@ name: 'Attachment: Adobe image lure in body or attachment with suspicious link'
 severity: medium
 source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $file_types_images))\
   \ == 0\n  or length(filter(attachments, .file_type != \"pdf\")) == 0\n)\nand (\n\
-  \  any(file.explode(beta.message_screenshot()),\n      any(ml.logo_detect(beta.message_screenshot()).brands,\
-  \ .name == \"Adobe\")\n      and 0 < length(body.links) < 10\n      and any(body.links,\
-  \ .display_text is null)\n      and (\n        length(filter(body.links,\n     \
-  \                 (\n                        .display_text is null\n           \
-  \             and .display_url.url == sender.email.domain.root_domain\n        \
-  \              )\n                      or  any([\n                        \"aka.ms\"\
-  ,\n                        \"mimecast.com\",\n                        \"mimecastprotect.com\"\
-  ,\n                        \"cisco.com\"\n                      ], strings.ends_with(..href_url.query_params,.))\n\
-  \               )\n        ) != length(body.links)\n      )\n  )\n  or any(attachments,\n\
-  \          any(ml.logo_detect(.).brands,\n                 .name == \"Adobe\"\n\
-  \                 and .confidence in (\"medium\", \"high\")\n                 and\
-  \ any(file.explode(..),\n                         (\n                          \
-  \ length(.scan.url.urls) > 0\n                           or length(.scan.pdf.urls)\
-  \ > 0\n                           or length(body.links) > 0\n                  \
-  \       )\n                 )\n         )\n  )\n)\nand (\n  (\n    (\n      length(headers.references)\
-  \ > 0\n      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
-  \ \"In-Reply-To\"))\n      )\n    )\n    and not (\n      (\n        strings.istarts_with(subject.subject,\
-  \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"RES:\")\n       \
-  \ or strings.istarts_with(subject.subject, \"R:\")\n        or strings.istarts_with(subject.subject,\
-  \ \"ODG:\")\n        or strings.istarts_with(subject.subject, \"\u7B54\u590D:\"\
-  )\n        or strings.istarts_with(subject.subject, \"AW:\")\n        or strings.istarts_with(subject.subject,\
-  \ \"TR:\")\n        or strings.istarts_with(subject.subject, \"FWD:\")\n       \
-  \ or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:')\n \
-  \     )\n    )\n  )\n  or length(headers.references) == 0\n)\n\n// not a newsletter\n\
-  and not any(headers.hops, any(.fields, .name == \"List-Unsubscribe-Post\"))\n\n\
-  // negate highly trusted sender domains unless they fail DMARC authentication\n\
-  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
-  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives"
+  \  any(ml.logo_detect(beta.message_screenshot()).brands, .name == \"Adobe\")\n \
+  \ and 0 < length(body.links) < 10\n  and any(body.links, .display_text is null)\n\
+  \  and (\n    length(filter(body.links,\n                  (\n                 \
+  \   .display_text is null\n                    and .display_url.url == sender.email.domain.root_domain\n\
+  \                  )\n                  or  any([\n                    \"aka.ms\"\
+  ,\n                    \"mimecast.com\",\n                    \"mimecastprotect.com\"\
+  ,\n                    \"cisco.com\"\n                  ], strings.ends_with(..href_url.query_params,.))\n\
+  \           )\n    ) != length(body.links)\n  )\n  // )\n  or any(attachments,\n\
+  \         any(ml.logo_detect(.).brands,\n             .name == \"Adobe\"\n     \
+  \        and .confidence in (\"medium\", \"high\")\n             and any(file.explode(..),\n\
+  \                     (\n                       length(.scan.url.urls) > 0\n   \
+  \                    or length(.scan.pdf.urls) > 0\n                       or length(body.links)\
+  \ > 0\n                     )\n             )\n         )\n  )\n)\nand (\n  (\n\
+  \    (\n      length(headers.references) > 0\n      or not any(headers.hops,\n \
+  \                any(.fields, strings.ilike(.name, \"In-Reply-To\"))\n      )\n\
+  \    )\n    and not (\n      (\n        strings.istarts_with(subject.subject, \"\
+  RE:\")\n        or strings.istarts_with(subject.subject, \"RES:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"R:\")\n        or strings.istarts_with(subject.subject, \"ODG:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject,\
+  \ \"AW:\")\n        or strings.istarts_with(subject.subject, \"TR:\")\n        or\
+  \ strings.istarts_with(subject.subject, \"FWD:\")\n        or regex.imatch(subject.subject,\
+  \ '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:')\n      )\n    )\n  )\n  or length(headers.references)\
+  \ == 0\n)\n\n// not a newsletter\nand not any(headers.hops, any(.fields, .name ==\
+  \ \"List-Unsubscribe-Post\"))\n\n// negate highly trusted sender domains unless\
+  \ they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
+  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )\nand (\n  not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_false_positives\n  )\n)\nand not profile.by_sender().any_false_positives"
 tactics_and_techniques:
 - Image as content
 - 'Impersonation: Brand'
