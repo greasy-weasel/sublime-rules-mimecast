@@ -105,12 +105,15 @@ source: "type.inbound\nand (\n  any([\n        strings.replace_confusables(sende
   \  and sender.email.domain.domain in $org_domains\n  and headers.auth_summary.spf.pass\n\
   \  and headers.auth_summary.dmarc.pass\n  and not 'fail' in~ distinct(map(headers.hops,\
   \ .authentication_results.dkim))\n)\nand not any(beta.ml_topic(body.html.display_text).topics,\n\
-  \            // lots of newsletters talk about capital one\n            (\n    \
-  \          .name == \"Newsletters and Digests\" and .confidence == \"high\"\n  \
-  \          )\n            // lots of recruiting mention oppurtunties at capital\
-  \ one, often including the logo\n            or (\n              .name == \"Professional\
-  \ and Career Development\"\n              and .confidence == \"high\"\n        \
-  \    )\n)\n// negating legit replies/forwards\n// https://github.com/sublime-security/sublime-rules/blob/main/insights/authentication/org_inbound_auth_pass.yml\n\
+  \            (\n              .name in (\n                // lots of newsletters\
+  \ talk about capital one\n                \"Newsletters and Digests\",\n       \
+  \         // lots of recruiting mention oppurtunties at capital one, often including\
+  \ the logo\n                \"Professional and Career Development\",\n         \
+  \     )\n              and .confidence == \"high\"\n            )\n            or\
+  \ (\n              .name in (\n                // Outage events are often news worthy\n\
+  \                \"News and Current Events\"\n              )\n              and\
+  \ .confidence != \"low\"\n            )\n)\n// negating legit replies/forwards\n\
+  // https://github.com/sublime-security/sublime-rules/blob/main/insights/authentication/org_inbound_auth_pass.yml\n\
   and not (\n  (\n    strings.istarts_with(subject.subject, \"RE:\")\n    or strings.istarts_with(subject.subject,\
   \ \"FW:\")\n    or strings.istarts_with(subject.subject, \"FWD:\")\n    or regex.imatch(subject.subject,\n\
   \                    '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\s?:.*'\n    )\n\

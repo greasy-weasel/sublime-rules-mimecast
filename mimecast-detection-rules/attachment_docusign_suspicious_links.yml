@@ -37,11 +37,11 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \      )\n                   and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\\
   n\\n\\n\\n\\n\\n\\n\") > 3\n                 )\n               )\n        )\n  \
   \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\
-  \ \"*DocuSign Envelope ID*\")\n                  or strings.ilike(.scan.ocr.raw,\
-  \ \"*Certificate Of Completion*\")\n                  or (\n                   \
-  \ .depth == 0\n                    and .scan.exiftool.page_count > 10\n        \
-  \            and length(.scan.strings.strings) > 8000\n                  )\n   \
-  \   )\n  )\n\n  // accomidate truncated pngs and GIF files which can cause logodetect/OCR\
+  \ \"*DocuSign Envelope*\")\n                  or strings.ilike(.scan.ocr.raw, \"\
+  *Certificate Of Completion*\")\n                  or (\n                    .depth\
+  \ == 0\n                    and .scan.exiftool.page_count > 10\n               \
+  \     and length(.scan.strings.strings) > 8000\n                  )\n      )\n \
+  \ )\n\n  // accomidate truncated pngs and GIF files which can cause logodetect/OCR\
   \ failures\n  or (\n    any(attachments,\n        (\n          .file_type =~ \"\
   gif\"\n          or any(file.explode(.),\n                 any(.scan.exiftool.fields,\n\
   \                     .key == \"Warning\" and .value == \"Truncated PNG image\"\n\
