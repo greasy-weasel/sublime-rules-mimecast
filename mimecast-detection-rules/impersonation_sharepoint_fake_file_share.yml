@@ -16,25 +16,31 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \                        \"*shared a file with you*\",\n                       \
   \ \"*shared with you*\",\n                        \"*invited you to access a file*\"\
   ,\n                        \"*received a document*\",\n                        \"\
-  *shared a document*\",\n                        \"*shared this document*\"\n   \
-  \       )\n      )\n      or any(file.explode(beta.message_screenshot()),\n    \
-  \         strings.ilike(.scan.ocr.raw,\n                           \"*shared a file\
-  \ with you*\",\n                           \"*shared with you*\",\n            \
-  \               \"*invited you to access a file*\",\n                          \
-  \ \"*received a document*\",\n                           \"*shared a document*\"\
-  ,\n                           \"*shared this document*\"\n             )\n     \
-  \ )\n    )\n    and (\n      strings.ilike(subject.subject,\n                  \
-  \  \"*shared*\",\n                    \"*updated*\",\n                    \"*sign*\"\
-  ,\n                    \"*review*\"\n      )\n      or strings.ilike(subject.subject,\n\
+  *shared a document*\",\n                        \"*shared a new document*\",\n \
+  \                       \"*shared this document*\"\n          )\n      )\n     \
+  \ or any(beta.ml_topic(body.current_thread.text).topics,\n             .name ==\
+  \ \"File Sharing and Cloud Services\"\n             and .confidence == \"high\"\n\
+  \      )\n      or any(file.explode(beta.message_screenshot()),\n             strings.ilike(.scan.ocr.raw,\n\
+  \                           \"*shared a file with you*\",\n                    \
+  \       \"*shared with you*\",\n                           \"*invited you to access\
+  \ a file*\",\n                           \"*received a document*\",\n          \
+  \                 \"*shared a document*\",\n                           \"*shared\
+  \ a new document*\",\n                           \"*shared this document*\"\n  \
+  \           )\n             or any(beta.ml_topic(.scan.ocr.raw).topics,\n      \
+  \              .name == \"File Sharing and Cloud Services\"\n                  \
+  \  and .confidence == \"high\"\n             )\n      )\n    )\n    and (\n    \
+  \  strings.ilike(subject.subject,\n                    \"*shared*\",\n         \
+  \           \"*updated*\",\n                    \"*sign*\",\n                  \
+  \  \"*review*\",\n                    \"*scanned*\"\n      )\n      or strings.ilike(subject.subject,\n\
   \                       \"*Excel*\",\n                       \"*SharePoint*\",\n\
   \                       \"*PowerPoint*\",\n                       \"*OneNote*\"\n\
   \      )\n      or any(body.links, strings.icontains(.display_text, \"OPEN DOCUMENT\"\
   ))\n      or subject.subject is null\n      or subject.subject == \"\"\n      //\
   \ the org as determined by NLU is in the subject\n      or any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \             .name == \"org\" and strings.icontains(subject.subject, .text)\n \
-  \     )\n\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n        \
-  \   \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n           \"\
-  Con te\", // Italian\n           \"Com voc\xEA\", // Portuguese\n           \"Met\
+  \     )\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n          \
+  \ \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n           \"Con\
+  \ te\", // Italian\n           \"Com voc\xEA\", // Portuguese\n           \"Met\
   \ u\", // Dutch\n           \"\u0421 \u0432\u0430\u043C\u0438\", // Russian\n  \
   \         \"\u4E0E\u4F60\", // Chinese (Simplified)\n           \"\u8207\u60A8\"\
   , // Chinese (Traditional)\n           \"\u3042\u306A\u305F\u3068\", // Japanese\n\
