@@ -12,118 +12,56 @@ name: Extortion / sextortion (untrusted sender)
 references:
 - https://krebsonsecurity.com/2018/07/sextortion-scam-uses-recipients-hacked-passwords/
 severity: low
-source: |-
-  type.inbound
-  and length(filter(body.links, .display_text is not null)) < 10
-  and not (
-    ml.nlu_classifier(body.current_thread.text).language == "english"
-    and any(beta.ml_topic(body.html.display_text).topics,
-            .name in (
-              "News and Current Events",
-              "Newsletters and Digests",
-              "Advertising and Promotions"
-            )
-            and .confidence == "high"
-    )
-  )
-  and (
-    (
-      any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text)).intents,
-          .name == "extortion" and .confidence == "high"
-      )
-      and any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text
-                                )
-              ).entities,
-              .name == "financial"
-      )
-    )
-    // manual indicators failsafe
-    or 3 of (
-      // malware terms
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      "((spy|mal)ware|trojan|remote control)"
-      ),
-      // actions recorded
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      "porn|adult (web)?site|webcam|masturbating|jerking off|pleasuring yourself|getting off"
-      ),
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      "pervert|perversion|masturbat"
-      ),
-      // a timeframe to pay
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      '\d\d (?:hours|uur)',
-                      '(?:one|two|three|\d) days?'
-      ),
-      // a promise from the actor
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      'permanently delete|(remove|destroy) (?:\w+\s*){0,4} (?:data|evidence|videos?)'
-      ),
-      // a threat from the actor
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      'sen[dt]\s*(?:\w+\s*){0,2}\s*to\s*(?:\w+\s*){0,3}\s*your contacts'
-      ),
-      // bitcoin language (excluding newsletters)
-      (
-        regex.icontains(strings.replace_confusables(body.current_thread.text),
-                        'bitcoin|\bbtc\b|blockchain'
-        )
-        // negate cryptocurrency newsletters
-        and not (
-          any(body.links,
-              strings.icontains(.display_text, "unsubscribe")
-              and (
-                strings.icontains(.href_url.path, "unsubscribe")
-                // handle mimecast URL rewrites
-                or (
-                  .href_url.domain.root_domain == 'mimecastprotect.com'
-                  and strings.icontains(.href_url.query_params,
-                                        sender.email.domain.root_domain
-                  )
-                )
-              )
-          )
-        )
-      ),
-      (
-        regex.icontains(strings.replace_confusables(body.current_thread.text),
-                        '(?:contact the police|(?:bitcoin|\bbtc\b).{0,20}wallet)'
-        )
-        and regex.icontains(strings.replace_confusables(body.current_thread.text),
-                            '(\b[13][a-km-zA-HJ-NP-Z0-9]{24,34}\b)|\bX[1-9A-HJ-NP-Za-km-z]{33}\b|\b(0x[a-fA-F0-9]{40})\b|\b[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}\b|\b[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93}\b'
-        )
-      ),
-      regex.icontains(strings.replace_confusables(body.current_thread.text),
-                      'bc1q.{0,50}\b'
-      )
-    )
-  )
-  and (
-    not profile.by_sender().solicited
-    or (
-      profile.by_sender().any_messages_malicious_or_spam
-      and not profile.by_sender().any_false_positives
-    )
-    or any(headers.hops, any(.fields, .name == "X-Google-Group-Id"))
-
-    // many extortion emails spoof sender domains and fail sender authentication
-    or (
-      not headers.auth_summary.dmarc.pass
-      or headers.auth_summary.dmarc.pass is null
-      or not headers.auth_summary.spf.pass
-    )
-  )
-
-  // negate benign newsletters that mention cyber extortion
-  and not (
-    any(body.links,
-        strings.icontains(.display_text, "unsubscribe")
-        and strings.icontains(.href_url.path, "unsubscribe")
-        // newsletters are typically longer than the average extortion script
-        and length(body.current_thread.text) > 2000
-    )
-  )
-  and length(body.current_thread.text) < 6000
+source: "type.inbound\nand length(filter(body.links, .display_text is not null)) <\
+  \ 10\nand not (\n  ml.nlu_classifier(body.current_thread.text).language == \"english\"\
+  \n  and any(beta.ml_topic(body.html.display_text).topics,\n          .name in (\n\
+  \            \"News and Current Events\",\n            \"Newsletters and Digests\"\
+  ,\n            \"Advertising and Promotions\"\n          )\n          and .confidence\
+  \ == \"high\"\n  )\n)\nand (\n  (\n    any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text)).intents,\n\
+  \        .name == \"extortion\" and .confidence == \"high\"\n    )\n    and any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text\n\
+  \                              )\n            ).entities,\n            .name ==\
+  \ \"financial\"\n    )\n  )\n  // manual indicators failsafe\n  or 3 of (\n    //\
+  \ malware terms\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    \"((spy|mal)ware|t[r\u0157]ojan|remote control)\"\n    ),\n\
+  \    // actions recorded\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    \"po[r\u0157]n|adult (web)?site|webcam|mastu[r\u0157]bating|je[r\u0157\
+  ]king off|pleasu[r\u0157]ing you[r\u0157]self|getting off\"\n    ),\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    \"pe[r\u0157]ve[r\u0157]t|pe[r\u0157]ve[r\u0157]sion|mastu[r\u0157\
+  ]bat\"\n    ),\n    // a timeframe to pay\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    '[ilo0-9]{2} (?:hou[r\u0157]s|uu[r\u0157])',\n            \
+  \        '(?:one|two|th[r\u0157]ee|\\d) days?'\n    ),\n    // a promise from the\
+  \ actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    '(?:pe[r\u0157]manently|will) delete|([r\u0157]emove|destroy)\
+  \ (?:\\w+\\s*){0,4} (?:data|evidence|videos?)'\n    ),\n    // a threat from the\
+  \ actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    'sen[dt]\\s*(?:\\w+\\s*){0,2}\\s*to\\s*(?:\\w+\\s*){0,3}\\\
+  s*you[r\u0157] contacts'\n    ),\n    // bitcoin language (excluding newsletters)\n\
+  \    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                      'bitc[o\xF6\u0629]+in|\\bbtc\\b|blockchain'\n      )\n  \
+  \    // negate cryptocurrency newsletters\n      and not (\n        any(body.links,\n\
+  \            strings.icontains(.display_text, \"unsubscribe\")\n            and\
+  \ (\n              strings.icontains(.href_url.path, \"unsubscribe\")\n        \
+  \      // handle mimecast URL rewrites\n              or (\n                .href_url.domain.root_domain\
+  \ == 'mimecastprotect.com'\n                and strings.icontains(.href_url.query_params,\n\
+  \                                      sender.email.domain.root_domain\n       \
+  \         )\n              )\n            )\n        )\n      )\n    ),\n    (\n\
+  \      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                      '(?:contact the police|(?:bitcoin|\\bbtc\\b).{0,20}wallet)'\n\
+  \      )\n      and regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                          '(\\b[13][a-km-zA-HJ-NP-Z0-9]{24,34}\\b)|\\bX[1-9A-HJ-NP-Za-km-z]{33}\\\
+  b|\\b(0x[a-fA-F0-9]{40})\\b|\\b[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}\\b|\\b[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93}\\\
+  b'\n      )\n    ),\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    'bc1q.{0,50}\\b'\n    )\n  )\n)\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n  or any(headers.hops, any(.fields, .name == \"X-Google-Group-Id\"))\n\n \
+  \ // many extortion emails spoof sender domains and fail sender authentication\n\
+  \  or (\n    not headers.auth_summary.dmarc.pass\n    or headers.auth_summary.dmarc.pass\
+  \ is null\n    or not headers.auth_summary.spf.pass\n  )\n)\n\n// negate benign\
+  \ newsletters that mention cyber extortion\nand not (\n  any(body.links,\n     \
+  \ strings.icontains(.display_text, \"unsubscribe\")\n      and strings.icontains(.href_url.path,\
+  \ \"unsubscribe\")\n      // newsletters are typically longer than the average extortion\
+  \ script\n      and length(body.current_thread.text) > 2000\n  )\n)\nand length(body.current_thread.text)\
+  \ < 6000"
 tactics_and_techniques:
 - Social engineering
 - Spoofing
