@@ -5,6 +5,8 @@ description: |-
 
   Recursively explodes auto-downloaded files within archives to detect these file types.
 
+  This rule also catches direct Google Drive download links (drive.google.com/uc?export=download) that automatically download archive files, as these are frequently abused by threat actors to distribute malware.
+
   This technique has been used by known threat actors in the wild.
 detection_methods:
 - Archive analysis
@@ -22,7 +24,16 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-          any(ml.link_analysis(.).files_downloaded,
+          // Detect suspicious direct Google Drive downloads
+          (
+            strings.icontains(.href_url.url, "drive.google.com/uc")
+            and strings.icontains(.href_url.url, "export=download")
+            and any(ml.link_analysis(., mode="aggressive").files_downloaded,
+                .file_extension in $file_extensions_common_archives
+            )
+          )
+
+          or any(ml.link_analysis(.).files_downloaded,
               any(file.explode(.),
                   (
                     // look for files in encrypted zips.
@@ -51,7 +62,7 @@ source: |-
               and not (
                 ml.link_analysis(..).effective_url.domain.root_domain == "zoom.us"
                 and .file_extension == "exe"
-            )
+              )
           )
   )
   and (
@@ -66,5 +77,6 @@ tactics_and_techniques:
 - Evasion
 - LNK
 - Social engineering
-tags: []
+tags:
+- Mimecast Hard to Fix
 type: rule
