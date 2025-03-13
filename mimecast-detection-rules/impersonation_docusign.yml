@@ -19,19 +19,26 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \ 1\n  or strings.ilike(sender.display_name, \"*docuonline*\", \"*via *signature*\"\
   )\n  or (\n    strings.istarts_with(body.html.inner_text, \"docusign\")\n    and\
   \ not strings.istarts_with(body.current_thread.text, \"docusign\")\n  )\n  or (\n\
-  \    (\n      regex.icontains(body.html.raw, '<font size=\"[0-9]\"[^\\>]*>DocuSign</font>')\n\
-  \      or regex.icontains(body.html.raw, '\\nDocu(?:<[^\\>]+>\\s*)+Sign<')\n   \
-  \   or regex.icontains(body.html.raw,\n                         '<span[^>]*style=\"\
-  [^\"]*\">DocuSign<\\/span>'\n      )\n      or regex.icontains(body.html.raw,\n\
-  \                         '<span[^>]*style=\"[^\"]*\">(Docu|D(?:ocu?)?)<\\/span><span[^>]*style=\"\
-  [^\"]*\">(Sign|S(?:ign?)?)<\\/span>'\n      )\n      or regex.icontains(body.html.raw,\
-  \ '<strong>DocuSign</strong>')\n      or regex.icontains(body.html.raw, '<div class=\"\
-  logo\">DocuSign</div>')\n      or regex.icontains(body.html.raw,\n             \
-  \            'D&#917540;&#917540;o&#917540;&#917540;c\uFE00uS&#917540;&#917540;i\uFE00\
-  gn'\n      )\n    )\n    and (\n      regex.icontains(body.html.raw, 'background:\\\
-  s*rgb\\(30,\\s*76,\\s*161\\)')\n      or regex.icontains(body.html.raw,\n      \
-  \                   'background-color:\\s*rgb\\(30,\\s*76,\\s*161\\)'\n      )\n\
-  \      or regex.icontains(body.html.raw,\n                         'background-color:\\\
+  \    (\n      (\n        regex.icontains(sender.display_name, '\\bdocu\\b')\n  \
+  \      and strings.icontains(sender.display_name, 'sign')\n      )\n      or (\n\
+  \        regex.icontains(subject.subject, '\\bdocu\\b')\n        and strings.icontains(subject.subject,\
+  \ 'sign')\n      )\n    )\n    and any(body.links, .display_text in~ (\"Review Document\"\
+  , \"View Document\", \"View Completed Document\"))\n    // negate replies/forwards\
+  \ which involve a legit docusign message-id format\n    and not any(headers.references,\n\
+  \                strings.iends_with(., '@docusign.net')\n                and regex.imatch(.,\
+  \ '[0-9a-f]{32}@docusign.net')\n    )\n\n  )\n  or (\n    (\n      regex.icontains(body.html.raw,\
+  \ '<font size=\"[0-9]\"[^\\>]*>DocuSign</font>')\n      or regex.icontains(body.html.raw,\
+  \ '\\nDocu(?:<[^\\>]+>\\s*)+Sign<')\n      or regex.icontains(body.html.raw,\n \
+  \                        '<span[^>]*style=\"[^\"]*\">DocuSign<\\/span>'\n      )\n\
+  \      or regex.icontains(body.html.raw,\n                         '<span[^>]*style=\"\
+  [^\"]*\">(Docu|D(?:ocu?)?)<\\/span><span[^>]*style=\"[^\"]*\">(Sign|S(?:ign?)?)<\\\
+  /span>'\n      )\n      or regex.icontains(body.html.raw, '<strong>DocuSign</strong>')\n\
+  \      or regex.icontains(body.html.raw, '<div class=\"logo\">DocuSign</div>')\n\
+  \      or regex.icontains(body.html.raw,\n                         'D&#917540;&#917540;o&#917540;&#917540;c\uFE00\
+  uS&#917540;&#917540;i\uFE00gn'\n      )\n    )\n    and (\n      regex.icontains(body.html.raw,\
+  \ 'background:\\s*rgb\\(30,\\s*76,\\s*161\\)')\n      or regex.icontains(body.html.raw,\n\
+  \                         'background-color:\\s*rgb\\(30,\\s*76,\\s*161\\)'\n  \
+  \    )\n      or regex.icontains(body.html.raw,\n                         'background-color:\\\
   s*rgb\\(61,\\s*170,\\s*73\\)'\n      )\n      or regex.icontains(body.html.raw,\n\
   \                         '<div[^>]*BACKGROUND-COLOR: #1e4ca1[^>]*>',\n        \
   \                 '<td[^>]*BACKGROUND-COLOR: #1e4ca1[^>]*>',\n                 \

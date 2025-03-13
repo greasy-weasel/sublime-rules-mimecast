@@ -1,0 +1,50 @@
+attack_types:
+- BEC/Fraud
+- Callback Phishing
+- Credential Phishing
+- Extortion
+- Malware/Ransomware
+- Spam
+description: Detects messages claiming to be from WeTransfer that contain suspicious
+  indicators, including misspelled domains, non-standard TLDs, suspicious file reference
+  numbers, and French language variations. Excludes legitimate WeTransfer traffic
+  with valid DMARC authentication.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: e37885ad-1099-58f9-a428-0910c666d119
+name: 'Brand Impersonation: WeTransfer'
+severity: high
+source: "type.inbound\nand 2 of (\n  (\n    strings.ilike(sender.display_name, '*wetransfer*')\n\
+  \    or strings.ilike(sender.display_name, '*we transfer*')\n    or strings.ilevenshtein(sender.display_name,\
+  \ \"wetransfer\") <= 1\n  ),\n\n  // Check for misspelled wetransfer domains in\
+  \ sender email\n  regex.icontains(sender.email.email, 'nore?pl[a@]y@wetransfer'),\n\
+  \n  // Check for non-legitimate TLDs (.fr or others)\n  regex.icontains(sender.email.domain.root_domain,\
+  \ 'wetransfer\\\\.[a-z]{2,4}$'),\n\n  // Suspicious subject patterns\n  regex.icontains(subject.subject,\n\
+  \                  '(?:Documents?|Files?) (?:Received|Sent) (?:via)? WeTransfer'\n\
+  \  ),\n\n  // Check for file reference numbers which are common in phishing\n  regex.icontains(subject.subject,\n\
+  \                  'WeTransfer \\[(?:File No\\.|)\\s*:\\s*[0-9-]+\\s*\\]'\n  ),\n\
+  \n  // French language patterns\n  regex.icontains(subject.subject, 'vous a envoy[\xE9\
+  e] .{1,30} par WeTransfer'),\n  regex.icontains(subject.subject, \"T[\xC9E]L[\xC9\
+  E]CHARGEZ VOTRE FICHIER\"),\n  regex.icontains(body.current_thread.text, 'transfert\
+  \ expirera'),\n  regex.icontains(body.current_thread.text,\n                  \"\
+  fichiers n'aient pas encore \xE9t\xE9 t\xE9l\xE9charg\xE9s\"\n  ),\n  any(body.links,\n\
+  \      strings.ilike(.display_text, '*wetransfer*')\n      and .href_url.domain.root_domain\
+  \ not in~ ('wetransfer.com', 'we.tl')\n  ),\n  any(body.links,\n      (\n      \
+  \   any($free_file_hosts, strings.ends_with(..href_url.query_params,.))\n      \
+  \  and .href_url.domain.root_domain not in~ ('wetransfer.com', 'we.tl')\n      )\n\
+  \      or network.whois(.href_url.domain).days_old < 30\n      or .href_url.domain.tld\
+  \ in $suspicious_tlds\n  )\n)\nand not (\n  sender.email.domain.root_domain in (\"\
+  wetransfer.com\", \"we.tl\")\n  and headers.auth_summary.dmarc.pass\n)\n// negate\
+  \ highly trusted sender domains unless they fail DMARC authentication\nand (\n \
+  \ (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n  \
+  \  and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender().solicited\n\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  )\n)\nand not profile.by_sender().any_false_positives"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+tags:
+- Mimecast Needs Fix
+type: rule
