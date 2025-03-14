@@ -11,6 +11,7 @@ name: 'Open Redirect: retailrocket.net'
 severity: medium
 source: |-
   type.inbound
+  and length(filter(body.links,  strings.ends_with(.href_url.query_params,"retailrocket.net") )) < 10
   and any(body.links,
            .href_url.query_params == "domain=clickproxy.retailrocket.net"
           and strings.icontains(.href_url.query_params, 'url=')
