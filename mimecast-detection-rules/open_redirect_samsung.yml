@@ -7,15 +7,31 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 164ece9a-26ca-5872-9604-7e948722d627
-name: 'Open redirect: Samsung'
+name: 'Open Redirect: Samsung'
 references:
 - https://twitter.com/ffforward/status/1232958609031598080?lang=en
 - https://twitter.com/JCyberSec_/status/1238488919135715328?s=20
 severity: medium
 source: |-
   type.inbound
-  and any(body.links, .href_url.domain.domain == 't.info.samsungusa.com' and .href_url.path =~ '/r/')
-  and sender.email.domain.root_domain != 'samsungusa.com'
+  and any(body.links,
+          (
+            .href_url.domain.domain == 't.info.samsungusa.com'
+            and .href_url.path =~ '/r/'
+          )
+          or (
+             strings.ends_with(.href_url.query_params,"samsung.com")
+            and strings.iends_with(.href_url.domain.subdomain, '.email')
+            and strings.icontains(.href_url.path, '/r/')
+            and strings.icontains(.href_url.query_params, 'id=')
+            and strings.icontains(.href_url.query_params, 'p1=')
+            // with redirects to google/doubleclick
+            and regex.icontains(.href_url.query_params,
+                                'p1=[^\&]*(?:google\.|doubleclick\.net)'
+            )
+          )
+  )
+  and sender.email.domain.root_domain not in ('samsungusa.com', 'samsung.com')
 tactics_and_techniques:
 - Open redirect
 tags:
