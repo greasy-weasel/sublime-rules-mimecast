@@ -6,10 +6,14 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 967f7a11-d2f0-51ff-a2c4-02ffcc40ebb2
-name: 'Open redirect: weblinkconnect.com'
+name: 'Open Redirect: weblinkconnect.com'
 severity: medium
 source: |-
   type.inbound
+  and length(filter(body.links,
+                    .href_url.domain.root_domain == 'weblinkconnect.com'
+             )
+  ) < 10
   and any(body.links,
           .href_url.domain.domain == 'api-internal.weblinkconnect.com'
           and strings.icontains(.href_url.path, "/click")
