@@ -16,17 +16,18 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \                        \"*shared a file with you*\",\n                       \
   \ \"*shared with you*\",\n                        \"*invited you to review*\",\n\
   \                        \"*received a document*\",\n                        \"\
-  *shared a document*\",\n                        \"*shared this document*\"\n   \
-  \       )\n      )\n      or any(file.explode(beta.message_screenshot()),\n    \
-  \         strings.ilike(.scan.ocr.raw,\n                           \"*shared a file\
-  \ with you*\",\n                           \"*shared with you*\",\n            \
-  \               \"*invited you to review*\",\n                           \"*received\
-  \ a document*\",\n                           \"*shared a document*\",\n        \
-  \                   \"*shared this document*\"\n             )\n      )\n    )\n\
-  \    and (\n      strings.ilike(subject.subject,\n                    \"*shared*\"\
-  ,\n                    \"*updated*\",\n                    \"*sign*\",\n       \
-  \             \"*review*\"\n      )\n      or strings.ilike(subject.subject, \"\
-  *Docs*\", \"*Sheets*\", \"*Slides*\")\n      or any(body.links, strings.icontains(.display_text,\
+  *shared a document*\",\n                        \"*shared this document*\",\n  \
+  \                      \"*shared an item*\"\n          )\n      )\n      or any(file.explode(beta.message_screenshot()),\n\
+  \             strings.ilike(.scan.ocr.raw,\n                           \"*shared\
+  \ a file with you*\",\n                           \"*shared with you*\",\n     \
+  \                      \"*invited you to review*\",\n                          \
+  \ \"*received a document*\",\n                           \"*shared a document*\"\
+  ,\n                           \"*shared this document*\",\n                    \
+  \       \"*shared an item*\"\n             )\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n\
+  \                    \"*shared*\",\n                    \"*updated*\",\n       \
+  \             \"*sign*\",\n                    \"*review*\"\n      )\n      or any(recipients.to,\
+  \ strings.icontains(subject.subject, .email.domain.sld))\n      or strings.ilike(subject.subject,\
+  \ \"*Docs*\", \"*Sheets*\", \"*Slides*\")\n      or any(body.links, strings.icontains(.display_text,\
   \ \"open document\"))\n      or subject.subject is null\n      or subject.subject\
   \ == \"\"\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n        \
   \   \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n           \"\
@@ -52,11 +53,23 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \ .)\n  )\n)\n\n// contains logic that impersonates Google\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
   \      strings.starts_with(.name, \"Google\")\n  )\n  or any(attachments,\n    \
   \     .file_type in $file_types_images\n         and any(ml.logo_detect(.).brands,\
-  \ strings.starts_with(.name, \"Google\"))\n  )\n  or (\n    strings.icontains(body.current_thread.text,\n\
-  \                      strings.concat(\"You have received this email because \"\
-  ,\n                                     sender.email.email,\n                  \
-  \                   \" shared a document with you\"\n                      )\n \
-  \   )\n  )\n)\nand not all(body.links,  any([\"google.com\"], strings.ends_with(..href_url.query_params,.))\
+  \ strings.starts_with(.name, \"Google\"))\n  )\n  or strings.icontains(body.current_thread.text,\n\
+  \                       strings.concat(\"You have received this email because \"\
+  ,\n                                      sender.email.email,\n                 \
+  \                     \" shared a document with you\"\n                       )\n\
+  \  )\n  or strings.icontains(body.current_thread.text,\n                       strings.concat(\"\
+  You have received this email because \",\n                                     \
+  \ sender.email.email,\n                                      \" received a file\
+  \ or folder\"\n                       )\n  )\n  or any(recipients.to,\n        \
+  \ strings.icontains(body.current_thread.text,\n                           strings.concat(\"\
+  You have received this email because \",\n                                     \
+  \     .email.email,\n                                          \" shared a document\
+  \ with you\"\n                           )\n         )\n  )\n  or any(recipients.to,\n\
+  \         strings.icontains(body.current_thread.text,\n                        \
+  \   strings.concat(\"You have received this email because \",\n                \
+  \                          .email.email,\n                                     \
+  \     \" received a file or folder\"\n                           )\n         )\n\
+  \  )\n)\nand not all(body.links,  any([\"google.com\"], strings.ends_with(..href_url.query_params,.))\
   \ )\nand sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
   \ not in (\"google.com\")\nand not (\n  all(headers.references, strings.ends_with(.,\
   \ '@docs-share.google.com'))\n  and headers.return_path.domain.domain == \"doclist.bounces.google.com\"\
