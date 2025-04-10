@@ -42,8 +42,9 @@ source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand 
   )))\n)\n\n// Microsoft logo\nand (\n  any(attachments,\n      .file_type in $file_types_images\n\
   \      and any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Microsoft\"\
   ))\n  )\n  or strings.istarts_with(strings.replace_confusables(body.current_thread.text),\
-  \ \"Microsoft \")\n  or regex.imatch(strings.replace_confusables(body.current_thread.text),\
-  \ '[\\n\\s]*[o0O]ff[il1]ce\\b.*')\n  or any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \ \"Microsoft \")\n  or (\n    regex.imatch(strings.replace_confusables(body.current_thread.text),\n\
+  \                 '[\\n\\s]*[o0O]ff[il1]ce\\b.*'\n    )\n    and not regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                 'office (for lease|rent|sale)'\n    )\n  )\n  or any(ml.logo_detect(beta.message_screenshot()).brands,\n\
   \         strings.starts_with(.name, \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n\
   \                    '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
   #[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
