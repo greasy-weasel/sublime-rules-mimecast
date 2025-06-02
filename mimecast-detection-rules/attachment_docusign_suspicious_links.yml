@@ -36,14 +36,21 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \                                  \"(wichtig|dringend|sofort)\"\n             \
   \      )\n                   and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\\
   n\\n\\n\\n\\n\\n\\n\") > 3\n                 )\n               )\n        )\n  \
-  \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\
-  \ \"*DocuSign Envelope*\")\n                  or strings.ilike(.scan.ocr.raw, \"\
-  *Certificate Of Completion*\")\n                  or (\n                    .depth\
-  \ == 0\n                    and .scan.exiftool.page_count > 10\n               \
-  \     and length(.scan.strings.strings) > 8000\n                  )\n      )\n \
-  \ )\n\n  // accomidate truncated pngs and GIF files which can cause logodetect/OCR\
-  \ failures\n  or (\n    any(attachments,\n        (\n          .file_type =~ \"\
-  gif\"\n          or any(file.explode(.),\n                 any(.scan.exiftool.fields,\n\
+  \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\n\
+  \                                \"*DocuSigned By*\",\n                        \
+  \        \"*DocuSign Envelope ID*\",\n                                \"*Certificate\
+  \ Of Completion*\",\n                                \"*Adobe Sign*\"\n        \
+  \          )\n                  or (\n                    .depth == 0\n        \
+  \            and (\n                      (\n                        .scan.exiftool.page_count\
+  \ > 10\n                        and length(.scan.strings.strings) > 8000\n     \
+  \                 )\n                      or (\n                        .scan.exiftool.producer\
+  \ == \"Acrobat Sign\"\n                        and any(.scan.exiftool.fields,\n\
+  \                                .key == \"SigningReason\"\n                   \
+  \             and .value == \"Certified by Adobe Acrobat Sign\"\n              \
+  \          )\n                      )\n                    )\n                 \
+  \ )\n      )\n  )\n\n  // accomidate truncated pngs and GIF files which can cause\
+  \ logodetect/OCR failures\n  or (\n    any(attachments,\n        (\n          .file_type\
+  \ =~ \"gif\"\n          or any(file.explode(.),\n                 any(.scan.exiftool.fields,\n\
   \                     .key == \"Warning\" and .value == \"Truncated PNG image\"\n\
   \                 )\n          )\n        )\n    )\n    and (\n      any(ml.logo_detect(beta.message_screenshot()).brands,\n\
   \          (\n            .name == \"DocuSign\"\n            or any(file.explode(beta.message_screenshot()),\n\
@@ -59,18 +66,17 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   ,\n                                 // German (important|urgent|immediate)\n   \
   \                              \"(wichtig|dringend|sofort)\"\n              )\n\
   \            )\n        )\n      )\n      and not any(file.explode(beta.message_screenshot()),\n\
-  \                  (\n                    strings.ilike(.scan.ocr.raw, \"*DocuSigned\
-  \ By*\")\n                    and not strings.ilike(.scan.ocr.raw,\n           \
-  \                               \"*DocuSign Envelope ID*\"\n                   \
-  \ )\n                    and not strings.ilike(.scan.ocr.raw,\n                \
-  \                          \"*Certificate Of Completion*\"\n                   \
-  \ )\n                  )\n      )\n    )\n  )\n)\nand (\n  not profile.by_sender().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives\n\n// negate docusign 'via'\
-  \ messages\nand not (\n  any(headers.hops,\n      any(.fields,\n          .name\
-  \ == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\")\n      )\n \
-  \ )\n  and strings.contains(sender.display_name, \"via\")\n)\n\n// negate docusign\
-  \ originated emails\nand not any(headers.hops,\n            regex.imatch(.received.server.raw,\
+  \                  strings.ilike(.scan.ocr.raw,\n                              \
+  \  \"*DocuSigned By*\",\n                                \"*DocuSign Envelope ID*\"\
+  ,\n                                \"*Certificate Of Completion*\",\n          \
+  \                      \"*Adobe Sign*\"\n                  )\n      )\n    )\n \
+  \ )\n)\nand (\n  not profile.by_sender_email().solicited\n  or profile.by_sender_email().prevalence\
+  \ == \"new\"\n  or (\n    profile.by_sender_email().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender_email().any_messages_benign\n  )\n)\nand not profile.by_sender_email().any_messages_benign\n\
+  \n// negate docusign 'via' messages\nand not (\n  any(headers.hops,\n      any(.fields,\n\
+  \          .name == \"X-Api-Host\" and strings.ends_with(.value, \"docusign.net\"\
+  )\n      )\n  )\n  and strings.contains(sender.display_name, \"via\")\n)\n\n// negate\
+  \ docusign originated emails\nand not any(headers.hops,\n            regex.imatch(.received.server.raw,\
   \ \".+.docusign.(net|com)\")\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'

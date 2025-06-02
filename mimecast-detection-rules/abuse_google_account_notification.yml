@@ -1,0 +1,25 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Google Accounts that contain links redirecting
+  to known file hosting services
+detection_methods:
+- Header analysis
+- URL analysis
+- Sender analysis
+id: 59786115-b28c-599b-97fe-0831643c2a34
+name: 'Service Abuse: Google Account Notification with Links to Free File Host'
+references:
+- https://x.com/nicksdjohnson/status/1912439023982834120
+- https://easydmarc.com/blog/google-spoofed-via-dkim-replay-attack-a-technical-breakdown/
+severity: high
+source: |-
+  type.inbound
+  and sender.email.email == "no-reply@accounts.google.com"
+  and any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+- Free file host
+tags:
+- Mimecast Changes Complete
+type: rule

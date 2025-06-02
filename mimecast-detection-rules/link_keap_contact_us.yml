@@ -1,0 +1,43 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: Detects URLs linking to Keap App contact us, which has been used to host
+  malicious content due to its trusted domain status and product capabilities
+detection_methods:
+- URL analysis
+id: a7a69267-5761-5f35-a8ff-6d19b7fd0d99
+name: 'Link: Direct Link to keap.app contact-us page'
+severity: medium
+source: |-
+  type.inbound
+  and length(body.links) < 10
+  and any(body.links,
+          (
+             strings.ends_with(.href_url.query_params,"keap.app")
+            and strings.istarts_with(.href_url.path, '/contact-us/')
+          )
+          // encoded within the query_params (common for open redirects)
+          or (
+            (
+              strings.icontains(.href_url.query_params, 'keap.app')
+              or strings.icontains(.href_url.query_params, 'keap%2eapp')
+              or strings.icontains(.href_url.query_params, 'keap%252eapp')
+            )
+            and strings.istarts_with(.href_url.query_params, '/contact-us/')
+          )
+  )
+  and length(filter(body.links,
+                     strings.ends_with(.href_url.query_params,"keap.app")
+                    // encoded within the query_params (common for open redirects)
+                    or strings.icontains(.href_url.query_params, 'keap.app')
+                    or strings.icontains(.href_url.query_params, 'keap%2eapp')
+                    or strings.icontains(.href_url.query_params, 'keap%252eapp')
+             )
+  ) == 1
+tactics_and_techniques:
+- Free file host
+- Evasion
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule

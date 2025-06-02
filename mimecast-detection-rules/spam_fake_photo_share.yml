@@ -18,21 +18,23 @@ source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.ra
   \  or (length(body.current_thread.text) < 500)\n      )\n      and strings.ilike(subject.subject,\n\
   \                        \"*picture*\",\n                        \"*photo*\",\n\
   \                        \"*image*\",\n                        \"*sad news*\",\n\
-  \                        \"*new pics*\"\n      )\n    )\n    or (\n      (\n   \
-  \     (\n          length(body.html.display_text) < 500\n          and length(body.current_thread.text)\
-  \ == 0\n        )\n        and strings.ilike(body.html.display_text,\n         \
-  \                 \"*picture*\",\n                          \"*photo*\",\n     \
-  \                     \"*image*\",\n                          \"*sad news*\",\n\
-  \                          \"*new pics*\"\n        )\n      )\n      or (\n    \
-  \    (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
+  \                        \"*sad announcement*\",\n                        \"*new\
+  \ pics*\"\n      )\n    )\n    or (\n      (\n        (\n          length(body.html.display_text)\
+  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
+  \  and strings.ilike(body.html.display_text,\n                          \"*picture*\"\
+  ,\n                          \"*photo*\",\n                          \"*image*\"\
+  ,\n                          \"*sad news*\",\n                          \"*sad announcement*\"\
+  ,\n                          \"*new pics*\"\n        )\n      )\n      or (\n  \
+  \      (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
   \        and strings.ilike(body.plain.raw,\n                          \"*picture*\"\
   ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\",\n                          \"*new pics*\"\
-  \n        )\n        and not strings.icontains(body.plain.raw, \"[cid:image\")\n\
-  \      )\n      or (\n        length(body.current_thread.text) < 500\n        and\
-  \ strings.ilike(body.current_thread.text,\n                          \"*picture*\"\
-  ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\",\n                          \"*new pics*\"\
+  ,\n                          \"*sad news*\",\n                          \"*sad announcement*\"\
+  ,\n                          \"*new pics*\"\n        )\n        and not strings.icontains(body.plain.raw,\
+  \ \"[cid:image\")\n      )\n      or (\n        length(body.current_thread.text)\
+  \ < 500\n        and strings.ilike(body.current_thread.text,\n                 \
+  \         \"*picture*\",\n                          \"*photo*\",\n             \
+  \             \"*image*\",\n                          \"*sad news*\",\n        \
+  \                  \"*sad announcement*\",\n                          \"*new pics*\"\
   \n        )\n      )\n    )\n    or (\n      body.plain.raw is not null\n      and\
   \ body.html.display_text is null\n      and (\n        length(body.current_thread.text)\
   \ == 0\n        or (\n          length(body.current_thread.text) < 500\n       \
@@ -46,11 +48,12 @@ source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.ra
   \ \"Resent-From\"))\n        )\n      )\n      and strings.ilike(body.plain.raw,\n\
   \                        \"*picture*\",\n                        \"*photo*\",\n\
   \                        \"*image*\",\n                        \"*sad news*\",\n\
-  \                        \"*pics*\"\n      )\n      and not strings.istarts_with(body.plain.raw,\
-  \ \"[cid:image\")\n      and strings.icontains(subject.subject, sender.display_name)\n\
-  \    )\n  )\n  and length(body.links) < 5\n  and any(body.links,\n          (\n\
-  \            (\n              network.whois(.href_url.domain).days_old < 30\n  \
-  \            or not network.whois(.href_url.domain).found\n              or network.whois(.href_url.domain).found\
+  \                        \"*sad announcement*\",\n                        \"*pics*\"\
+  \n      )\n      and not strings.istarts_with(body.plain.raw, \"[cid:image\")\n\
+  \      and strings.icontains(subject.subject, sender.display_name)\n    )\n  )\n\
+  \  and length(body.links) < 5\n  and any(body.links,\n          (\n            (\n\
+  \              network.whois(.href_url.domain).days_old < 30\n              or not\
+  \ network.whois(.href_url.domain).found\n              or network.whois(.href_url.domain).found\
   \ is null\n            )\n            and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
   \          )\n          or (\n            length(.display_text) == 1\n         \
   \   and  any([\"facebook.com\", \"youtube.com\"], strings.ends_with(..href_url.query_params,.))\n\

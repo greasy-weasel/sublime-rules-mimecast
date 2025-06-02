@@ -1,0 +1,63 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Zoom through social footers, webinar links,
+  and suspicious domain pattern matching. The rule looks for specific combinations
+  of social media links, redirects, and content analysis to identify inauthentic Zoom-branded
+  messages not originating from legitimate Zoom domains.
+detection_methods:
+- Computer Vision
+- Content analysis
+- HTML analysis
+- Natural Language Understanding
+- URL analysis
+id: 5abad540-8e6c-5c82-9f8e-a59009915b63
+name: 'Brand Impersonation: Zoom'
+severity: medium
+source: "type.inbound\nand (\n  // the social links in the footer\n  3 of (\n    any(body.links,\
+  \ strings.icontains(.href_url.url, \"twitter.com/zoom\")),\n    any(body.links,\n\
+  \        strings.icontains(.href_url.url,\n                          \"linkedin.com/company/zoom-video-communications\"\
+  \n        )\n    ),\n    any(body.links, strings.icontains(.href_url.url, \"blog.zoom.us\"\
+  )),\n    strings.ilike(body.html.raw,\n                  '*https://go.pardot.com/l/84442/*/*/84442/*/twitter.png*'\n\
+  \    ),\n    strings.ilike(body.html.raw,\n                  '*https://go.pardot.com/l/84442/*/*/84442/*/linkedin.png*'\n\
+  \    ),\n    strings.ilike(body.html.raw,\n                  '*https://go.pardot.com/l/84442/*/*/84442/*/zoomblog.png*'\n\
+  \    )\n  )\n  or (\n    strings.ilike(body.html.raw,\n                  '*https://st1.zoom.us/homepage/publish/_nuxt/social_icons_footer*.png*'\n\
+  \    )\n  )\n  or (\n    length(beta.ml_topic(body.html.display_text).topics) ==\
+  \ 1\n    and all(beta.ml_topic(body.html.display_text).topics,\n            .name\
+  \ in (\"Events and Webinars\", \"Software and App Updates\")\n            and .confidence\
+  \ != \"low\"\n    )\n    and any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \            .name == \"Zoom\" and .confidence == \"high\"\n    )\n    and any(body.links,\n\
+  \            any(ml.nlu_classifier(.display_text).intents,\n                .name\
+  \ == \"cred_theft\" and .confidence == \"high\"\n            )\n    )\n  )\n  or\
+  \ (\n    any(body.links,\n        // link claims to go to a Zoom domain, but does\
+  \ not\n        (\n          .display_url.domain.root_domain in (\"zoom.us\", \"\
+  zoom.com\")\n          or strings.icontains(.display_text, \"zoom.us\")\n      \
+  \    or strings.icontains(.display_text, \"zoom.com\")\n        )\n        and \
+  \ not(any([\"zoom.us\", \"zoom.com\"], strings.ends_with(..href_url.query_params,.)))\n\
+  \        and (\n          .href_url.domain.tld in $suspicious_tlds\n          //\
+  \ country code second-level domain\n          or strings.istarts_with(.href_url.domain.tld,\
+  \ \"com.\")\n          or (\n            (\n              length(ml.link_analysis(.).files_downloaded)\
+  \ > 0\n              // Zoom logo on page\n              or ml.link_analysis(.).credphish.brand.name\
+  \ == \"Zoom\"\n              // blocked by a Cloudflare CAPTCHA\n              or\
+  \ strings.icontains(ml.link_analysis(.).final_dom.raw,\n                       \
+  \            'https://challenges.cloudflare.com/turnstile/',\n              )\n\
+  \            )\n            and ml.link_analysis(.).effective_url.domain.root_domain\
+  \ not in (\n              \"zoom.us\",\n              \"zoom.com\"\n           \
+  \ )\n          )\n        )\n    )\n  )\n)\n\nand not (\n  (\n    strings.istarts_with(subject.subject,\
+  \ \"RE:\")\n    or strings.istarts_with(subject.subject, \"R:\")\n    or strings.istarts_with(subject.subject,\
+  \ \"ODG:\")\n    or strings.istarts_with(subject.subject, \"\u7B54\u590D:\")\n \
+  \   or strings.istarts_with(subject.subject, \"AW:\")\n    or strings.istarts_with(subject.subject,\
+  \ \"TR:\")\n    or strings.istarts_with(subject.subject, \"FWD:\")\n    or regex.imatch(subject.subject,\
+  \ '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:')\n    or regex.imatch(subject.subject,\n\
+  \                    '^\\[?(EXT|EXTERNAL)\\]?[: ]\\s*(RE|FWD?|FW|AW|TR|ODG|\u7B54\
+  \u590D):.*'\n    )\n  )\n  and (\n    length(headers.references) > 0\n    or any(headers.hops,\
+  \ any(.fields, strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n\n// Not from a\
+  \ legitimate Zoom domain\nand not (\n  sender.email.domain.root_domain in (\n  \
+  \  \"zoom.us\",\n    \"zuora.com\",\n    \"zoomgov.com\",\n    \"zoom.com\"\n  )\n\
+  \  and headers.auth_summary.dmarc.pass\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+- Evasion
+tags:
+- Mimecast Hard to Fix
+type: rule

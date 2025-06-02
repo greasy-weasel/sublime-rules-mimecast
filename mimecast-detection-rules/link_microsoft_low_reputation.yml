@@ -176,6 +176,15 @@ source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand 
   aka.ms\",\n                        \"go.microsoft.com\"\n                      )\n\
   \                    )\n                    and not .href_url.domain.domain == sender.email.domain.domain\n\
   \             )\n  ) == 0\n  and subject.subject == strings.replace_confusables(subject.subject)\n\
+  )\n\n// negate org domains unless they fail DMARC authentication\nand (\n  (\n \
+  \   sender.email.domain.root_domain in $org_domains\n    and (\n      not headers.auth_summary.dmarc.pass\n\
+  \      // MS quarantine digest emails from an org domain are router \"internally\"\
+  \ to MS, therefore, there is no authentication information\n      or not (\n   \
+  \     headers.auth_summary.dmarc.pass is null\n        and all(headers.domains,\n\
+  \                .root_domain in (\"outlook.com\", \"office365.com\")\n        )\n\
+  \        // typical emails from freemail Outlook accounts are from prod.outlook.com\n\
+  \        and strings.ends_with(headers.message_id, \"protection.outlook.com>\")\n\
+  \      )\n    )\n  )\n  or sender.email.domain.root_domain not in $org_domains\n\
   )\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\

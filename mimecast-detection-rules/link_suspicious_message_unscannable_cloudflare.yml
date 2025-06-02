@@ -12,8 +12,12 @@ name: Suspicious message with unscannable Cloudflare link
 severity: medium
 source: |-
   type.inbound
-  and ( // sender domain matches no body domains
-    0 < length(body.links) < 10
+  and (
+    // few links
+    0 < length(body.links) < 20
+    // fewer unique root domain links
+    and length(distinct(body.links, .href_url.domain.root_domain)) < 10
+    // sender domain matches no body domains
     and all(body.links,
              not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
     )
@@ -230,6 +234,7 @@ source: |-
                        "Webmaster",
                        "Winner",
     )
+    or any(body.links, strings.ends_with(.href_url.url, ".exe"))
   )
 
   // link can't be scanned due to Cloudflare captcha

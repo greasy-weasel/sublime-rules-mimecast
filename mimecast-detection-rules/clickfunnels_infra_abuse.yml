@@ -114,7 +114,7 @@ source: |-
     )
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
-  and profile.by_sender().prevalence in ("new", "outlier", "rare")
+  and profile.by_sender_email().prevalence in ("new", "outlier", "rare")
 tactics_and_techniques:
 - Free email provider
 - Free subdomain host

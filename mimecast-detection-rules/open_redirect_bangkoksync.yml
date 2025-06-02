@@ -1,0 +1,38 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: |-
+  Message contains use of the bangkoksync.com open redirect. This has been exploited in the wild.
+detection_methods:
+- Sender analysis
+- URL analysis
+id: e1449ccd-566e-5218-8bfe-269afc4182e7
+name: 'Open Redirect: bangkoksync.com'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"bangkoksync.com")
+          and strings.icontains(.href_url.path, '/goto.php')
+          and regex.icontains(.href_url.query_params,
+                              'url=(?:https?|(?:\/|%2f)(?:\/|%2f))'
+          )
+          and any(.href_url.query_params_decoded["url"],
+                  strings.parse_url(.).domain.root_domain != "bangkoksync.com"
+          )
+  )
+  and not sender.email.domain.root_domain == "bangkoksync.com"
+
+  // negate highly trusted sender domains unless they fail DMARC authentication
+  and (
+    (
+      sender.email.domain.root_domain in $high_trust_sender_root_domains
+      and not headers.auth_summary.dmarc.pass
+    )
+    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
+  )
+tactics_and_techniques:
+- Open redirect
+tags:
+- Mimecast Hard to Fix
+type: rule
