@@ -121,30 +121,33 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \ 'rgb\\((25[0-5]),\\s?(2[0-5]),\\s?(6[0-4])\\)'),\n    regex.icontains(body.html.raw,\
   \ 'rgb\\((6[0-2]),\\s?(18[0-1]),\\s?(9[0-3])\\)'),\n    regex.icontains(body.html.raw,\
   \ 'rgb\\(([0-4]),\\s?(18[0-1]),\\s?(24[0])\\)'),\n    regex.icontains(body.html.raw,\
-  \ 'rgb\\((25[0-5]),\\s?(20[0-2]),\\s?([0-7])\\)')\n  )\n  or regex.icontains(body.html.raw,\n\
-  \                     '<a[^>]+style=\"[^\"]*background-color:\\s*#[0-9A-F]{2}[5-9A-F]{2}[0-9A-F]{2}[^\"\
-  ]*\"[^>]*>[^<]*(?:open)[^<]*</a>' // blue button containing the word \"open\"\n\
-  \  )\n  or (\n    any(recipients.to,\n        strings.icontains(body.current_thread.text,\n\
-  \                          strings.concat(.email.domain.sld,\n                 \
-  \                        \" shared a file with you\"\n                         \
-  \ )\n        )\n    )\n  )\n  // contains HTML and wording from the sharepoint template\n\
+  \ 'rgb\\((25[0-5]),\\s?(20[0-2]),\\s?([0-7])\\)')\n  )\n  or (\n    any(recipients.to,\n\
+  \        strings.icontains(body.current_thread.text,\n                         \
+  \ strings.concat(.email.domain.sld,\n                                         \"\
+  \ shared a file with you\"\n                          )\n        )\n    )\n  )\n\
+  \  or (\n    any(recipients.to,\n        strings.icontains(body.current_thread.text,\n\
+  \                          strings.concat(\"This link will work for \",\n      \
+  \                                   .email.email\n                          )\n\
+  \        )\n    )\n  )\n  // contains HTML and wording from the sharepoint template\n\
   \  or (\n    (\n      //\n      // This rule makes use of a beta feature and is\
   \ subject to change without notice\n      // using the beta feature in custom rules\
   \ is not suggested until it has been formally released\n      //\n\n      // alt\
-  \ text for the global icon\n      length(beta.html_xpath(body.html, '//img[@alt=\"\
-  permission globe icon\"]').nodes\n      ) > 0\n      // reference to the global\
-  \ icon id\n      or length(beta.html_xpath(body.html, '//img[@id=\"Picture_x0020_1\"\
-  ]').nodes\n      ) > 0\n      // a comment reference the globe icon\n      or strings.icontains(body.html.raw,\n\
+  \ text for the global icon\n      length(html.xpath(body.html, '//img[@alt=\"permission\
+  \ globe icon\"]').nodes) > 0\n      // reference to the global icon id\n      or\
+  \ length(html.xpath(body.html, '//img[@id=\"Picture_x0020_1\"]').nodes) > 0\n  \
+  \    // a comment reference the globe icon\n      or strings.icontains(body.html.raw,\n\
   \                           ' <!-- Permission globe icon placeholder -->'\n    \
   \  )\n    )\n    // the wording from the sharepoint share\n    and strings.contains(body.current_thread.text,\n\
   \                         'This invite will only work for you and people with existing\
-  \ access'\n    )\n  )\n  or 2 of\n    (\n         strings.icontains(body.current_thread.text,\
-  \ 'Microsoft respects your privacy'),\n         strings.icontains(body.current_thread.text,\
-  \ 'please read our Privacy Statement'),\n         strings.icontains(body.current_thread.text,\
-  \ 'Microsoft Corporation, One Microsoft Way, Redmond, WA 98052'),\n    )\n)\n\n\
-  // Negate messages when the message-id indciates the message is from MS actual.\
-  \ DKIM/SPF domains can be custom and therefore are unpredictable.\nand not (\n \
-  \ strings.starts_with(headers.message_id, '<Share-')\n  and strings.ends_with(headers.message_id,\
+  \ access'\n    )\n  )\n  or any(html.xpath(body.html,\n                    \"//*[contains(translate(@style,\
+  \ 'ABCDEF', 'abcdef'), 'color:#605e5c')]\"\n         ).nodes,\n         .display_text\
+  \ =~ \"Privacy Statement\"\n  )\n  or 2 of (\n    strings.icontains(body.current_thread.text,\n\
+  \                      'Microsoft respects your privacy'\n    ),\n    strings.icontains(body.current_thread.text,\n\
+  \                      'please read our Privacy Statement'\n    ),\n    strings.icontains(body.current_thread.text,\n\
+  \                      'Microsoft Corporation, One Microsoft Way, Redmond, WA 98052'\n\
+  \    ),\n  )\n)\n\n// Negate messages when the message-id indciates the message\
+  \ is from MS actual. DKIM/SPF domains can be custom and therefore are unpredictable.\n\
+  and not (\n  strings.starts_with(headers.message_id, '<Share-')\n  and strings.ends_with(headers.message_id,\
   \ '@odspnotify>')\n)\n\n// fake Sharepoint shares are easy to identify if there\
   \ are any links\n// that don't point to microsoft[.]com or *.sharepoint[.]com\n\
   and not all(body.links,\n             any([\n              \"1drv.ms\",\n      \

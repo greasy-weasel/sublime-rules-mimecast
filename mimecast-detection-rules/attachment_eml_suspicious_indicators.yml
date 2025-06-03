@@ -13,13 +13,15 @@ source: "type.inbound\nand (\n  // a single attachmed EML\n  length(attachments)
   \ message\n  // likely within the signatures\n  or (\n    length(filter(attachments,\n\
   \                  .file_extension == \"eml\" or .content_type == \"message/rfc822\"\
   \n           )\n    ) == 1\n    and length(filter(attachments,\n               \
-  \       .file_type in $file_types_images\n                      and any(regex.extract(.content_id,\
-  \ '^<(?P<cid>.*)\\>$'),\n                              strings.icontains(body.html.raw,\n\
-  \                                                .named_groups[\"cid\"]\n      \
-  \                        )\n                      )\n               )\n    ) ==\
-  \ length(attachments) - 1\n  )\n)\nand (\n  length(body.current_thread.text) < 300\n\
-  \  or body.current_thread.text is null\n  or any(ml.nlu_classifier(body.current_thread.text).intents,\n\
-  \         .name in (\"cred_theft\", \"steal_pii\")\n  )\n)\nand not any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  \       .file_type in $file_types_images\n                      and\n          \
+  \            (\n                        any(regex.extract(.content_id, '^<(?P<cid>.*)\\\
+  >$'),\n                          strings.icontains(body.html.raw,\n            \
+  \                                .named_groups[\"cid\"]\n                      \
+  \    )\n                        )\n                        or strings.icontains(body.html.raw,\
+  \ .content_id)\n                      )\n               )\n    ) == length(attachments)\
+  \ - 1\n  )\n)\nand (\n  length(body.current_thread.text) < 300\n  or body.current_thread.text\
+  \ is null\n  or any(ml.nlu_classifier(body.current_thread.text).intents,\n     \
+  \    .name in (\"cred_theft\", \"steal_pii\")\n  )\n)\nand not any(ml.nlu_classifier(body.current_thread.text).intents,\n\
   \            .name == \"benign\" and .confidence == \"high\"\n)\nand any(attachments,\n\
   \        (.file_extension == \"eml\" or .content_type == \"message/rfc822\")\n \
   \       and (\n          // suspicious indicators\n          file.parse_eml(.).sender.email.email\

@@ -22,8 +22,8 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \                              )\n            ).entities,\n            .name ==\
   \ \"financial\"\n    )\n  )\n  // manual indicators failsafe\n  or 3 of (\n    //\
   \ malware terms\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                    \"((spy|mal)ware|t[r\u0157]ojan|remote control)\"\n    ),\n\
-  \    // actions recorded\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    \"((spy|mal)ware|t[r\u0157]ojan|remote control|infiltrat(ed|ion))\"\
+  \n    ),\n    // actions recorded\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    \"po[r\u0157]n|adult (web)?site|webcam|mastu[r\u0157]bating|je[r\u0157\
   ]king off|pleasu[r\u0157]ing you[r\u0157]self|getting off\"\n    ),\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    \"pe[r\u0157]ve[r\u0157]t|pe[r\u0157]ve[r\u0157]sion|mastu[r\u0157\
@@ -35,8 +35,8 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \ (?:\\w+\\s*){0,4} (?:data|evidence|videos?)'\n    ),\n    // a threat from the\
   \ actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    'sen[dt]\\s*(?:\\w+\\s*){0,2}\\s*to\\s*(?:\\w+\\s*){0,3}\\\
-  s*you[r\u0157] contacts'\n    ),\n    // bitcoin language (excluding newsletters)\n\
-  \    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  s*.{0,10}(contacts|media|family|friends)'\n    ),\n    // bitcoin language (excluding\
+  \ newsletters)\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                      'bitc[o\xF6\u0629]+in|\\bbtc\\b|blockchain'\n      )\n  \
   \    // negate cryptocurrency newsletters\n      and not (\n        any(body.links,\n\
   \            strings.icontains(.display_text, \"unsubscribe\")\n            and\
