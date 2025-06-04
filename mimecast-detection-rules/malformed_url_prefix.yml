@@ -12,8 +12,10 @@ references:
 severity: high
 source: |-
   any(body.links, regex.icontains(.href_url.url, ':/\\'))
+  or regex.icontains(body.plain.raw, 'https?:\\\\[^\\s]+')
 tactics_and_techniques:
 - Evasion
 tags:
+- Attack surface reduction
 - Mimecast Hard to Fix
 type: rule
