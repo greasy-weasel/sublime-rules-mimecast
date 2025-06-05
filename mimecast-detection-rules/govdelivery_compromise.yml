@@ -15,9 +15,11 @@ name: 'Vendor Compromise: GovDelivery Message With Suspicious Link'
 severity: high
 source: |-
   type.inbound
-  and sender.email.domain.domain == "public.govdelivery.com"
-  and headers.auth_summary.spf.pass
-  and headers.auth_summary.dmarc.pass
+  and (
+    sender.email.domain.domain == "public.govdelivery.com"
+    or any(headers.domains, .root_domain == "govdelivery.com")
+  )
+  and (headers.auth_summary.spf.pass or headers.auth_summary.dmarc.pass)
   and length(body.links) < 10
   and any(body.links,
           any(filter(regex.extract(.href_url.path, '/CL0/(?P<url>.*?)/1/'),

@@ -39,9 +39,11 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\n\
   \                                \"*DocuSigned By*\",\n                        \
   \        \"*DocuSign Envelope ID*\",\n                                \"*Certificate\
-  \ Of Completion*\",\n                                \"*Adobe Sign*\"\n        \
-  \          )\n                  or (\n                    .depth == 0\n        \
-  \            and (\n                      (\n                        .scan.exiftool.page_count\
+  \ Of Completion*\",\n                                \"*Adobe Sign*\",\n       \
+  \                         // Additional Adobe Acrobat Sign check\n             \
+  \                   \"*Powered by\\nAdobe\\nAcrobat Sign*\"\n                  )\n\
+  \                  or (\n                    .depth == 0\n                    and\
+  \ (\n                      (\n                        .scan.exiftool.page_count\
   \ > 10\n                        and length(.scan.strings.strings) > 8000\n     \
   \                 )\n                      or (\n                        .scan.exiftool.producer\
   \ == \"Acrobat Sign\"\n                        and any(.scan.exiftool.fields,\n\
