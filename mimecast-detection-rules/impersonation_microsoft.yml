@@ -50,11 +50,13 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   \   profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
   \  )\n)\n\n// negate legitimate Office 365 bouncebacks\nand not (\n  all(attachments,\n\
   \      .content_type in (\"message/delivery-status\", \"message/rfc822\")\n  )\n\
-  \  and (sender.email.local_part in ('postmaster', 'mailer-daemon'))\n  and strings.contains(subject.subject,\
-  \ 'Undeliverable:')\n)\n\n// negate highly trusted sender domains unless they fail\
-  \ DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
-  \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)"
+  \  and (\n    sender.email.local_part in ('postmaster', 'mailer-daemon')\n    or\
+  \ strings.starts_with(sender.email.local_part, 'microsoftexchange')\n  )\n  and\
+  \ strings.contains(subject.subject, 'Undeliverable:')\n)\n\n// negate highly trusted\
+  \ sender domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
+  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
