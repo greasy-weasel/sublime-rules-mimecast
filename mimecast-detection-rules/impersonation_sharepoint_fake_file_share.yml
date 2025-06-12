@@ -175,10 +175,11 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  profile.by_sender().solicited\
-  \ == false\n  or profile.by_sender_email().prevalence == \"new\"\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
-  \    and not profile.by_sender().any_false_positives\n  )\n  // or it's a spoof\
-  \ of the org_domain\n  or (\n    sender.email.domain.domain in $org_domains\n  \
-  \  and not (\n      headers.auth_summary.spf.pass\n      or coalesce(headers.auth_summary.dmarc.pass,\
+  \ == false\n  or profile.by_sender_email().prevalence == \"new\"\n  or profile.by_sender_email().days_since.last_contact\
+  \ > 30\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and\
+  \ not profile.by_sender().any_false_positives\n  )\n  // or it's a spoof of the\
+  \ org_domain\n  or (\n    sender.email.domain.domain in $org_domains\n    and not\
+  \ (\n      headers.auth_summary.spf.pass\n      or coalesce(headers.auth_summary.dmarc.pass,\
   \ false)\n    )\n  )\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - 'Impersonation: Brand'
