@@ -46,8 +46,8 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   \u1D57\u1D57\U0001D42D\U0001D461]\" // [sic]\n  )\n)\nand sender.email.domain.root_domain\
   \ not in~ (\n  'microsoft.com',\n  'microsoftstoreemail.com',\n  'microsoftsupport.com',\n\
   \  'office.com',\n  'teams-events.com',\n  'qualtrics-research.com',\n  'skype.com',\n\
-  \  'azureadnotifications.us',\n  'microsoftonline.us'\n)\nand (\n  profile.by_sender().prevalence\
-  \ in (\"new\", \"outlier\")\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \  'azureadnotifications.us',\n  'microsoftonline.us',\n  'mail.microsoft'\n)\n\
+  and (\n  profile.by_sender().prevalence in (\"new\", \"outlier\")\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
   \    and not profile.by_sender().any_false_positives\n  )\n)\n\n// negate legitimate\
   \ Office 365 bouncebacks\nand not (\n  all(attachments,\n      .content_type in\
   \ (\"message/delivery-status\", \"message/rfc822\")\n  )\n  and (\n    sender.email.local_part\
