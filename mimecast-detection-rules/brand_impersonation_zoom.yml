@@ -52,8 +52,8 @@ source: "type.inbound\nand (\n  // the social links in the footer\n  3 of (\n   
   \u590D):.*'\n    )\n  )\n  and (\n    length(headers.references) > 0\n    or any(headers.hops,\
   \ any(.fields, strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n\n// Not from a\
   \ legitimate Zoom domain\nand not (\n  sender.email.domain.root_domain in (\n  \
-  \  \"zoom.us\",\n    \"zuora.com\",\n    \"zoomgov.com\",\n    \"zoom.com\"\n  )\n\
-  \  and headers.auth_summary.dmarc.pass\n)"
+  \  \"zoom.us\",\n    \"zuora.com\",\n    \"zoomgov.com\",\n    \"zoom.com\",\n \
+  \   \"zoom-x.de\"\n  )\n  and headers.auth_summary.dmarc.pass\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
