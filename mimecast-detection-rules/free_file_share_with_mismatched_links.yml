@@ -1,0 +1,59 @@
+attack_types:
+- BEC/Fraud
+- Callback Phishing
+- Credential Phishing
+- Extortion
+- Malware/Ransomware
+- Spam
+description: Detects messages from first-time senders containing free file sharing
+  links, multiple urgent language indicators, and mismatched link text.
+detection_methods:
+- Natural Language Understanding
+- Sender analysis
+- URL analysis
+id: 478334c8-66be-5cc2-8bd5-3422cc8d2e9d
+name: 'Mismatched Links: Free File Share With Urgent Language'
+severity: medium
+source: |-
+  type.inbound
+
+  // Unsolicited + new sender
+  and (
+    profile.by_sender_email().prevalence in ("new", "outlier")
+    and not profile.by_sender_email().solicited
+  )
+  and not profile.by_sender_email().any_messages_benign
+
+  // Free file share
+  and any(body.links,  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.)) )
+
+  // urgent language
+  and 3 of (
+    any(ml.nlu_classifier(body.current_thread.text).entities, .name == "urgency"),
+    any(ml.nlu_classifier(subject.subject).entities, .name == "urgency"),
+    regex.icontains(body.current_thread.text,
+                    'immediate|urgent|expire|suspend|action.{0,20}required|time.{0,10}sensitive|verify.{0,20}immediately|complete.{0,20}requested'
+    ),
+    regex.icontains(subject.subject,
+                    'immediate|urgent|expire|suspend|action.{0,20}required|important.{0,20}announcement'
+    ),
+    regex.icontains(body.current_thread.text,
+                    'deadline|expires?.{0,10}(today|soon)|act.{0,10}now|time.{0,10}running.{0,10}out|limited.{0,10}time'
+    )
+  )
+
+  // Mismatched link
+  and any(body.links,
+          .mismatched == true
+          and length(body.links) <= 3
+          and not  any([
+            "mimecast.com",
+            "mimecastprotect.com"
+          ], strings.ends_with(..href_url.query_params,.))
+  )
+tactics_and_techniques:
+- Free file host
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule
