@@ -43,17 +43,21 @@ source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.ra
   \ wrote'\n            )\n            or strings.icontains(body.plain.raw, 'Original\
   \ Message')\n          )\n          and not regex.contains(body.current_thread.text,\n\
   \                                 'On (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday).{0,50}\
-  \ wrote'\n          )\n          and not strings.icontains(body.current_thread.text,\
-  \ 'Original Message')\n          and not any(headers.hops, any(.fields, .name ==\
-  \ \"Resent-From\"))\n        )\n      )\n      and strings.ilike(body.plain.raw,\n\
-  \                        \"*picture*\",\n                        \"*photo*\",\n\
-  \                        \"*image*\",\n                        \"*sad news*\",\n\
-  \                        \"*sad announcement*\",\n                        \"*pics*\"\
-  \n      )\n      and not strings.istarts_with(body.plain.raw, \"[cid:image\")\n\
-  \      and strings.icontains(subject.subject, sender.display_name)\n    )\n  )\n\
-  \  and length(body.links) < 5\n  and any(body.links,\n          (\n            (\n\
-  \              network.whois(.href_url.domain).days_old < 30\n              or not\
-  \ network.whois(.href_url.domain).found\n              or network.whois(.href_url.domain).found\
+  \ wrote'\n          )\n          and not strings.icontains(body.current_thread.text,\n\
+  \                                    'Original Message'\n          )\n         \
+  \ and not any(headers.hops, any(.fields, .name == \"Resent-From\"))\n        )\n\
+  \      )\n      and strings.ilike(body.plain.raw,\n                        \"*picture*\"\
+  ,\n                        \"*photo*\",\n                        \"*image*\",\n\
+  \                        \"*sad news*\",\n                        \"*sad announcement*\"\
+  ,\n                        \"*pics*\"\n      )\n      and not strings.istarts_with(body.plain.raw,\
+  \ \"[cid:image\")\n      and strings.icontains(subject.subject, sender.display_name)\n\
+  \    )\n    or (\n      strings.icontains(subject.subject, sender.display_name)\n\
+  \      and sender.email.domain.root_domain in $free_email_providers\n      and length(body.links)\
+  \ == 2\n      and length(filter(body.links, .display_text == \"h\")) == 1\n    \
+  \  and length(filter(body.links, .display_url.scheme == \"ttp\")) == 1\n    )\n\
+  \  )\n  and length(body.links) < 5\n  and any(body.links,\n          (\n       \
+  \     (\n              network.whois(.href_url.domain).days_old < 30\n         \
+  \     or not network.whois(.href_url.domain).found\n              or network.whois(.href_url.domain).found\
   \ is null\n            )\n            and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
   \          )\n          or (\n            length(.display_text) == 1\n         \
   \   and  any([\"facebook.com\", \"youtube.com\"], strings.ends_with(..href_url.query_params,.))\n\

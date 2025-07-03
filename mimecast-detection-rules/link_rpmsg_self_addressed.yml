@@ -1,0 +1,35 @@
+attack_types:
+- Credential Phishing
+description: Detects when a user receives a protected message (RPMSG) with the to
+  and from headers matching.
+detection_methods:
+- Content analysis
+- File analysis
+- Header analysis
+- Sender analysis
+- URL analysis
+id: a5a2f75d-88a2-5c19-9b83-fa55c2bd3ccf
+name: 'Link: Microsoft Protected Message with Matching Sender and Recipient Addresses '
+severity: medium
+source: |-
+  type.inbound
+  // contains the rpmsg
+  and any(attachments,
+          .file_extension == "rpmsg"
+          or .content_type == "application/x-microsoft-rpmsg-message"
+  )
+  // contains the proper link
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"office365.com")
+          and strings.icontains(.href_url.query_params, "InternetMessageID=")
+  )
+  // the To and From headers are the same
+  and length(recipients.to) == 1
+  and all(recipients.to, .email.email == sender.email.email)
+tactics_and_techniques:
+- Evasion
+- Social engineering
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule
