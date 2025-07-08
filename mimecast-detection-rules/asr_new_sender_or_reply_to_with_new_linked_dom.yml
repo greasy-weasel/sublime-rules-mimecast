@@ -1,0 +1,37 @@
+attack_types:
+- BEC/Fraud
+- Credential Phishing
+- Malware/Ransomware
+description: "This rule detects inbound emails that contain links and a reply-to address,\
+  \ where either the sender domain or the reply-to domain is newly registered (\u2264\
+  30 days old), and at least one linked domain is also very new (\u226414 days old).\
+  \ It flags potential phishing or business email compromise attempts that use recently\
+  \ created infrastructure and reply-to mismatch tactics to bypass trust and impersonate\
+  \ legitimate contacts."
+detection_methods:
+- Header analysis
+- URL analysis
+- Whois
+id: e5b6a81f-8587-585f-957a-712987ad9884
+name: Newly Registered Sender or Reply-To Domain with Newly Registered Linked Domain
+severity: medium
+source: |-
+  type.inbound
+  and length(body.links) > 0
+  and length(headers.reply_to) > 0
+  and (
+    any(headers.reply_to,
+        network.whois(.email.domain).days_old <= 30
+        and .email.email != sender.email.email
+    )
+    or network.whois(sender.email.domain).days_old <= 30
+  )
+  and any(distinct(body.links, .href_url.domain.root_domain),
+          network.whois(.href_url.domain).days_old < 14
+  )
+tactics_and_techniques:
+- Social engineering
+tags:
+- Attack surface reduction
+- Mimecast Needs Fix
+type: rule

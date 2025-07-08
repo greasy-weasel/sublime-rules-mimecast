@@ -1,8 +1,15 @@
-name: "Service Abuse: Zoom Docs From an Unsolicited Sender Address"
-description: "Detects messages from Zoom Docs in which the document originates from a newly observed email address.  The email address is extracted from the body message."
-type: "rule"
-severity: "low"
-source: |
+attack_types:
+- Credential Phishing
+description: Detects messages from Zoom Docs in which the document originates from
+  a newly observed email address or contains suspicious indicators.
+detection_methods:
+- HTML analysis
+- Sender analysis
+- Header analysis
+id: 064b2594-d24d-5857-8571-43ff2e8267c9
+name: 'Service Abuse: Suspicious Zoom Docs Link'
+severity: low
+source: |-
   type.inbound
   and sender.email.domain.root_domain == "zoom.us"
   and sender.display_name == "Zoom Docs"
@@ -20,17 +27,44 @@ source: |
                 and .named_groups["sender_domain"] in $sender_domains
               )
           )
+          or any(body.links,
+                  .href_url.query_params == "domain=docs.zoom.us"
+                 and any(filter(ml.link_analysis(., mode="aggressive").final_dom.links,
+                                .href_url.domain.root_domain != 'zoom.us'
+                                and .href_url.domain.domain != 'zoom.us'
+                         ),
+                         (
+                           // any of those links domains are new
+                           network.whois(.href_url.domain).days_old < 30
+                           // go to free file hosts
+                           or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+                           or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+
+                           // go to free subdomains hosts
+                           or (
+                              any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+                             // where there is a subdomain
+                             and .href_url.domain.subdomain is not null
+                             and  strings.starts_with(.href_url.query_params,"domain=www."))
+                           )
+                           // go to url shortners
+                           or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                           or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                           or (
+                             // find any links that mention common "action" words
+                             regex.icontains(.display_text,
+                                             '(?:view|click|show|access|download|goto|Validate|Va[il]idar|login|verify|account)'
+                             )
+                           )
+                         )
+                 )
+          )
   )
-tags:
- - "Attack surface reduction"
-attack_types:
-  - "Credential Phishing"
 tactics_and_techniques:
-  - "Social engineering"
-  - "Free file host"
-  - "Evasion"
-detection_methods:
-  - "HTML analysis"
-  - "Sender analysis"
-  - "Header analysis"
-id: "064b2594-d24d-5857-8571-43ff2e8267c9"
+- Social engineering
+- Free file host
+- Evasion
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule
