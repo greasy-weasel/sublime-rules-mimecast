@@ -49,9 +49,9 @@ source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  
   \    and headers.auth_summary.dmarc.pass\n    and (\n      not profile.by_sender().solicited\n\
   \      or profile.by_sender().any_messages_malicious_or_spam\n      or profile.by_sender_email().days_since.last_contact\
   \ > 14\n    )\n    and not profile.by_sender().any_messages_benign\n    and not\
-  \ sender.email.domain.root_domain in (\"adobe-events.com\", \"frame.io\")\n  )\n\
-  \  or not headers.auth_summary.spf.pass\n  or headers.auth_summary.spf.pass is null\n\
-  \  or not headers.auth_summary.dmarc.pass\n  or headers.auth_summary.dmarc.pass\
+  \ sender.email.domain.root_domain in (\"adobe-events.com\", \"frame.io\", \"workfront.com\"\
+  )\n  )\n  or not headers.auth_summary.spf.pass\n  or headers.auth_summary.spf.pass\
+  \ is null\n  or not headers.auth_summary.dmarc.pass\n  or headers.auth_summary.dmarc.pass\
   \ is null\n)\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
