@@ -12,30 +12,31 @@ detection_methods:
 id: eb086f7d-3ad7-52cd-8e16-3ce08726b9ea
 name: 'Spam: Fake photo share'
 severity: low
-source: "type.inbound\nand (\n  (\n    (\n      (\n        (length(body.plain.raw)\
-  \ < 500 and length(body.current_thread.text) == 0)\n        or (\n          length(body.html.display_text)\
-  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
-  \  or (length(body.current_thread.text) < 500)\n      )\n      and strings.ilike(subject.subject,\n\
-  \                        \"*picture*\",\n                        \"*photo*\",\n\
-  \                        \"*image*\",\n                        \"*sad news*\",\n\
-  \                        \"*sad announcement*\",\n                        \"*new\
-  \ pics*\"\n      )\n    )\n    or (\n      (\n        (\n          length(body.html.display_text)\
-  \ < 500\n          and length(body.current_thread.text) == 0\n        )\n      \
-  \  and strings.ilike(body.html.display_text,\n                          \"*picture*\"\
-  ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\",\n                          \"*sad announcement*\"\
-  ,\n                          \"*new pics*\"\n        )\n      )\n      or (\n  \
-  \      (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
-  \        and strings.ilike(body.plain.raw,\n                          \"*picture*\"\
-  ,\n                          \"*photo*\",\n                          \"*image*\"\
-  ,\n                          \"*sad news*\",\n                          \"*sad announcement*\"\
-  ,\n                          \"*new pics*\"\n        )\n        and not strings.icontains(body.plain.raw,\
-  \ \"[cid:image\")\n      )\n      or (\n        length(body.current_thread.text)\
-  \ < 500\n        and strings.ilike(body.current_thread.text,\n                 \
-  \         \"*picture*\",\n                          \"*photo*\",\n             \
-  \             \"*image*\",\n                          \"*sad news*\",\n        \
-  \                  \"*sad announcement*\",\n                          \"*new pics*\"\
-  \n        )\n      )\n    )\n    or (\n      body.plain.raw is not null\n      and\
+source: "type.inbound\nand length(attachments) == 0\nand (\n  (\n    (\n      (\n\
+  \        (length(body.plain.raw) < 500 and length(body.current_thread.text) == 0)\n\
+  \        or (\n          length(body.html.display_text) < 500\n          and length(body.current_thread.text)\
+  \ == 0\n        )\n        or (length(body.current_thread.text) < 500)\n      )\n\
+  \      and strings.ilike(subject.subject,\n                        \"*picture*\"\
+  ,\n                        \"*photo*\",\n                        \"*image*\",\n\
+  \                        \"*sad news*\",\n                        \"*sad announcement*\"\
+  ,\n                        \"*new pics*\"\n      )\n    )\n    or (\n      (\n \
+  \       (\n          length(body.html.display_text) < 500\n          and length(body.current_thread.text)\
+  \ == 0\n        )\n        and strings.ilike(body.html.display_text,\n         \
+  \                 \"*picture*\",\n                          \"*photo*\",\n     \
+  \                     \"*image*\",\n                          \"*sad news*\",\n\
+  \                          \"*sad announcement*\",\n                          \"\
+  *new pics*\"\n        )\n      )\n      or (\n        (length(body.plain.raw) <\
+  \ 500 and length(body.current_thread.text) == 0)\n        and strings.ilike(body.plain.raw,\n\
+  \                          \"*picture*\",\n                          \"*photo*\"\
+  ,\n                          \"*image*\",\n                          \"*sad news*\"\
+  ,\n                          \"*sad announcement*\",\n                         \
+  \ \"*new pics*\"\n        )\n        and not strings.icontains(body.plain.raw, \"\
+  [cid:image\")\n      )\n      or (\n        length(body.current_thread.text) < 500\n\
+  \        and strings.ilike(body.current_thread.text,\n                         \
+  \ \"*picture*\",\n                          \"*photo*\",\n                     \
+  \     \"*image*\",\n                          \"*sad news*\",\n                \
+  \          \"*sad announcement*\",\n                          \"*new pics*\"\n \
+  \       )\n      )\n    )\n    or (\n      body.plain.raw is not null\n      and\
   \ body.html.display_text is null\n      and (\n        length(body.current_thread.text)\
   \ == 0\n        or (\n          length(body.current_thread.text) < 500\n       \
   \   // fake forward indicator in the plain text body\n          and (\n        \
