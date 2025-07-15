@@ -68,6 +68,9 @@ source: |-
         ),
         any(ml.nlu_classifier(body.current_thread.text).tags,
             .name == "purchase_order" and .confidence == "high"
+        ),
+        any(ml.nlu_classifier(body.current_thread.text).entities,
+            .name == "financial" and regex.imatch(.text, "rfp|rfq")
         )
       )
       // Required: at least one RFQ/RFP keyword pattern
@@ -94,6 +97,9 @@ source: |-
           any(ml.nlu_classifier(body.current_thread.text).tags,
               .name == "purchase_order" and .confidence == "high"
           ),
+          any(ml.nlu_classifier(body.current_thread.text).entities,
+              .name == "financial" and regex.imatch(.text, "rfp|rfq")
+          ),
 
           // Non-keyword indicators
           (
@@ -104,8 +110,8 @@ source: |-
                     .name == "urgency"
             )
             and not any(beta.ml_topic(body.current_thread.text).topics,
-                      .name == "Advertising and Promotions"
-                      and .confidence == "high"
+                        .name == "Advertising and Promotions"
+                        and .confidence == "high"
             )
           ),
           (
@@ -126,6 +132,11 @@ source: |-
                               )
                        )
             ) < 3
+          ),
+          // mentions an attachment that does not exist
+          (
+            length(attachments) == 0
+            and strings.icontains(body.current_thread.text, "attached")
           )
         )
       )
@@ -156,7 +167,11 @@ source: |-
                         ),
                         any(ml.nlu_classifier(.scan.ocr.raw).tags,
                             .name == "purchase_order" and .confidence == "high"
-                        )
+                        ),
+                        any(ml.nlu_classifier(.scan.ocr.raw).entities,
+                            .name == "financial"
+                            and regex.imatch(.text, "rfp|rfq")
+                        ),
                       )
               )
       )
