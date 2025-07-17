@@ -27,7 +27,7 @@ source: |-
     or sender.email.domain.valid == false
   )
 
-  and not profile.by_sender().any_false_positives
+  and not profile.by_sender().any_messages_benign
 tactics_and_techniques:
 - Free file host
 tags:

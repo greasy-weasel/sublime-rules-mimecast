@@ -122,7 +122,7 @@ source: "type.inbound\n\nand 0 < length(body.links) < 10\n\n//  display name or 
   \ with amazon\",\n                    \"your password has been compromised\",\n\
   )\n\n// the message is unsolicited and no false positives\nand (\n  not profile.by_sender().solicited\n\
   \  or (\n    length(headers.reply_to) > 0\n    and all(headers.reply_to, .email.email\
-  \ not in $recipient_emails)\n  )\n)\nand not profile.by_sender().any_false_positives"
+  \ not in $recipient_emails)\n  )\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - Evasion
 - 'Impersonation: Brand'

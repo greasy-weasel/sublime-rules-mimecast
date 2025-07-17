@@ -40,7 +40,7 @@ source: "type.inbound\nand (\n  sender.email.domain.domain in $free_email_provid
   \                               '^(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:'\n    \
   \        )\n          )\n        )\n      )\n      or any(headers.reply_to, .email.email\
   \ != sender.email.email)\n    )\n  )\n)\nand (\n  not profile.by_sender().solicited\n\
-  \  or profile.by_sender().any_messages_malicious_or_spam\n)\nand not profile.by_sender().any_false_positives"
+  \  or profile.by_sender().any_messages_malicious_or_spam\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - Social engineering
 tags:

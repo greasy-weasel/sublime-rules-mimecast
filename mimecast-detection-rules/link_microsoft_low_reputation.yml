@@ -189,8 +189,8 @@ source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand 
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives\n\n// exclude marketing\
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_messages_benign\n\
+  \  )\n)\nand not profile.by_sender().any_messages_benign\n\n// exclude marketing\
   \ jargon from ms partners\nand not regex.icontains(body.current_thread.text,\n \
   \                       '(schedul(e|ing)|set up).{0,20}(call|meeting|demo|zoom|conversation|time|tool|discussion)|book.{0,10}(meeting|demo|call|slot|time)|connect.{0,12}(with\
   \ me|phone|email)|my.{0,10}(calendar|cal)|reserve.{0,10}s[pl]ot|break the ice|want\

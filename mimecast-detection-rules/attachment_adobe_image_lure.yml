@@ -46,7 +46,7 @@ source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $fi
   \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
   )\nand (\n  not profile.by_sender_email().solicited\n  or profile.by_sender_email().prevalence\
   \ == \"new\"\n  or (\n    profile.by_sender_email().any_messages_malicious_or_spam\n\
-  \    and not profile.by_sender_email().any_false_positives\n  )\n)\nand not profile.by_sender_email().any_false_positives"
+  \    and not profile.by_sender_email().any_messages_benign\n  )\n)\nand not profile.by_sender_email().any_messages_benign"
 tactics_and_techniques:
 - Image as content
 - 'Impersonation: Brand'

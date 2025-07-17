@@ -54,11 +54,11 @@ source: "type.inbound\nand length(filter(attachments, .file_type not in $file_ty
   \ \"FWD:\")\n        or regex.icontains(subject.subject, '^(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\\
   s?:')\n      )\n    )\n  )\n  or length(headers.references) == 0\n)\n\nand (\n \
   \ not profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
-  \    and not profile.by_sender().any_false_positives\n  )\n)\n\n// negate highly\
+  \    and not profile.by_sender().any_messages_benign\n  )\n)\n\n// negate highly\
   \ trusted sender domains unless they fail DMARC authentication\nand (\n  (\n   \
   \ sender.email.domain.root_domain in $high_trust_sender_root_domains\n    and not\
   \ headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain not\
-  \ in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_false_positives"
+  \ in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering

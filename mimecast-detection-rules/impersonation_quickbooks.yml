@@ -30,7 +30,7 @@ source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quick
   \ <= 1\n      or strings.ilike(sender.email.domain.domain, '*quickbooks*')\n   \
   \ )\n  )\n)\nand sender.email.domain.root_domain not in~ (\n  'intuit.com',\n  'turbotax.com',\n\
   \  'intuit.ca',\n  'meliopayments.com',\n  'qemailserver.com',\n  'intuit.co.uk',\n\
-  \  'quickbooksonline.com',\n  'tsheets.com'\n)\nand (\n  not profile.by_sender().any_false_positives\n\
+  \  'quickbooksonline.com',\n  'tsheets.com'\n)\nand (\n  not profile.by_sender().any_messages_benign\n\
   \  and not profile.by_sender().solicited\n)\n// links in body are not known QB domains\
   \ or the senders root website (both indicative of a legitimate QuickBooks invoice\
   \ message)\nand (\n  length(filter(body.links,\n                .href_url.domain.root_domain\

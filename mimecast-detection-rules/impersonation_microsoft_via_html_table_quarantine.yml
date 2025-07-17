@@ -89,7 +89,7 @@ source: "type.inbound\nand 0 < length(body.links) < 10\n// Microsoft logo via HT
   \ in $high_trust_sender_root_domains\n    and (\n      any(distinct(headers.hops,\
   \ .authentication_results.dmarc is not null),\n          strings.ilike(.authentication_results.dmarc,\
   \ \"*fail\")\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
-  )\nand not profile.by_sender().solicited\nand not profile.by_sender().any_false_positives"
+  )\nand not profile.by_sender().solicited\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - Evasion
 - 'Impersonation: Brand'

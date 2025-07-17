@@ -68,7 +68,7 @@ source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.is
   \ negate highly trusted sender domains unless they fail DMARC authentication\nand\
   \ (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_false_positives"
+  \ not in $high_trust_sender_root_domains\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - Evasion
 - Social engineering

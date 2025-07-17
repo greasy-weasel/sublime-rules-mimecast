@@ -29,7 +29,7 @@ source: |-
   and not profile.by_sender().solicited
 
   // and there haven't been any FPs reported for the sender
-  and not profile.by_sender().any_false_positives
+  and not profile.by_sender().any_messages_benign
 tactics_and_techniques:
 - Evasion
 tags:

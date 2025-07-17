@@ -34,7 +34,7 @@ source: "type.inbound\nand (\n  sender.email.domain.root_domain == \"onmicrosoft
   microsoft.com\") )\n)\n// construct the proper sender domain and check against known\
   \ recipients\nand not strings.concat(sender.email.domain.subdomain,  \".\", sender.email.domain.tld)\
   \ in $recipient_domains\nand (\n  not profile.by_sender().solicited\n  or (\n  \
-  \  profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
+  \  profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_messages_benign\n\
   \  )\n)\nand not sender.email.domain.domain in $org_domains"
 tactics_and_techniques:
 - Free email provider

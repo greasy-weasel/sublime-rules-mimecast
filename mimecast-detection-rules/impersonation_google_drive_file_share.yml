@@ -84,7 +84,7 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  profile.by_sender().solicited\
   \ == false\n  or profile.by_sender_email().prevalence == \"new\"\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
-  \    and not profile.by_sender().any_false_positives\n  )\n)\nand not profile.by_sender().any_false_positives"
+  \    and not profile.by_sender().any_messages_benign\n  )\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering

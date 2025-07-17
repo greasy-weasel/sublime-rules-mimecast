@@ -41,8 +41,8 @@ source: "type.inbound\nand 2 of (\n  (\n    strings.ilike(sender.display_name, '
   \ (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n  \
   \  and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  not profile.by_sender().solicited\n\
-  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_false_positives\n\
-  \  )\n)\nand not profile.by_sender().any_false_positives"
+  \  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_messages_benign\n\
+  \  )\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 tags:
