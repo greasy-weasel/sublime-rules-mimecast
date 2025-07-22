@@ -22,7 +22,9 @@ source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quick
   \  or strings.icontains(body.current_thread.text,\n                       'QuickBooks\
   \ and Intuit are trademarks of Intuit Inc.'\n  )\n  // phone number and update language\n\
   \  or (\n    regex.icontains(body.current_thread.text,\n                    '\\\
-  b\\+?(\\d{1}.)?\\(?\\d{3}?\\)?.~?.?\\d{3}.?~?.\\d{4}\\b'\n    )\n    and any(beta.ml_topic(body.current_thread.text).topics,\n\
+  +?([ilo0-9]{1}.)?\\(?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n             \
+  \       '\\+?([ilo0-9]{1,2})?\\s?\\(?\\d{3}\\)?[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{3}[\\\
+  s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n    )\n    and any(beta.ml_topic(body.current_thread.text).topics,\n\
   \            .name == \"Software and App Updates\"\n    )\n\n    // we need to re-check\
   \ for QB indicators, otherwise we can have \"*invoice*\"\n    // and this block,\
   \ which is much more than just QB impersonation\n    and (\n      strings.ilike(sender.display_name,\
