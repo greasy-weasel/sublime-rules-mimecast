@@ -10,64 +10,39 @@ detection_methods:
 id: ca39c83a-b308-532d-894b-528bdaef2748
 name: 'Attachment: Callback Phishing solicitation via text-based file'
 severity: medium
-source: |-
-  type.inbound
-  and length(subject.subject) <= 10
-  // there are no links, all the links are to aka.ms, or an extraction from a warning banner that match the senders domain
-  and (
-    length(body.links) == 0
-    or length(filter(body.links,
-                     (
-                       .display_text is null
-                       and .display_url.url == sender.email.domain.root_domain
-                     )
-                     or  .href_url.query_params == "domain=aka.ms"
-                     or network.whois(.display_url.domain).days_old < 30
-              )
-    ) == length(body.links)
-  )
-  and (body.current_thread.text is null or length(body.current_thread.text) < 50)
-  and 0 < length(attachments) < 4
-  and any(attachments,
-          (.content_type == "text/plain" or .file_type in ("doc", "docx"))
-          and any(file.explode(.),
-                  (.depth == 0 or .flavors.mime == "text/plain")
-                  and any(.scan.strings.strings,
-                          strings.ilike(.,
-                                        "*mcafee*",
-                                        "*norton*",
-                                        "*geek squad*",
-                                        "*paypal*",
-                                        "*ebay*",
-                                        "*symantec*",
-                                        "*best buy*",
-                                        "*lifelock*",
-                                        "*geek total*"
-                          )
-                          and any(..scan.strings.strings,
-                                  regex.icontains(.,
-                                                  '\b\+?(\d{1}.)?\(?\d{3}?\)?.~?.?\d{3}.?~?.\d{4}\b'
-                                  )
-                          )
-                  )
-          )
-  )
-  and profile.by_sender().prevalence != "common"
-  and not profile.by_sender().solicited
-  and not profile.by_sender().any_messages_benign
-
-  // negate highly trusted sender domains unless they fail DMARC authentication
-  and (
-    (
-      sender.email.domain.root_domain in $high_trust_sender_root_domains
-      and (
-        any(distinct(headers.hops, .authentication_results.dmarc is not null),
-            strings.ilike(.authentication_results.dmarc, "*fail")
-        )
-      )
-    )
-    or sender.email.domain.root_domain not in $high_trust_sender_root_domains
-  )
+source: "type.inbound\nand length(subject.subject) <= 10\n// there are no links, all\
+  \ the links are to aka.ms, or an extraction from a warning banner that match the\
+  \ senders domain\nand (\n  length(body.links) == 0\n  or length(filter(body.links,\n\
+  \                   (\n                     .display_text is null\n            \
+  \         and .display_url.url == sender.email.domain.root_domain\n            \
+  \       )\n                   or  .href_url.query_params == \"domain=aka.ms\"\n\
+  \                   or network.whois(.display_url.domain).days_old < 30\n      \
+  \      )\n  ) == length(body.links)\n)\nand (body.current_thread.text is null or\
+  \ length(body.current_thread.text) < 50)\nand 0 < length(attachments) < 4\nand any(attachments,\n\
+  \        (.content_type == \"text/plain\" or .file_type in (\"doc\", \"docx\"))\n\
+  \        and any(file.explode(.),\n                (.depth == 0 or .flavors.mime\
+  \ == \"text/plain\")\n                and any(.scan.strings.strings,\n         \
+  \               strings.ilike(.,\n                                      \"*mcafee*\"\
+  ,\n                                      \"*norton*\",\n                       \
+  \               \"*geek squad*\",\n                                      \"*paypal*\"\
+  ,\n                                      \"*ebay*\",\n                         \
+  \             \"*symantec*\",\n                                      \"*best buy*\"\
+  ,\n                                      \"*lifelock*\",\n                     \
+  \                 \"*geek total*\"\n                        )\n                \
+  \        and any(..scan.strings.strings,\n                                regex.icontains(.,\n\
+  \                                                '\\b\\+?(\\d{1}.)?\\(?\\d{3}?\\\
+  )?.~?.?\\d{3}.?~?.\\d{4}\\b',\n                                                '\\\
+  +?([ilo0-9]{1}.)?\\(?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n             \
+  \                                   '\\+?([ilo0-9]{1,2})?\\s?\\(?\\d{3}\\)?[\\s\\\
+  .\\-\u22C5]{0,5}[ilo0-9]{3}[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n                \
+  \                )\n                        )\n                )\n        )\n)\n\
+  and profile.by_sender().prevalence != \"common\"\nand not profile.by_sender().solicited\n\
+  and not profile.by_sender().any_messages_benign\n\n// negate highly trusted sender\
+  \ domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and (\n      any(distinct(headers.hops,\
+  \ .authentication_results.dmarc is not null),\n          strings.ilike(.authentication_results.dmarc,\
+  \ \"*fail\")\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )"
 tactics_and_techniques:
 - Evasion
 - Out of band pivot
