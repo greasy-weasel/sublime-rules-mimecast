@@ -26,14 +26,14 @@ source: "type.inbound\nand (\n  any([\n        strings.replace_confusables(sende
   \ Assest Mgmt\n    \"gcs-web.com\", // investor relations run by capital one\n \
   \   \"capitalonearena.com\", // the arena\n    \"monumentalsports.com\", // the\
   \ company that owns a bunch of teams that play at the arena?\n    \"ticketmaster.com\"\
-  , // sell and advertises tickets at Capital One Arena\n  )\n  and headers.auth_summary.dmarc.pass\n\
-  )\n// and the sender is not from high trust sender root domains\nand (\n  (\n  \
-  \  sender.email.domain.root_domain in $high_trust_sender_root_domains\n    and not\
-  \ headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain not\
-  \ in $high_trust_sender_root_domains\n)\nand // suspicious indicators here\n (\n\
-  \  // // password theme\n  (\n    strings.icontains(body.current_thread.text, \"\
-  new password\")\n    or regex.icontains(body.current_thread.text,\n            \
-  \           '(?:credentials?|password)\\s*(?:\\w+\\s+){0,3}\\s*(?:compromise|reset|expir(?:ation|ed)|update|invalid|incorrect|changed|(?:mis)?match)',\n\
+  , // sell and advertises tickets at Capital One Arena\n    \"credible.com\" // known\
+  \ loan marketplace\n  )\n  and headers.auth_summary.dmarc.pass\n)\n// and the sender\
+  \ is not from high trust sender root domains\nand (\n  (\n    sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
+  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  )\nand // suspicious indicators here\n (\n  // // password theme\n  (\n    strings.icontains(body.current_thread.text,\
+  \ \"new password\")\n    or regex.icontains(body.current_thread.text,\n        \
+  \               '(?:credentials?|password)\\s*(?:\\w+\\s+){0,3}\\s*(?:compromise|reset|expir(?:ation|ed)|update|invalid|incorrect|changed|(?:mis)?match)',\n\
   \                       '(?:compromise|reset|expir(?:ation|ed)|update|invalid|incorrect|changed|(?:mis)?match)\\\
   s*(?:\\w+\\s+){0,3}\\s*(?:credentials?|password)',\n                       '(?:short|weak|chang(?:e|ing)|reset)\\\
   s*(?:\\w+\\s+){0,3}\\s*(?:credentials?|password)',\n                       '(?:credentials?|password)\\\

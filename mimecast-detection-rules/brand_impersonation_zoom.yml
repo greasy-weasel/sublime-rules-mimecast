@@ -42,7 +42,8 @@ source: "type.inbound\nand (\n  // the social links in the footer\n  3 of (\n   
   \            'https://challenges.cloudflare.com/turnstile/',\n              )\n\
   \            )\n            and ml.link_analysis(.).effective_url.domain.root_domain\
   \ not in (\n              \"zoom.us\",\n              \"zoom.com\"\n           \
-  \ )\n          )\n        )\n    )\n  )\n)\n\nand not (\n  (\n    strings.istarts_with(subject.subject,\
+  \ )\n          )\n        )\n        and not ( any([\"notion.so\"], ..href_url.query_params\
+  \ == strings.concat(\"domain=\",.)) )\n    )\n  )\n)\n\nand not (\n  (\n    strings.istarts_with(subject.subject,\
   \ \"RE:\")\n    or strings.istarts_with(subject.subject, \"R:\")\n    or strings.istarts_with(subject.subject,\
   \ \"ODG:\")\n    or strings.istarts_with(subject.subject, \"\u7B54\u590D:\")\n \
   \   or strings.istarts_with(subject.subject, \"AW:\")\n    or strings.istarts_with(subject.subject,\
