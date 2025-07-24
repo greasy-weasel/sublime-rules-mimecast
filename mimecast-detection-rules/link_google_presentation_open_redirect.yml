@@ -62,6 +62,7 @@ source: |-
                         or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
                         // or it's a url shortner
                         or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                        or  any($social_landing_hosts, strings.ends_with(..href_url.query_params,.))
                       )
                       // which have been "unrolled" by the google_open_redirect rule
                       and any(.href_url.rewrite.encoders,

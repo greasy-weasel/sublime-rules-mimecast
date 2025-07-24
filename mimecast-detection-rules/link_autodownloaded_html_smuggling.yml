@@ -22,6 +22,7 @@ source: |-
              or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
              or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
              or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+             or  any($social_landing_hosts, ..href_url.query_params == strings.concat("domain=",.))
              or
 
              // mass mailer link, masks the actual URL

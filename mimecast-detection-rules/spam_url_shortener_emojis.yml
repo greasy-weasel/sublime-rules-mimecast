@@ -16,7 +16,7 @@ source: |-
   and sender.email.domain.root_domain in $free_email_providers
 
   // has a URL shortener
-  and any(body.links,  any($url_shorteners, strings.ends_with(..href_url.query_params,.)) )
+  and any(body.links,  any($url_shorteners, strings.ends_with(..href_url.query_params,.))  or  any($social_landing_hosts, strings.ends_with(..href_url.query_params,.)) )
 
   // short body, basically just the URL
   and length(body.plain.raw) < 100

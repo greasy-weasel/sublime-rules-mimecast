@@ -20,13 +20,15 @@ source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand 
   domain=\",.))\n          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))\n\
   \          or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))\n\
   \          or  any($url_shorteners, ..href_url.query_params == strings.concat(\"\
-  domain=\",.))\n          or\n\n          // mass mailer link, masks the actual URL\n\
-  \           any([\n            \"hubspotlinks.com\",\n            \"mandrillapp.com\"\
-  ,\n            \"sendgrid.net\",\n            \"rs6.net\"\n          ], strings.ends_with(..href_url.query_params,.))\n\
-  \n          // Google AMP redirect\n          or (\n            .href_url.domain.sld\
-  \ == \"google\"\n            and strings.starts_with(.href_url.path, \"/amp/\")\n\
-  \          )\n\n         // Recipient email address in link\n         or any(body.links,\n\
-  \                any(recipients.to,\n                    strings.icontains(..href_url.url,\
+  domain=\",.))\n          or  any($social_landing_hosts, ..href_url.query_params\
+  \ == strings.concat(\"domain=\",.))\n          or\n\n          // mass mailer link,\
+  \ masks the actual URL\n           any([\n            \"hubspotlinks.com\",\n  \
+  \          \"mandrillapp.com\",\n            \"sendgrid.net\",\n            \"rs6.net\"\
+  \n          ], strings.ends_with(..href_url.query_params,.))\n\n          // Google\
+  \ AMP redirect\n          or (\n            .href_url.domain.sld == \"google\"\n\
+  \            and strings.starts_with(.href_url.path, \"/amp/\")\n          )\n\n\
+  \         // Recipient email address in link\n         or any(body.links,\n    \
+  \            any(recipients.to,\n                    strings.icontains(..href_url.url,\
   \ .email.email)\n                    and any(recipients.to, .email.domain.valid)\n\
   \                )\n         )\n         or  strings.ends_with(.href_url.query_params,\"\
   beehiiv.com\")\n        )\n\n        // exclude sources of potential FPs\n     \

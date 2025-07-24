@@ -114,7 +114,9 @@ source: |-
                               or strings.parse_url(.).domain.domain in $free_file_hosts
                               or strings.parse_url(.).domain.root_domain in $free_file_hosts
                               or strings.parse_url(.).domain.domain in $url_shorteners
+                              or strings.parse_url(.).domain.domain in $social_landing_hosts
                               or strings.parse_url(.).domain.root_domain in $url_shorteners
+                              or strings.parse_url(.).domain.root_domain in $social_landing_hosts
                           )
                       )
                   )
@@ -142,7 +144,9 @@ source: |-
                     )
                     // go to url shortners
                     or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                    or  any($social_landing_hosts, strings.ends_with(..href_url.query_params,.))
                     or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                    or  any($social_landing_hosts, ..href_url.query_params == strings.concat("domain=",.))
                     or (
                       // find any links that mention common "action" words
                       regex.icontains(.display_text,

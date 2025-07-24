@@ -55,7 +55,9 @@ source: |-
                     )
                     // go to url shortners
                     or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                    or  any($social_landing_hosts, strings.ends_with(..href_url.query_params,.))
                     or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                    or  any($social_landing_hosts, ..href_url.query_params == strings.concat("domain=",.))
 
                     // go to suspicious TLDs
                     or .href_url.domain.tld in $suspicious_tlds
@@ -73,7 +75,9 @@ source: |-
                              and  strings.starts_with(.href_url.query_params,"domain=www."))
                            )
                            or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                           or  any($social_landing_hosts, strings.ends_with(..href_url.query_params,.))
                            or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                           or  any($social_landing_hosts, ..href_url.query_params == strings.concat("domain=",.))
 
                            // go to suspicious TLDs
                            or .href_url.domain.tld in $suspicious_tlds
