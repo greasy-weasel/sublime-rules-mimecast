@@ -1,12 +1,13 @@
 attack_types:
 - Credential Phishing
 - Malware/Ransomware
-description: Detects URLs linking to Gamma App presentation mode, which has been used
-  to host malicious content due to its trusted domain status and presentation capabilities
+description: Detects URLs linking to Gamma App presentation or document mode, which
+  has been used to host malicious content due to its trusted domain status and presentation
+  capabilities.
 detection_methods:
 - URL analysis
 id: 080ab581-e6ab-5c82-927b-e57f3080f27a
-name: 'Link: Direct Link to gamma.app Presentation in Present Mode'
+name: 'Link: Direct Link to gamma.app Document With Mode Parameter'
 severity: medium
 source: |-
   type.inbound
@@ -18,7 +19,7 @@ source: |-
             or strings.icontains(.href_url.query_params, 'gamma%2eapp')
             or strings.icontains(.href_url.query_params, 'gamma%252eapp')
           )
-          and strings.icontains(.href_url.query_params, 'mode=present')
+          and regex.icontains(.href_url.query_params, 'mode=(present|doc)')
   )
 tactics_and_techniques:
 - Free file host
