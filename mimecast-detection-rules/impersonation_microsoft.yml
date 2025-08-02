@@ -61,10 +61,15 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   )\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
-  \ not in $high_trust_sender_root_domains\n)"
+  \ not in $high_trust_sender_root_domains\n)\n// not a newsletter or advertisement\n\
+  and not any(beta.ml_topic(body.current_thread.text).topics,\n      .name in (\"\
+  Newsletters and Digests\")\n      and .confidence == \"high\"\n      and (\n   \
+  \     any(body.links,\n            strings.icontains(.display_text, \"unsubscribe\"\
+  )\n            and (strings.icontains(.href_url.path, \"unsubscribe\"))\n      \
+  \  )\n      )\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Needs Fix
+- Mimecast Hard to Fix
 type: rule
