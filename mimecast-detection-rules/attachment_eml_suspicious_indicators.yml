@@ -6,7 +6,7 @@ detection_methods:
 - Content analysis
 - File analysis
 id: deb5d08d-92b7-5f7b-a7b0-e5053221c2f5
-name: 'Attachment: EML with Suspicious Indicators'
+name: 'Attachment: EML with suspicious indicators'
 severity: medium
 source: "type.inbound\nand (\n  // a single attachmed EML\n  length(attachments) ==\
   \ 1\n  // or a single attached EML with one or more images used in the body of the\

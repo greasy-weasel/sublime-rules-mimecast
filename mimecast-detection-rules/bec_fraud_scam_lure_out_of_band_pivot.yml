@@ -7,7 +7,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: 898c769f-45a4-5561-8d51-be765addcf1d
-name: 'BEC/Fraud: Scam Lure with freemail pivot'
+name: 'BEC/Fraud: Scam lure with freemail pivot'
 severity: low
 source: |-
   type.inbound

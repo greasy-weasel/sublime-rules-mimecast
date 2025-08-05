@@ -6,7 +6,7 @@ description: Detects URLs linking to Keap App contact us, which has been used to
 detection_methods:
 - URL analysis
 id: a7a69267-5761-5f35-a8ff-6d19b7fd0d99
-name: 'Link: Direct Link to keap.app contact-us page'
+name: 'Link: Direct link to keap.app contact-us page'
 severity: medium
 source: |-
   type.inbound

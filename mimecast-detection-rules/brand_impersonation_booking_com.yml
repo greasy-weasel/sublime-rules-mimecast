@@ -9,7 +9,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: d1d8882f-f7e2-522e-85e9-b33b1ab5c979
-name: 'Brand Impersonation: Booking.com'
+name: 'Brand impersonation: Booking.com'
 severity: medium
 source: |-
   type.inbound

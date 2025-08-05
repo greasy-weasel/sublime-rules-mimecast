@@ -7,7 +7,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: 5c6362db-62e0-56c9-b988-ad17a2738a47
-name: 'Link: Direct link to Zoom Docs from Non-Zoom Sender'
+name: 'Link: Direct link to Zoom Docs from non-Zoom sender'
 severity: medium
 source: |-
   type.inbound

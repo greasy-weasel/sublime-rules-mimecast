@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 4d9594f4-1e96-5afd-a575-8a16d2d79698
-name: 'Open Redirect: ringaraja.net'
+name: 'Open redirect: ringaraja.net'
 severity: medium
 source: |-
   type.inbound

@@ -11,7 +11,7 @@ detection_methods:
 - Sender analysis
 - Header analysis
 id: ddb4c618-8ffb-5f01-963e-cd5b69e419b2
-name: 'Brand Impersonation: MetaMask'
+name: 'Brand impersonation: MetaMask'
 severity: high
 source: |-
   type.inbound

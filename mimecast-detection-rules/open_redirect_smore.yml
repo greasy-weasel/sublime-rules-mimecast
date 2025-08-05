@@ -6,7 +6,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 666cb33d-8791-559d-8973-17a0e392970e
-name: 'Open Redirect: smore.com'
+name: 'Open redirect: smore.com'
 severity: medium
 source: |-
   type.inbound

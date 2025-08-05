@@ -8,7 +8,7 @@ detection_methods:
 - HTML analysis
 - URL analysis
 id: 02d290b2-9cf5-5699-ac0c-e1e595d74d57
-name: 'Link: Uncommon SharePoint Document Type With Sender''s Display Name'
+name: 'Link: Uncommon SharePoint document type with sender''s display name'
 severity: medium
 source: |-
   type.inbound

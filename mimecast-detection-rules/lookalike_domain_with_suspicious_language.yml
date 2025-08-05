@@ -12,7 +12,7 @@ detection_methods:
 - Sender analysis
 - Whois
 id: 3674ced0-691c-5faa-9ced-922e7201dc29
-name: Suspected Lookalike domain with suspicious language
+name: Suspected lookalike domain with suspicious language
 severity: medium
 source: |-
   type.inbound

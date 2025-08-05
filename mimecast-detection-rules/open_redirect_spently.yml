@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 69740e97-265f-515b-b5ae-80ec234f07ac
-name: 'Open Redirect: api.spently.com'
+name: 'Open redirect: api.spently.com'
 severity: medium
 source: |-
   type.inbound

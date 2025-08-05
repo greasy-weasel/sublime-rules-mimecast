@@ -8,7 +8,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: d31f7cb8-1b75-53ef-b466-7d677392660b
-name: 'Open Redirect: amaterasu-for-website-5.com'
+name: 'Open redirect: amaterasu-for-website-5.com'
 severity: medium
 source: |-
   type.inbound

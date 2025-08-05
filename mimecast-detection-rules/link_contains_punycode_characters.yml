@@ -8,7 +8,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 74b3698c-d75e-52db-9596-48af93817822
-name: Link to a Domain with Punycode Characters
+name: Link to a domain with punycode characters
 references:
 - https://www.bleepingcomputer.com/news/security/hackers-abuse-lookalike-domains-and-favicons-for-credit-card-theft/
 severity: medium

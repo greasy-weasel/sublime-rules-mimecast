@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 3474bb1b-8840-53b5-9582-3c9baf1b2d63
-name: 'Open Redirect: predictiveresponse.net'
+name: 'Open redirect: predictiveresponse.net'
 severity: medium
 source: |-
   type.inbound

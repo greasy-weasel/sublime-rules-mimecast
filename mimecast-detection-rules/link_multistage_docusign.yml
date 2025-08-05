@@ -11,7 +11,7 @@ detection_methods:
 - Whois
 - HTML analysis
 id: 4189a645-04a5-5bdb-bf00-031442ced292
-name: 'Link: Multistage Landing - Abused Docusign'
+name: 'Link: Multistage landing - Abused Docusign'
 severity: high
 source: |-
   type.inbound

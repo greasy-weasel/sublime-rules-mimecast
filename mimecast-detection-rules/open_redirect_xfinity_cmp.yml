@@ -8,7 +8,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: c0805b80-0524-5278-8848-f720d58571c2
-name: 'Open Redirect: Xfinity CMP Redirection to Google AMP'
+name: 'Open redirect: Xfinity CMP Redirection to Google AMP'
 severity: medium
 source: |-
   type.inbound

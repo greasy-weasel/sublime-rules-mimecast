@@ -8,7 +8,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 93df711e-8aea-5bd9-952f-a80d616b0cf0
-name: 'Open Redirect: buildingengines.com'
+name: 'Open redirect: buildingengines.com'
 severity: medium
 source: |-
   type.inbound

@@ -11,7 +11,7 @@ detection_methods:
 - Javascript analysis
 - URL screenshot
 id: bfd6a076-2c63-59ae-95b6-2bb837c4bea2
-name: 'Link: chatbot.page Platform Abuse'
+name: 'Link: chatbot.page platform abuse'
 severity: medium
 source: |-
   type.inbound

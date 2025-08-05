@@ -10,7 +10,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 4a98f283-8cc6-5864-bafb-e1908d0a5a8b
-name: 'Impersonation: Chrome Web Store Policy'
+name: 'Impersonation: Chrome Web Store policy'
 references:
 - https://www.cyberhaven.com/engineering-blog/cyberhavens-preliminary-analysis-of-the-recent-malicious-chrome-extension
 - https://www.bleepingcomputer.com/news/security/new-details-reveal-how-hackers-hijacked-35-google-chrome-extensions/

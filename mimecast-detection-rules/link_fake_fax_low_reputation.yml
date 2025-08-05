@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 2a96b90a-64bf-52ad-b4e4-6f1e8c1dcba6
-name: 'Brand Impersonation: Fake Fax'
+name: 'Brand impersonation: Fake Fax'
 references:
 - https://www.hoxhunt.com/blog/fax-phishing
 severity: medium

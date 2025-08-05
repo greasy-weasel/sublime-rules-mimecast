@@ -7,7 +7,7 @@ detection_methods:
 - Content analysis
 - URL analysis
 id: 7435e057-5abb-55b4-b1da-f1b6ec191c33
-name: 'Open Redirect: Cartoon Network'
+name: 'Open redirect: Cartoon Network'
 severity: medium
 source: |-
   type.inbound

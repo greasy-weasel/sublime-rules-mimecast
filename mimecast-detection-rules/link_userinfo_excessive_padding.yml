@@ -6,7 +6,7 @@ description: Identifies instances where a malicious actor leverages an excessive
 detection_methods:
 - URL analysis
 id: 806317a3-d931-501c-9505-d2e08c646565
-name: 'Link: Obfuscation via userinfo with Excessive URL Padding'
+name: 'Link: Obfuscation via userinfo with excessive URL padding'
 severity: medium
 source: |-
   type.inbound

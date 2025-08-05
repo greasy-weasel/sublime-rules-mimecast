@@ -9,7 +9,7 @@ detection_methods:
 - Content analysis
 - Header analysis
 id: 0243cdaa-b9c9-5df2-a309-debf06d909a7
-name: 'BEC/Fraud: Romance Scam'
+name: 'BEC/Fraud: Romance scam'
 severity: medium
 source: |-
   type.inbound

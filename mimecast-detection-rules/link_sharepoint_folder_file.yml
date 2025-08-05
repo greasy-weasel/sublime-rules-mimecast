@@ -10,7 +10,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 6168a08c-6f4f-599f-877f-52efbba51cc4
-name: 'Link: Suspicious Sharepoint Folder Share'
+name: 'Link: Suspicious Sharepoint folder share'
 severity: high
 source: |-
   type.inbound

@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: cc16a3f4-67a4-5fcb-bee3-57e4683efbee
-name: 'Open Redirect: artkaderne'
+name: 'Open redirect: artkaderne'
 severity: medium
 source: |-
   type.inbound

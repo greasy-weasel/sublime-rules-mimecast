@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: fdc91036-967e-57c4-b4cc-89a17b4cd742
-name: 'Open Redirect: pmifunds.com'
+name: 'Open redirect: pmifunds.com'
 severity: medium
 source: |-
   type.inbound

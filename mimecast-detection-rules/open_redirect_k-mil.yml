@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 9f422356-1ee1-5135-9132-a45cf14c802e
-name: 'Open Redirect: k-mil.net'
+name: 'Open redirect: k-mil.net'
 severity: medium
 source: |-
   type.inbound

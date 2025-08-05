@@ -6,7 +6,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: 9e9bc972-d4e1-5bd0-96bc-b8b10e74b02a
-name: 'Link: Scribd Fullscreen Link From Suspicious Sender'
+name: 'Link: Scribd fullscreen link from suspicious sender'
 severity: medium
 source: |-
   type.inbound

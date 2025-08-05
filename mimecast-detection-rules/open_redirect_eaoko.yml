@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: f8fd9912-7ee2-5f04-8fcb-af635b9990b2
-name: 'Open Redirect: eaoko.org'
+name: 'Open redirect: eaoko.org'
 severity: medium
 source: |-
   type.inbound

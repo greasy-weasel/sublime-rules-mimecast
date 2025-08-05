@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 700a19fb-638b-5e75-a70e-16fca265ada5
-name: 'Open Redirect: ust.hk'
+name: 'Open redirect: ust.hk'
 severity: medium
 source: |-
   type.inbound

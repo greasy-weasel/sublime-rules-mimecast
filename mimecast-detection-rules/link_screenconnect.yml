@@ -7,7 +7,7 @@ detection_methods:
 - File analysis
 - Content analysis
 id: 37d21eef-c45c-5348-b764-a6dc48261a91
-name: 'Link: ScreenConnect Installer With Suspicious Relay Domain'
+name: 'Link: ScreenConnect installer with suspicious relay domain'
 severity: high
 source: |-
   type.inbound

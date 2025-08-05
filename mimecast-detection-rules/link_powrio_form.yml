@@ -9,7 +9,7 @@ detection_methods:
 - URL analysis
 - Content analysis
 id: fd37cc93-eeeb-5091-bece-6dc7b0c78fe0
-name: 'Link: Direct POWR.io Form Builder with Suspicious Patterns'
+name: 'Link: Direct POWR.io Form Builder with suspicious patterns'
 severity: medium
 source: |-
   type.inbound

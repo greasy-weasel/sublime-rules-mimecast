@@ -9,7 +9,7 @@ detection_methods:
 - Optical Character Recognition
 - Sender analysis
 id: edce0229-5e8f-5359-a5c8-36570840049f
-name: 'Attachment: Microsoft 365 Credential Phishing'
+name: 'Attachment: Microsoft 365 credential phishing'
 severity: high
 source: "type.inbound\nand length(filter(attachments, .file_type not in $file_types_images))\
   \ == 0\nand (\n  any(attachments,\n      .file_type in $file_types_images\n    \

@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 5e40ea99-3290-5792-a618-bb77ae282a90
-name: 'Open Redirect: ExacTag'
+name: 'Open redirect: ExacTag'
 severity: medium
 source: |-
   type.inbound

@@ -7,7 +7,7 @@ description: Detects URLs linking to Gamma App presentation or document mode, wh
 detection_methods:
 - URL analysis
 id: 080ab581-e6ab-5c82-927b-e57f3080f27a
-name: 'Link: Direct Link to gamma.app Document With Mode Parameter'
+name: 'Link: Direct link to gamma.app document with mode parameter'
 severity: medium
 source: |-
   type.inbound

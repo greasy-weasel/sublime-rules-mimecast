@@ -10,7 +10,7 @@ detection_methods:
 - Javascript analysis
 - URL analysis
 id: 5b64326f-e38e-558c-8b5f-d9e7ddee2f69
-name: 'Link: Multistage Landing - JotForm Abuse'
+name: 'Link: Multistage landing - JotForm abuse'
 severity: high
 source: |-
   type.inbound

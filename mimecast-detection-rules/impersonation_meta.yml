@@ -6,7 +6,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: e38f1e3b-79be-5a59-b084-24a851daf6b9
-name: 'Brand Impersonation: Meta and Subsidiaries'
+name: 'Brand impersonation: Meta and subsidiaries'
 references:
 - https://www.techrepublic.com/article/google-and-amazon-most-impersonated-brands-in-phishing-attacks/
 severity: low

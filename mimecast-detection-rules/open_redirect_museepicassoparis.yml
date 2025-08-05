@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 7ac8f887-28c7-5934-9839-967d2751035d
-name: 'Open Redirect: museepicassoparis.fr'
+name: 'Open redirect: museepicassoparis.fr'
 severity: medium
 source: |-
   type.inbound

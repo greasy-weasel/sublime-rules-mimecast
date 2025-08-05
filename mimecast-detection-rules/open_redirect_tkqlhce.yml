@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 44eef073-9264-53af-8a23-b2188295e238
-name: 'Open Redirect: tkqlhce.com'
+name: 'Open redirect: tkqlhce.com'
 severity: medium
 source: |-
   type.inbound

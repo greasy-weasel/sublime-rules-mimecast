@@ -7,7 +7,7 @@ detection_methods:
 - File analysis
 - Natural Language Understanding
 id: ce21c151-90c2-5573-b19e-3dcbcfc0a195
-name: BEC/Fraud - Job Scam Fake thread or plaintext pivot to freemail
+name: 'BEC/Fraud: Job scam fake thread or plaintext pivot to freemail'
 severity: medium
 source: |-
   type.inbound

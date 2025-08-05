@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 4a8dbc58-955c-5005-8444-57c985b49237
-name: 'Open Redirect: g7.fr'
+name: 'Open redirect: g7.fr'
 severity: medium
 source: |-
   type.inbound

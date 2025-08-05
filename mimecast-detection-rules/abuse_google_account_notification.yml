@@ -7,7 +7,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: 59786115-b28c-599b-97fe-0831643c2a34
-name: 'Service Abuse: Google Account Notification with Links to Free File Host'
+name: 'Service abuse: Google account notification with links to free file host'
 references:
 - https://x.com/nicksdjohnson/status/1912439023982834120
 - https://easydmarc.com/blog/google-spoofed-via-dkim-replay-attack-a-technical-breakdown/

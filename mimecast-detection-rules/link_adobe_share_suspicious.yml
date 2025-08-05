@@ -11,7 +11,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: b33cae80-adbc-59b6-b732-21e739c3cb96
-name: 'Link: Adobe Share with Suspicious Indicators'
+name: 'Link: Adobe share with suspicious indicators'
 severity: high
 source: |-
   type.inbound

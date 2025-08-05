@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: c6286914-059d-5879-8f17-b923304cb628
-name: 'Open Redirect: Club-OS'
+name: 'Open redirect: Club-OS'
 severity: medium
 source: |-
   type.inbound

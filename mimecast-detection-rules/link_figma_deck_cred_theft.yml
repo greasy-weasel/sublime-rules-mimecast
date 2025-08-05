@@ -12,7 +12,7 @@ detection_methods:
 - URL screenshot
 - Sender analysis
 id: 87601924-bdeb-5c35-8186-9d2a384fb5ae
-name: 'Link: Figma Design Deck With Credential Phishing Language'
+name: 'Link: Figma design deck with credential theft language'
 severity: medium
 source: |-
   type.inbound

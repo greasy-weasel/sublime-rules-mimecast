@@ -11,7 +11,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: 5abad540-8e6c-5c82-9f8e-a59009915b63
-name: 'Brand Impersonation: Zoom'
+name: 'Brand impersonation: Zoom'
 severity: medium
 source: "type.inbound\nand (\n  // the social links in the footer\n  3 of (\n    any(body.links,\
   \ strings.icontains(.href_url.url, \"twitter.com/zoom\")),\n    any(body.links,\n\

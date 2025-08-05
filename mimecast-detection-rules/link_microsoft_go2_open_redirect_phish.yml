@@ -8,7 +8,7 @@ detection_methods:
 - Header analysis
 - URL analysis
 id: 51667096-1628-5113-809b-97155a03eadf
-name: Open Redirect (go2.aspx) leading to Microsoft credential phishing
+name: Open redirect (go2.aspx) leading to Microsoft credential phishing
 severity: medium
 source: "type.inbound\n\n// url path ends with go2.aspx\nand any(body.links,\n   \
   \     strings.ends_with(.href_url.path, \"go2.aspx\")\n\n        // query params\

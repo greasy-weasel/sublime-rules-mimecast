@@ -9,7 +9,7 @@ detection_methods:
 - URL analysis
 - URL screenshot
 id: 34fb65f6-03e8-5752-b602-4f294172b5db
-name: Suspicious Recipients pattern with no Compauth pass and suspicious content
+name: Suspicious recipients pattern with no Compauth pass and suspicious content
 severity: medium
 source: |-
   type.inbound

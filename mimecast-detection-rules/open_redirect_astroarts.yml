@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 6dd617af-09a1-5d1f-a061-90bf2d01e952
-name: 'Open Redirect: astroarts.co.jp'
+name: 'Open redirect: astroarts.co.jp'
 severity: medium
 source: |-
   type.inbound

@@ -6,7 +6,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 967f7a11-d2f0-51ff-a2c4-02ffcc40ebb2
-name: 'Open Redirect: weblinkconnect.com'
+name: 'Open redirect: weblinkconnect.com'
 severity: medium
 source: |-
   type.inbound

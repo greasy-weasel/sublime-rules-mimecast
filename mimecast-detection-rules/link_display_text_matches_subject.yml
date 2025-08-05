@@ -11,7 +11,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: ba722cf0-b94e-55d2-b29a-df6fab80a164
-name: 'Link: Display Text Matches Subject Line'
+name: 'Link: Display text matches subject line'
 severity: medium
 source: |-
   type.inbound

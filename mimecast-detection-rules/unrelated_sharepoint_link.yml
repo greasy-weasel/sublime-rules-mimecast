@@ -10,7 +10,7 @@ detection_methods:
 - Header analysis
 - HTML analysis
 id: 6870f489-5581-53f0-a6f7-a03e259fb073
-name: Sharepoint Link Likely Unrelated to Sender
+name: Sharepoint link likely unrelated to sender
 severity: medium
 source: |-
   type.inbound

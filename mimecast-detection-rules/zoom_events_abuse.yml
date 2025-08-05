@@ -8,7 +8,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: c8fce846-4745-597d-a90c-4c788dcb402a
-name: Zoom Events Newsletter Abuse
+name: Zoom Events newsletter abuse
 references:
 - https://blog.reconinfosec.com/zoom-events-phishing
 severity: medium

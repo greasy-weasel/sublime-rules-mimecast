@@ -8,7 +8,7 @@ detection_methods:
 - File analysis
 - URL analysis
 id: b61e2f8e-ab8e-5212-ab20-c294babfc6d9
-name: 'Brand Impersonation: Coinbase with suspicious links'
+name: 'Brand impersonation: Coinbase with suspicious links'
 severity: medium
 source: |-
   type.inbound

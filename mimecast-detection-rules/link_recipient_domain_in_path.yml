@@ -8,7 +8,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: de08731f-5fce-56bc-91b3-53b40d99278e
-name: 'Link: Recipient Domain in URL Path'
+name: 'Link: Recipient domain in URL path'
 severity: high
 source: |-
   type.inbound

@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: a5a2f75d-88a2-5c19-9b83-fa55c2bd3ccf
-name: 'Link: Microsoft Protected Message with Matching Sender and Recipient Addresses '
+name: 'Link: Microsoft protected message with matching sender and recipient addresses'
 severity: medium
 source: |-
   type.inbound

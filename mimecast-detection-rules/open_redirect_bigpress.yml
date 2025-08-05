@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 7a994083-13a0-51db-a9b3-b08c6f5897dc
-name: 'Open Redirect: social.bigpress.net'
+name: 'Open redirect: social.bigpress.net'
 severity: medium
 source: |-
   type.inbound

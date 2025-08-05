@@ -7,7 +7,7 @@ description: The detection rule is intended to match on emails sent from SharePo
 detection_methods:
 - Content analysis
 id: f95fee6e-8127-5888-a9a9-4bbeabfe33a3
-name: 'Link: Suspicious SharePoint Document Name'
+name: 'Link: Suspicious SharePoint document name'
 severity: low
 source: |-
   type.inbound

@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - Header analysis
 id: 064b2594-d24d-5857-8571-43ff2e8267c9
-name: 'Service Abuse: Suspicious Zoom Docs Link'
+name: 'Service abuse: Suspicious Zoom Docs link'
 severity: low
 source: |-
   type.inbound

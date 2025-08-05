@@ -12,7 +12,7 @@ detection_methods:
 - Optical Character Recognition
 - URL screenshot
 id: afa9807d-c70f-5af6-91ef-284c72d01cab
-name: 'Link: Multistage Landing - Scribd Document'
+name: 'Link: Multistage landing - Scribd document'
 severity: medium
 source: |-
   type.inbound

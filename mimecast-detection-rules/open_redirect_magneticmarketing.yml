@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: af485a39-4766-5c89-9498-00f618b90e69
-name: 'Open Redirect: magneticmarketing.com'
+name: 'Open redirect: magneticmarketing.com'
 severity: medium
 source: |-
   type.inbound

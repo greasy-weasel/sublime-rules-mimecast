@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: f146be73-7200-570e-a033-a28814c5a098
-name: 'Open Redirect: business.google.com website_shared URL Param'
+name: 'Open redirect: business.google.com website_shared URL Param'
 severity: medium
 source: |-
   type.inbound

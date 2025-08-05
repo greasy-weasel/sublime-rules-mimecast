@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 4ad2d505-4ca7-5201-bd78-6ae92cffb228
-name: 'Open Redirect: LinkedIn Redirect'
+name: 'Open redirect: LinkedIn Redirect'
 severity: medium
 source: |-
   type.inbound

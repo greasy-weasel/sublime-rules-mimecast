@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 860e1381-a99a-5b6e-bfed-ef0931e06fc7
-name: 'Open Redirect: emp.eduyield.com'
+name: 'Open redirect: emp.eduyield.com'
 severity: medium
 source: |-
   type.inbound

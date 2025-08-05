@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 4a8ebce6-8ec7-5e83-96e9-3f89d2c2e3ed
-name: 'Open Redirect: agena-smile.com'
+name: 'Open redirect: agena-smile.com'
 severity: medium
 source: |-
   type.inbound

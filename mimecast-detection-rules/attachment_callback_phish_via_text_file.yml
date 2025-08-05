@@ -8,7 +8,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: ca39c83a-b308-532d-894b-528bdaef2748
-name: 'Attachment: Callback Phishing solicitation via text-based file'
+name: 'Attachment: Callback phishing solicitation via text-based file'
 severity: medium
 source: "type.inbound\nand length(subject.subject) <= 10\n// there are no links, all\
   \ the links are to aka.ms, or an extraction from a warning banner that match the\

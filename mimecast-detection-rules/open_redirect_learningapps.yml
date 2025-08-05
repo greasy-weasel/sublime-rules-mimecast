@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 071b5b55-8d4f-5c94-98e4-3e68b57395ae
-name: 'Open Redirect: LearningApps'
+name: 'Open redirect: LearningApps'
 severity: medium
 source: |-
   type.inbound

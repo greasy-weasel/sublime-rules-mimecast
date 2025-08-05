@@ -13,7 +13,7 @@ detection_methods:
 - URL analysis
 - Whois
 id: e5b6a81f-8587-585f-957a-712987ad9884
-name: Newly Registered Sender or Reply-To Domain with Newly Registered Linked Domain
+name: Newly registered sender or reply-to domain with newly registered linked domain
 severity: medium
 source: |-
   type.inbound

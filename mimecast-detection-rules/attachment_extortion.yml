@@ -10,7 +10,7 @@ detection_methods:
 - Optical Character Recognition
 - Sender analysis
 id: 3cb8d32c-7c35-5cf9-9a8c-5cb6a1c3bd62
-name: Extortion / Sextortion in Attachment From Untrusted Sender
+name: Extortion / sextortion in attachment from untrusted sender
 severity: low
 source: |-
   type.inbound

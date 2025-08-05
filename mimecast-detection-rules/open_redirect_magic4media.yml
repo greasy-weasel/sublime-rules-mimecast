@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 942ebfa5-b119-554e-ac88-e5d91400e51a
-name: 'Open Redirect: magic4media.com'
+name: 'Open redirect: magic4media.com'
 severity: medium
 source: |-
   type.inbound

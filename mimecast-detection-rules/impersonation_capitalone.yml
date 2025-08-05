@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - Header analysis
 id: d53848e4-fc40-5bd1-ad5e-c9c4e85a669f
-name: 'Brand Impersonation: Capital One'
+name: 'Brand impersonation: Capital One'
 severity: high
 source: "type.inbound\nand (\n  any([\n        strings.replace_confusables(sender.display_name),\n\
   \        strings.replace_confusables(subject.subject),\n        // domain parts\

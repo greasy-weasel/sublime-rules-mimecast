@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: a057d64c-71a1-554a-8ff1-7016d5cae8cf
-name: 'Open Redirect: PIRL San Diego'
+name: 'Open redirect: PIRL San Diego'
 severity: medium
 source: |-
   type.inbound

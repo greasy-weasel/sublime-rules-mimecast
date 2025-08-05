@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 9586df9b-77d0-5845-9bd9-6f0f62ab36e7
-name: 'Open Redirect: magiccity.ne.jp'
+name: 'Open redirect: magiccity.ne.jp'
 severity: medium
 source: |-
   type.inbound

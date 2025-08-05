@@ -9,7 +9,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: 374b7517-bb48-5fed-885c-16d27f561e55
-name: 'Open Redirect: Shibboleth SSO Logout Return Parameter'
+name: 'Open redirect: Shibboleth SSO Logout Return Parameter'
 severity: high
 source: |-
   type.inbound

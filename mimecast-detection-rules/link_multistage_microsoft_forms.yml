@@ -9,7 +9,7 @@ detection_methods:
 - URL analysis
 - Content analysis
 id: 85a2cd12-af74-5451-8bfb-4f36f71eecb7
-name: 'Link: Multistage Landing - Microsoft Forms Abuse'
+name: 'Link: Multistage landing - Microsoft Forms abuse'
 severity: high
 source: |-
   type.inbound

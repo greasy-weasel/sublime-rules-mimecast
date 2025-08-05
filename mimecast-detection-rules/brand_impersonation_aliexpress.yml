@@ -9,7 +9,7 @@ detection_methods:
 - Header analysis
 - URL analysis
 id: b14703d8-5655-5a09-8a21-ef349ab435ea
-name: 'Brand Impersonation: AliExpress'
+name: 'Brand impersonation: AliExpress'
 severity: medium
 source: |-
   type.inbound

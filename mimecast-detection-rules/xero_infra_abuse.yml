@@ -8,7 +8,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: 918c4bd3-987f-5f69-bb46-9465a0b87837
-name: Xero Infrastructure Abuse
+name: Xero infrastructure abuse
 severity: medium
 source: |-
   type.inbound

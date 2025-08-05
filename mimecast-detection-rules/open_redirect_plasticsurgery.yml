@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 76dbd946-62d1-527f-b50b-fa4548c002d8
-name: 'Open Redirect: plasticsurgery.or.kr'
+name: 'Open redirect: plasticsurgery.or.kr'
 severity: medium
 source: |-
   type.inbound

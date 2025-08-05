@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: d5e2ca78-ef3a-54f1-9b24-3efca8c8e8ca
-name: 'Open Redirect: IndiaTimes'
+name: 'Open redirect: IndiaTimes'
 references:
 - https://www.strongestlayer.ai/India-Times-Hosting-Redirect-to-Newly-Discovered-Microsoft-Phishing-Site
 severity: medium

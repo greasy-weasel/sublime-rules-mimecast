@@ -11,7 +11,7 @@ detection_methods:
 - Whois
 - HTML analysis
 id: c86288b4-98f3-5d71-850e-c001a628600a
-name: 'Link: Multistage Landing - Abused Google Drive'
+name: 'Link: Multistage landing - Abused Google Drive'
 severity: high
 source: |-
   type.inbound

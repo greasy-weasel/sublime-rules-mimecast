@@ -9,7 +9,7 @@ detection_methods:
 - Content analysis
 - Sender analysis
 id: 6538c600-06a5-5a2e-ab76-8dd7f77b2fa3
-name: Xero Invoice Abuse
+name: Xero invoice abuse
 severity: medium
 source: |-
   type.inbound

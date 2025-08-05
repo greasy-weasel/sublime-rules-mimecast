@@ -10,7 +10,7 @@ detection_methods:
 - URL analysis
 - Whois
 id: 5a204a37-3120-53c1-a55a-5f4f09c61dc4
-name: 'Link: Google Firebase Dynamic Link that Redirects to New Domain (<7 days old)'
+name: 'Link: Google Firebase dynamic link that redirects to new domain (<7 days old)'
 severity: low
 source: |-
   type.inbound

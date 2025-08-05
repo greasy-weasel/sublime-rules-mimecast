@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 7b9012fa-0f14-57d5-b729-cb3b84565c47
-name: 'Open Redirect: xfinity.com'
+name: 'Open redirect: xfinity.com'
 severity: medium
 source: |-
   type.inbound

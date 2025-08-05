@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 66fecd30-4628-5e53-b3cb-5355a6741487
-name: Link to Google Apps Script macro via Comment Tagging
+name: Link to Google Apps Script macro via comment tagging
 references:
 - https://twitter.com/bunnymaid/status/1415478829162762240
 - https://playground.sublimesecurity.com?id=de1a2916-3812-4caa-a443-d1986487d772

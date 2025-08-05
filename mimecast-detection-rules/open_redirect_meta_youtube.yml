@@ -6,7 +6,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: f217fd10-48fe-553a-8e63-4da9fb3fbc64
-name: 'Open Redirect: Meta --> YouTube Redirection Chain'
+name: 'Open redirect: Meta --> YouTube Redirection Chain'
 severity: medium
 source: |-
   type.inbound

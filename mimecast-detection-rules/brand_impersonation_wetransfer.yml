@@ -14,7 +14,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: e37885ad-1099-58f9-a428-0910c666d119
-name: 'Brand Impersonation: WeTransfer'
+name: 'Brand impersonation: WeTransfer'
 severity: high
 source: "type.inbound\nand 2 of (\n  (\n    strings.ilike(sender.display_name, '*wetransfer*')\n\
   \    or strings.ilike(sender.display_name, '*we transfer*')\n    or strings.ilevenshtein(sender.display_name,\

@@ -10,7 +10,7 @@ detection_methods:
 - Natural Language Understanding
 - Optical Character Recognition
 id: 0d73f43d-d9b4-594d-ba63-7b93784fb33f
-name: Issuu Document With Suspicious Embedded Link
+name: Issuu document with suspicious embedded link
 severity: high
 source: |-
   type.inbound

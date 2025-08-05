@@ -12,7 +12,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 478334c8-66be-5cc2-8bd5-3422cc8d2e9d
-name: 'Mismatched Links: Free File Share With Urgent Language'
+name: 'Mismatched links: Free file share with urgent language'
 severity: medium
 source: |-
   type.inbound

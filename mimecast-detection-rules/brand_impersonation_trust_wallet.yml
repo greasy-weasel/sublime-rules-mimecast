@@ -10,7 +10,7 @@ detection_methods:
 - Sender analysis
 - Header analysis
 id: e456974c-a62d-590a-b0d7-f659c9f60c8c
-name: 'Brand Impersonation: Trust Wallet'
+name: 'Brand impersonation: Trust Wallet'
 severity: high
 source: |-
   type.inbound

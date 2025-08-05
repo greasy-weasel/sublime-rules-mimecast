@@ -10,7 +10,7 @@ detection_methods:
 - Content analysis
 - Sender analysis
 id: 44ba2fee-fe36-5a53-9da8-febecab405f6
-name: DocuSign Impersonation via CloudHQ Links
+name: DocuSign impersonation via CloudHQ links
 severity: medium
 source: |-
   type.inbound

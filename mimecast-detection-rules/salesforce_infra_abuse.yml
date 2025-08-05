@@ -9,7 +9,7 @@ detection_methods:
 - Natural Language Understanding
 - URL analysis
 id: 78a77c70-4008-545a-812f-bde793b72c29
-name: Salesforce Infrastructure Abuse
+name: Salesforce infrastructure abuse
 severity: medium
 source: |-
   type.inbound

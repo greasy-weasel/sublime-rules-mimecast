@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: e90871fe-cc9d-59e8-8057-93c4a3f785be
-name: 'Open Redirect: listing.ca'
+name: 'Open redirect: listing.ca'
 severity: medium
 source: |-
   type.inbound

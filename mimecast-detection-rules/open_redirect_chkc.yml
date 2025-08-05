@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: aa683479-478b-505d-9d4b-aec7da8423e8
-name: 'Open Redirect: chkc.com.hk'
+name: 'Open redirect: chkc.com.hk'
 severity: medium
 source: |-
   type.inbound

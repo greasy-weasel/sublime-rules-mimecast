@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: aa07b31a-d1da-53ac-a40f-ea19375f96bd
-name: 'Open Redirect: ijf.org'
+name: 'Open redirect: ijf.org'
 severity: medium
 source: |-
   type.inbound

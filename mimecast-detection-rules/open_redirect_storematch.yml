@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 849bfbb8-2869-5af1-a9c1-6c487a66ebbf
-name: 'Open Redirect: storematch.jp'
+name: 'Open redirect: storematch.jp'
 severity: medium
 source: |-
   type.inbound

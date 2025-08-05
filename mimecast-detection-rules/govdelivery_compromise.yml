@@ -11,7 +11,7 @@ detection_methods:
 - URL analysis
 - Whois
 id: 0d2d5172-de93-5452-872e-68db64b089ce
-name: 'Vendor Compromise: GovDelivery Message With Suspicious Link'
+name: 'Vendor compromise: GovDelivery message with suspicious link'
 severity: high
 source: |-
   type.inbound

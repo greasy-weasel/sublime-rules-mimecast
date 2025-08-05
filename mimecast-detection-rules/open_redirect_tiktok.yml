@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: d231d135-956c-5e6d-babe-71f847d29d1d
-name: 'Open Redirect: TikTok'
+name: 'Open redirect: TikTok'
 severity: medium
 source: |-
   type.inbound

@@ -7,7 +7,7 @@ detection_methods:
 - Header analysis
 - URL screenshot
 id: 06fc155e-f779-50a7-ad5f-3c3777fbf8f5
-name: 'Link: Credential Phishing link with Undisclosed Recipients'
+name: 'Link: Credential phishing link with undisclosed recipients'
 severity: medium
 source: |-
   type.inbound

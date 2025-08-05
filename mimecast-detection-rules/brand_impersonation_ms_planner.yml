@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: ea363c08-479f-5437-9b5d-3d9e07098200
-name: 'Brand Impersonation: Microsoft Planner With Suspicious Link'
+name: 'Brand impersonation: Microsoft Planner with suspicious link'
 severity: medium
 source: |-
   type.inbound

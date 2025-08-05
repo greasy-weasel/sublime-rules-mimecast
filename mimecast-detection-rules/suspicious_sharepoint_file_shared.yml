@@ -9,7 +9,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 971c3d9c-1605-5307-85e3-c017c6b72abb
-name: Suspicious SharePoint File Sharing
+name: Suspicious SharePoint file sharing
 severity: medium
 source: |-
   type.inbound

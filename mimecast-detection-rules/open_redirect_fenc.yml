@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 6ff1ab52-70e2-5135-8715-a3b1cc57e10f
-name: 'Open Redirect: fenc.com'
+name: 'Open redirect: fenc.com'
 severity: medium
 source: |-
   type.inbound

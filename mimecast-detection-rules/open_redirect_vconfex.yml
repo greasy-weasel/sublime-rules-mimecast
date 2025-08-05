@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 877de339-387a-5d7c-94ca-9094c484fe7b
-name: 'Open Redirect: vconfex.com'
+name: 'Open redirect: vconfex.com'
 severity: medium
 source: |-
   type.inbound

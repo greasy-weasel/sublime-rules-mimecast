@@ -10,7 +10,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: eb04a9f2-c40b-5fcc-97de-bee7111bc3d8
-name: 'Link: Zoho Form Link from Unsolicited Sender'
+name: 'Link: Zoho form link from unsolicited sender'
 severity: medium
 source: |-
   type.inbound

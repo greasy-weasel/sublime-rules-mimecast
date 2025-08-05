@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: 0ad17224-969d-5404-9ff0-866241c93f4e
-name: 'Open Redirect: PremierBet'
+name: 'Open redirect: PremierBet'
 severity: medium
 source: |-
   type.inbound

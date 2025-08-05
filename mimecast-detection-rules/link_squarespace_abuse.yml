@@ -8,7 +8,7 @@ detection_methods:
 - URL analysis
 - Sender analysis
 id: a8fe9d30-e64e-50e8-95d8-720e90676409
-name: 'Link: Squarespace Infrastructure Abuse'
+name: 'Link: Squarespace infrastructure abuse'
 severity: medium
 source: |-
   type.inbound

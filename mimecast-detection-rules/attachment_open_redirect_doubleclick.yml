@@ -8,7 +8,7 @@ detection_methods:
 - File analysis
 - URL analysis
 id: 506c16cc-a9b8-5b92-88ff-7fc9b6a89086
-name: 'Attachment: Link to Doubleclick.net Open Redirect'
+name: 'Attachment: Link to Doubleclick.net open redirect'
 severity: medium
 source: |-
   type.inbound

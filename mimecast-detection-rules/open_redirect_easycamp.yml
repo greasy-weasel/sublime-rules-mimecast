@@ -7,7 +7,7 @@ detection_methods:
 - Sender analysis
 - URL analysis
 id: f05d377d-b360-5cce-8239-6bdc70a462ef
-name: 'Open Redirect: easycamp.com'
+name: 'Open redirect: easycamp.com'
 severity: medium
 source: |-
   type.inbound
