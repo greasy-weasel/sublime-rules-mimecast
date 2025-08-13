@@ -21,11 +21,13 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   \ \"*expir*\")\n    and strings.ilike(body.current_thread.text, \"*password*\")\n\
   \    and strings.ilike(body.current_thread.text, \"*microsoft*\")\n  )\n  or regex.icontains(body.current_thread.text,\n\
   \                     \".*reach you.{0,20}Microsoft Teams\"\n  )\n  or strings.ilike(sender.display_name,\
-  \ '*new activity in Teams*')\n  or subject.subject =~ 'Offline Message in Teams'\n\
-  \  or strings.ilike(subject.subject, '*Teams Sent A Message')\n  or sender.display_name\
-  \ in~ (\n    'Microsoft Partner Network',\n    'Microsoft Advertising',\n    'Microsoft',\n\
-  \    'Microsoft Feedback',\n    'Microsoft account team',\n    'Microsoft Support',\n\
-  \    'Microsoft 365 Message center',\n    'Microsoft Azure'\n  )\n  or regex.icontains(sender.display_name,\n\
+  \ '*new activity in Teams*')\n  or strings.icontains(strings.replace_confusables(sender.display_name),\n\
+  \                     'microsoft advertising support'\n  )\n  or subject.subject\
+  \ =~ 'Offline Message in Teams'\n  or strings.ilike(subject.subject, '*Teams Sent\
+  \ A Message')\n  or sender.display_name in~ (\n    'Microsoft Partner Network',\n\
+  \    'Microsoft Advertising',\n    'Microsoft',\n    'Microsoft Feedback',\n   \
+  \ 'Microsoft account team',\n    'Microsoft Support',\n    'Microsoft 365 Message\
+  \ center',\n    'Microsoft Azure'\n  )\n  or regex.icontains(sender.display_name,\n\
   \                     \"[M\u1E3E\u1E40\u1E42\u2C6E\u041C\u1E3F\u1E41\u1E43\u1D6F\
   \u2C6E\U0001D40C\U0001D440][i\xED\xEC\xEE\xEF\u012B\u012D\u0129\u012F\u0131\u026A\
   \u0268\u1D62\u2071\U0001D422\U0001D456][c\u0107\u0109\u010B\u010D\xE7\u0188\u023C\
