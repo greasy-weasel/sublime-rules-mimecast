@@ -1,11 +1,15 @@
-name: "Brand impersonation: Twitter"
-description: |
+attack_types:
+- Credential Phishing
+description: |-
   Impersonation of Twitter.
+detection_methods:
+- Sender analysis
+id: 013c32c2-fa05-5456-9c45-284e008ff6a4
+name: 'Brand impersonation: Twitter'
 references:
-  - "https://www.techrepublic.com/article/phishing-attack-spoofs-twitter-to-steal-account-credentials/"
-type: "rule"
-severity: "medium"
-source: |
+- https://www.techrepublic.com/article/phishing-attack-spoofs-twitter-to-steal-account-credentials/
+severity: medium
+source: |-
   type.inbound
   and (
     // Twitter logic
@@ -16,15 +20,30 @@ source: |
     )
     // "X" logic
     or (
-      any(ml.logo_detect(beta.message_screenshot()).brands,
-          .name == "X" and .confidence == "high"
-      )
-      and (
-        any(ml.nlu_classifier(body.current_thread.text).intents,
-            .name == "cred_theft" and .confidence == "high"
+      (
+        3 of (
+          strings.iends_with(sender.email.domain.root_domain, "-x.com"),
+          any(body.links, strings.iends_with(.href_url.domain.root_domain, "-x.com")),
+          strings.ilike(body.current_thread.text,
+                        "*content dispute*",
+                        "*copyright*",
+                        "*appeal*"
+          ),
+          strings.contains(body.current_thread.text, '1355 Market Street'),
+          strings.ilike(body.current_thread.text, '*865 FM 1209*bastrop*')
         )
-        or any(ml.nlu_classifier(beta.ocr(beta.message_screenshot()).text).intents,
-            .name == "cred_theft" and .confidence == "high"
+        or (
+          any(ml.logo_detect(beta.message_screenshot()).brands,
+              .name == "X" and .confidence == "high"
+          )
+          and (
+            any(ml.nlu_classifier(body.current_thread.text).intents,
+                .name == "cred_theft" and .confidence == "high"
+            )
+            or any(ml.nlu_classifier(beta.ocr(beta.message_screenshot()).text).intents,
+                   .name == "cred_theft" and .confidence == "high"
+            )
+          )
         )
       )
       and any(beta.ml_topic(body.current_thread.text).topics,
@@ -51,12 +70,10 @@ source: |
     and strings.ends_with(headers.message_id, '@hearsaysystems.com>')
   )
   and sender.email.email not in $recipient_emails
-attack_types:
-  - "Credential Phishing"
 tactics_and_techniques:
-  - "Impersonation: Brand"
-  - "Lookalike domain"
-  - "Social engineering"
-detection_methods:
-  - "Sender analysis"
-id: "013c32c2-fa05-5456-9c45-284e008ff6a4"
+- 'Impersonation: Brand'
+- Lookalike domain
+- Social engineering
+tags:
+- Mimecast Needs Fix
+type: rule
