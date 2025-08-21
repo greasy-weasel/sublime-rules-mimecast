@@ -22,7 +22,7 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   \    and strings.ilike(body.current_thread.text, \"*microsoft*\")\n  )\n  or regex.icontains(body.current_thread.text,\n\
   \                     \".*reach you.{0,20}Microsoft Teams\"\n  )\n  or strings.ilike(sender.display_name,\
   \ '*new activity in Teams*')\n  or strings.icontains(strings.replace_confusables(sender.display_name),\n\
-  \                     'microsoft advertising support'\n  )\n  or subject.subject\
+  \                       'microsoft advertising support'\n  )\n  or subject.subject\
   \ =~ 'Offline Message in Teams'\n  or strings.ilike(subject.subject, '*Teams Sent\
   \ A Message')\n  or sender.display_name in~ (\n    'Microsoft Partner Network',\n\
   \    'Microsoft Advertising',\n    'Microsoft',\n    'Microsoft Feedback',\n   \
@@ -56,10 +56,11 @@ source: "type.inbound\nand (\n  length(body.links) < 30\n  or sender.email.local
   \ Office 365 bouncebacks\nand not (\n  all(attachments,\n      .content_type in\
   \ (\"message/delivery-status\", \"message/rfc822\")\n  )\n  and (\n    sender.email.local_part\
   \ in ('postmaster', 'mailer-daemon')\n    or strings.starts_with(sender.email.local_part,\
-  \ 'microsoftexchange')\n  )\n  and strings.contains(subject.subject, 'Undeliverable:')\n\
-  )\n\n// negate other legitimate MS notifications\nand not (\n  length(body.links)\
-  \ > 0\n  and all(body.links,\n           any([\n            \"aka.ms\",\n      \
-  \      \"microsoftonline.com\",\n            \"microsoft.com\"\n          ], strings.ends_with(..href_url.query_params,.))\n\
+  \ 'microsoftexchange')\n  )\n  and (\n    strings.contains(subject.subject, 'Undeliverable:')\n\
+  \    or strings.contains(subject.subject, 'Blocked:')\n  )\n)\n\n// negate other\
+  \ legitimate MS notifications\nand not (\n  length(body.links) > 0\n  and all(body.links,\n\
+  \           any([\n            \"aka.ms\",\n            \"microsoftonline.com\"\
+  ,\n            \"microsoft.com\"\n          ], strings.ends_with(..href_url.query_params,.))\n\
   \          or .href_url.domain.tld == \"microsoft\"\n  )\n  and headers.auth_summary.dmarc.pass\n\
   )\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\

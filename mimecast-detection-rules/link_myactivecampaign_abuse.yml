@@ -1,0 +1,25 @@
+attack_types:
+- Credential Phishing
+description: Detects messages from myactivecampaign.com containing links and suspicious
+  language that do not exclusively point to activehosted.com domains.
+detection_methods:
+- Natural Language Understanding
+- URL analysis
+- Sender analysis
+id: f5b91ce5-e239-5ae6-a417-9f0c5eeb47f1
+name: 'Link: MyActiveCampaign Link Abuse'
+severity: medium
+source: |-
+  type.inbound
+  and 0 < length(body.links) < 10
+  and sender.email.domain.root_domain == "myactivecampaign.com"
+  and any(ml.nlu_classifier(body.current_thread.text).intents,
+          .name == "cred_theft" and .confidence == "high"
+  )
+  and not all(body.links,  strings.ends_with(.href_url.query_params,"activehosted.com") )
+tactics_and_techniques:
+- Social engineering
+tags:
+- Attack surface reduction
+- Mimecast Changes Complete
+type: rule
