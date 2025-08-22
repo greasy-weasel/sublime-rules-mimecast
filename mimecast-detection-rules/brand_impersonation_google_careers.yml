@@ -1,0 +1,27 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Google Careers or job opportunities in
+  multiple languages that contain links to domains other than Google's legitimate
+  domains, from senders not authenticated as Google.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+- URL analysis
+id: cf2d97ad-1866-57a5-a098-fe875d59e46e
+name: 'Brand impersonation: Google Careers'
+severity: high
+source: "type.inbound\nand (\n  strings.icontains(body.current_thread.text, 'Google\
+  \ Careers')\n  // German Norwegian\n  or strings.icontains(body.current_thread.text,\
+  \ 'Google Karriere')\n  // Swedish\n  or strings.icontains(body.current_thread.text,\
+  \ 'Google Karri\xE4r')\n  // Dutch\n  or strings.icontains(body.current_thread.text,\
+  \ 'Google Carri\xE8res')\n  // Turkish\n  or strings.icontains(body.current_thread.text,\
+  \ 'Google Kariyer')\n)\nand not any(body.links,  any([\"google.com\", \"c.gle\"\
+  ], strings.ends_with(..href_url.query_params,.)) )\nand not (\n  sender.email.domain.root_domain\
+  \ in (\"google.com\")\n  and headers.auth_summary.dmarc.pass\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule
