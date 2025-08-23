@@ -1,0 +1,36 @@
+attack_types:
+- Spam
+description: Detects messages containing romantic or adult-themed language, combined
+  with links to newly registered domains or suspicious reply-to addresses.
+detection_methods:
+- Content analysis
+- Header analysis
+- URL analysis
+- Whois
+id: d5694cae-bee8-588e-8123-2c3e3459118b
+name: 'Link: Romance/Sexual Language With Suspicious Link'
+severity: low
+source: |-
+  type.inbound
+  and length(body.previous_threads) == 0
+  and any(ml.nlu_classifier(body.current_thread.text).topics,
+          .name in ("Romance", "Sexually Explicit Messages")
+          and .confidence == "high"
+  )
+  and 1 of (
+    any(body.links, network.whois(.href_url.domain).days_old < 30),
+    any(body.links,  any($url_shorteners, strings.ends_with(..href_url.query_params,.)) ),
+    any(headers.reply_to, network.whois(.email.domain).days_old < 30)
+  )
+  and 0 < length(distinct(body.links,
+                           not(any(["aka.ms"], strings.ends_with(..href_url.query_params,.)))
+                 )
+  ) < 3
+  and all(body.links,
+           not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
+  )
+tactics_and_techniques:
+- Social engineering
+tags:
+- Mimecast Needs Fix
+type: rule

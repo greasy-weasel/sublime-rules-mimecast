@@ -1,0 +1,85 @@
+attack_types:
+- Credential Phishing
+description: Detects messages containing a single link with PDF-named display text
+  containing financial phrases that redirects to a free file hosting service, sent
+  without previous message threads.
+detection_methods:
+- Content analysis
+- Sender analysis
+- URL analysis
+id: b010740b-a462-5dcd-acf9-877783a84534
+name: 'Link: PDF and financial display text to free file host'
+severity: high
+source: |-
+  type.inbound
+  and length(body.links) < 20
+
+  // the message does not contain previous threads
+  and length(body.previous_threads) == 0
+
+  // no PDF attachemnts
+  and length(filter(attachments, .file_type == "pdf")) == 0
+  // there is only a single link to the free file host
+  and length(filter(body.links,
+                     any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+                    or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+                    or  any($self_service_creation_platform_domains, ..href_url.query_params == strings.concat("domain=",.))
+                    or  any($self_service_creation_platform_domains, strings.ends_with(..href_url.query_params,.))
+                    or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                    or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                    or  strings.ends_with(.href_url.query_params,"dynamics.com")
+             )
+  ) == 1
+  // there are few distinct domains in the message
+  and length(distinct(body.links, .href_url.domain.root_domain)) <= 3
+
+  // the display_text ends in .pdf and goes to a free file host
+  and any(body.links,
+          strings.iends_with(.display_text, '.pdf')
+          and (
+             any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+            or  any($self_service_creation_platform_domains, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($self_service_creation_platform_domains, strings.ends_with(..href_url.query_params,.))
+            or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+            or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+            or  strings.ends_with(.href_url.query_params,"dynamics.com")
+          )
+          // the display text is financial related (remittance, invoice, etc)
+          and (
+            strings.icontains(.display_text, 'payment')
+            or regex.icontains(.display_text, 'pay\b')
+            or strings.icontains(.display_text, 'remit')
+            or strings.icontains(.display_text, 'receipt')
+            or strings.icontains(.display_text, 'Distribution')
+            or strings.icontains(.display_text, 'payoff')
+            or strings.icontains(.display_text, 'Wire Instructions')
+            or regex.icontains(.display_text, 'ACH\b')
+            or regex.icontains(.display_text, 'EFT\b')
+            or strings.istarts_with(.display_text, 'INV')
+            or strings.istarts_with(.display_text, 'View RFQ')
+            or strings.istarts_with(.display_text, 'Contract')
+
+            // the display text is the subject
+            or (.display_text =~ subject.base and length(.display_text) > 0)
+          )
+
+          // negate links which make use of google icons inside of a bounding box
+          // filter down to the link with the same display text
+          and not any(filter(html.xpath(body.html,
+                                        '//a[img[@src] or .//img[@src]][.//div[contains(@style, "border:1px solid")] or ancestor::div[contains(@style, "border:1px solid")]]'
+                             ).nodes,
+                             // the display text is the link we're inspecting
+                             ..display_text == .display_text
+                      ),
+                      // inside this is a reference to the google icon
+                      strings.icontains(.raw, 'gstatic.com/docs/doclist/images/')
+          )
+  )
+tactics_and_techniques:
+- Free file host
+- Free email provider
+- Social engineering
+tags:
+- Mimecast Needs Fix
+type: rule
