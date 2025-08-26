@@ -20,6 +20,7 @@ source: |-
                     'facebook ?ads',
                     'facebook ?business',
                     'meta ?account',
+                    'meta ?help',
                     'meta ?support',
                     'meta ?business',
                     'meta ?for ?business',
