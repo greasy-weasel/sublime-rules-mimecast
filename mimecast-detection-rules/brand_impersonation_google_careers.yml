@@ -12,14 +12,19 @@ id: cf2d97ad-1866-57a5-a098-fe875d59e46e
 name: 'Brand impersonation: Google Careers'
 severity: high
 source: "type.inbound\nand (\n  strings.icontains(body.current_thread.text, 'Google\
-  \ Careers')\n  // Spanish\n  or strings.icontains(body.current_thread.text, 'Google\
-  \ Carreras')\n  // German Norwegian\n  or strings.icontains(body.current_thread.text,\
-  \ 'Google Karriere')\n  // Swedish\n  or strings.icontains(body.current_thread.text,\
-  \ 'Google Karri\xE4r')\n  // Dutch\n  or strings.icontains(body.current_thread.text,\
-  \ 'Google Carri\xE8res')\n  // Turkish\n  or strings.icontains(body.current_thread.text,\
-  \ 'Google Kariyer')\n)\nand not any(body.links,  any([\"google.com\", \"c.gle\"\
-  ], strings.ends_with(..href_url.query_params,.)) )\nand not (\n  sender.email.domain.root_domain\
-  \ in (\"google.com\")\n  and headers.auth_summary.dmarc.pass\n)"
+  \ Careers')\n  or strings.icontains(body.current_thread.text, 'GoogleCareers')\n\
+  \  // Spanish\n  or strings.icontains(body.current_thread.text, 'Google Carreras')\n\
+  \  or strings.icontains(body.current_thread.text, 'GoogleCarreras')\n  // German\
+  \ Norwegian\n  or strings.icontains(body.current_thread.text, 'Google Karriere')\n\
+  \  or strings.icontains(body.current_thread.text, 'GoogleKarriere')\n  // Swedish\n\
+  \  or strings.icontains(body.current_thread.text, 'Google Karri\xE4r')\n  or strings.icontains(body.current_thread.text,\
+  \ 'GoogleKarri\xE4r')\n  // Dutch\n  or strings.icontains(body.current_thread.text,\
+  \ 'Google Carri\xE8res')\n  or strings.icontains(body.current_thread.text, 'GoogleCarri\xE8\
+  res')\n  // Turkish\n  or strings.icontains(body.current_thread.text, 'Google Kariyer')\n\
+  \  or strings.icontains(body.current_thread.text, 'GoogleKariyer')\n)\nand not any(body.links,\
+  \  any([\"google.com\", \"c.gle\"], strings.ends_with(..href_url.query_params,.))\
+  \ )\nand not (\n  sender.email.domain.root_domain in (\"google.com\")\n  and headers.auth_summary.dmarc.pass\n\
+  )"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
