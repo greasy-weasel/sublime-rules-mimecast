@@ -18,16 +18,18 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \                        \"*received a document*\",\n                        \"\
   *shared a document*\",\n                        \"*shared this document*\",\n  \
   \                      \"*shared an item*\",\n                        \"*received\
-  \ this email because you*\"\n          )\n      )\n      or any(file.explode(beta.message_screenshot()),\n\
-  \             strings.ilike(.scan.ocr.raw,\n                           \"*shared\
+  \ this email because you*\",\n                        \"*shared a*with you*\"\n\
+  \          )\n      )\n      or any(file.explode(beta.message_screenshot()),\n \
+  \            strings.ilike(.scan.ocr.raw,\n                           \"*shared\
   \ a file with you*\",\n                           \"*shared with you*\",\n     \
   \                      \"*invited you to review*\",\n                          \
   \ \"*received a document*\",\n                           \"*shared a document*\"\
   ,\n                           \"*shared this document*\",\n                    \
   \       \"*shared an item*\",\n                           \"*received this email\
-  \ because you*\"\n             )\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n\
-  \                    \"*shared*\",\n                    \"*updated*\",\n       \
-  \             \"*sign*\",\n                    \"*review*\"\n      )\n      or any(recipients.to,\
+  \ because you*\",\n                           \"*shared a*with you*\"\n        \
+  \     )\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n     \
+  \               \"*shared*\",\n                    \"*updated*\",\n            \
+  \        \"*sign*\",\n                    \"*review*\"\n      )\n      or any(recipients.to,\
   \ strings.icontains(subject.subject, .email.domain.sld))\n      or strings.ilike(subject.subject,\
   \ \"*Docs*\", \"*Sheets*\", \"*Slides*\")\n      or any(body.links, strings.icontains(.display_text,\
   \ \"open document\"))\n      or strings.ilike(sender.display_name, \"*Google Drive*\"\
