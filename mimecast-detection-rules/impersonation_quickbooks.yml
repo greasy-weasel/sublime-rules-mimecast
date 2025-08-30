@@ -12,7 +12,7 @@ name: 'Brand impersonation: Quickbooks'
 severity: medium
 source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quickbook*')\n\
   \    or strings.ilevenshtein(sender.display_name, 'quickbooks') <= 1\n    or strings.ilike(sender.email.domain.domain,\
-  \ '*quickbooks*')\n  )\n  or strings.ilike(body.current_thread.text, \"*invoice*\"\
+  \ '*quickbook*')\n  )\n  or strings.ilike(body.current_thread.text, \"*invoice*\"\
   )\n)\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n      .name\
   \ == \"Quickbooks\" and .confidence in (\"medium\", \"high\")\n  )\n  // contains\
   \ the address and copyright\n  or (\n    strings.icontains(body.current_thread.text,\n\

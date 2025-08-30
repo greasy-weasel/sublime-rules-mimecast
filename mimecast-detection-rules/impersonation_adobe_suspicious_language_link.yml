@@ -20,23 +20,23 @@ source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  
   \           .name == \"File Sharing and Cloud Services\"\n                and .confidence\
   \ != \"low\"\n        )\n      )\n      // keywords if topic anlayis doesn't match\n\
   \      or strings.icontains(body.current_thread.text, 'review the document')\n \
-  \     or strings.icontains(body.current_thread.text, 'access file')\n    )\n   \
-  \ and length(body.current_thread.text) < 2000\n  )\n)\nand (\n  any(file.explode(beta.message_screenshot()),\n\
-  \      strings.ilike(.scan.ocr.raw,\n                    \"*review*\",\n       \
-  \             \"*sign*\",\n                    \"*view*\",\n                   \
-  \ \"open\",\n                    \"*completed document*\",\n                   \
-  \ \"*open agreement*\",\n                    \"*open document*\"\n      )\n    \
-  \  and not strings.ilike(.scan.ocr.raw,\n                            \"*view this\
-  \ email*\",\n                            \"*view*browser*\",\n                 \
-  \           \"*business review*\"\n      )\n  )\n  or any(body.links,\n        \
-  \ strings.ilike(.display_text,\n                       \"*review*\",\n         \
-  \              \"*sign*\",\n                       \"*view*\",\n               \
-  \        \"open\",\n                       \"*completed document*\",\n         \
-  \              \"*open agreement*\",\n                       \"*open document*\"\
-  \n         )\n         and not strings.ilike(.display_text,\n                  \
-  \             \"*view this email*\",\n                               \"*view*browser*\"\
-  \n         )\n  )\n)\nand (\n  (\n    (\n      length(headers.references) > 0\n\
-  \      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
+  \     or strings.icontains(body.current_thread.text, 'access file')\n      or strings.icontains(body.current_thread.text,\
+  \ 'pending document')\n    )\n    and length(body.current_thread.text) < 2000\n\
+  \  )\n)\nand (\n  any(file.explode(beta.message_screenshot()),\n      strings.ilike(.scan.ocr.raw,\n\
+  \                    \"*review*\",\n                    \"*sign*\",\n          \
+  \          \"*view*\",\n                    \"open\",\n                    \"*completed\
+  \ document*\",\n                    \"*open agreement*\",\n                    \"\
+  *open document*\"\n      )\n      and not strings.ilike(.scan.ocr.raw,\n       \
+  \                     \"*view this email*\",\n                            \"*view*browser*\"\
+  ,\n                            \"*business review*\"\n      )\n  )\n  or any(body.links,\n\
+  \         strings.ilike(.display_text,\n                       \"*review*\",\n \
+  \                      \"*sign*\",\n                       \"*view*\",\n       \
+  \                \"open\",\n                       \"*completed document*\",\n \
+  \                      \"*open agreement*\",\n                       \"*open document*\"\
+  ,\n                       \"*continue*\"\n         )\n         and not strings.ilike(.display_text,\n\
+  \                               \"*view this email*\",\n                       \
+  \        \"*view*browser*\"\n         )\n  )\n)\nand (\n  (\n    (\n      length(headers.references)\
+  \ > 0\n      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
   \ \"In-Reply-To\"))\n      )\n    )\n    and not (\n      (\n        strings.istarts_with(subject.subject,\
   \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"RES:\")\n       \
   \ or strings.istarts_with(subject.subject, \"R:\")\n        or strings.istarts_with(subject.subject,\
