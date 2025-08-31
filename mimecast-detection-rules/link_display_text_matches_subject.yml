@@ -77,6 +77,8 @@ source: |-
         // when visited is phishing
         ml.link_analysis(.).credphish.disposition == "phishing"
         or ml.link_analysis(.).final_dom.display_text == "Verify you are human"
+        or  any($self_service_creation_platform_domains, ..href_url.query_params == strings.concat("domain=",.))
+        or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
     )
     // or the body is cred_theft
     or any(ml.nlu_classifier(body.current_thread.text).intents,
