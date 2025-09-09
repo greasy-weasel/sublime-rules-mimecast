@@ -1,0 +1,49 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Salesforce with urgent language about
+  failed or cancelled campaigns, containing external links from first-time senders
+  outside legitimate Salesforce domains.
+detection_methods:
+- Content analysis
+- Natural Language Understanding
+- Sender analysis
+- URL analysis
+id: d66000ca-1ee7-5f62-8355-0db7c44743fc
+name: 'Impersonation: Salesforce fake campaign failure notification'
+severity: medium
+source: |-
+  type.inbound
+  and strings.icontains(sender.display_name, "salesforce")
+  and sender.email.domain.root_domain not in (
+    "salesforce.com",
+    "force.com",
+    "site.com",
+    "agentforce.com"
+  )
+  and length(attachments) == 0
+  // theare are external links (not org or SF domains)
+  and length(filter(body.links,
+                     not(any($org_domains, ..href_url.query_params == strings.concat("domain=",.)))
+                    and .href_url.domain.root_domain not in (
+                      "salesforce.com",
+                      "force.com",
+                      "site.com" // salesforce CRM
+                    )
+             )
+  ) > 0
+
+  and length(body.current_thread.text) <= 600
+  and strings.contains(body.current_thread.text, 'campaign'
+  )
+  and any(ml.nlu_classifier(body.current_thread.text).entities,
+          .name == "urgency" and regex.icontains(.text, "(failed|cancelled)")
+  )
+  and any(ml.nlu_classifier(body.current_thread.text).entities,
+          .name == "request"
+  )
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Needs Fix
+type: rule
