@@ -1,8 +1,15 @@
-name: "Suspicious request for financial information"
-description: "Email is from a suspicious sender and contains a request for financial information, such as AR reports."
-type: "rule"
-severity: "high"
-source: |
+attack_types:
+- BEC/Fraud
+description: Email is from a suspicious sender and contains a request for financial
+  information, such as AR reports.
+detection_methods:
+- Content analysis
+- Header analysis
+- Sender analysis
+id: 4ebdaa4d-4db2-56c6-9a6c-220ad49b7681
+name: Suspicious request for financial information
+severity: high
+source: |-
   type.inbound
   and length(attachments) <= 1
   and length(recipients.to) <= 2
@@ -38,8 +45,16 @@ source: |
         and strings.icontains(body.current_thread.text, "current invoices")
       )
     )
+    // suspicious link display text
+    or (
+      any(body.links,
+          regex.icontains(.display_text,
+                          '(Payment|Remittance|Settlement|Transfer) ?Batch',
+          )
+      )
+    )
   )
-  // negate resume related/job inquiry outreach 
+  // negate resume related/job inquiry outreach
   and not (
     any(ml.nlu_classifier(body.current_thread.text).topics,
         .name == "Professional and Career Development" and .confidence == "high"
@@ -56,16 +71,10 @@ source: |
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
   and not profile.by_sender().any_messages_benign
-
-attack_types:
-  - "BEC/Fraud"
 tactics_and_techniques:
-  - "Free email provider"
-  - "Impersonation: Employee"
-  - "Impersonation: VIP"
-  - "Social engineering"
-detection_methods:
-  - "Content analysis"
-  - "Header analysis"
-  - "Sender analysis"
-id: "4ebdaa4d-4db2-56c6-9a6c-220ad49b7681"
+- Free email provider
+- 'Impersonation: Employee'
+- 'Impersonation: VIP'
+- Social engineering
+tags: []
+type: rule
