@@ -2,18 +2,45 @@ attack_types:
 - BEC/Fraud
 - Credential Phishing
 description: Detects messages impersonating the Social Security Administration (SSA)
-  that contain links and use legitimate SSA terminology like 'Secure Message' or 'SSA
-  Statement Viewer', but are sent from non-government domains by unsolicited or suspicious
-  senders.
+  that contain links, a suspicious indicator, and are sent from non-government domains
+  by unsolicited or suspicious senders.
 detection_methods:
 - Content analysis
 - Sender analysis
 - URL analysis
 id: 6196767e-6264-5833-96f3-d1e34424d7b5
-name: 'Impersonation: Social Security Administration with secure message language'
+name: 'Impersonation: Social Security Administration (SSA)'
 severity: medium
 source: |-
   type.inbound
+
+  // Identifies as SSA without catching strings such as "Alyssa"
+  and (
+    regex.contains(sender.display_name, '^SSA\b')
+    or strings.icontains(sender.display_name, "Social Security Administration")
+  )
+
+  // Contains a link
+  and length(body.links) >= 1
+
+  // Not from a .gov domain
+  and not sender.email.domain.tld == ".gov"
+
+  // Additional suspicious indicator
+  and (
+    any(ml.nlu_classifier(body.current_thread.text).topics,
+        .name == "Secure Message" and .confidence == "high"
+    )
+    or strings.contains(body.current_thread.text, "SSA Statement Viewer")
+    // real SSA phone number
+    or strings.icontains(body.current_thread.text, "1-800-772-1213")
+    or any(body.links,
+           any(regex.extract(.href_url.path, '\.(?P<ext>[^./?#]+)(?:[?#]|$)'),
+               .named_groups["ext"] in $file_extensions_executables
+           )
+    )
+  )
+
   and (
     not profile.by_sender().solicited
     or (
@@ -21,26 +48,14 @@ source: |-
       and not profile.by_sender().any_messages_benign
     )
   )
-  // Identifies as SSA without catching strings such as "Alyssa"
-  and (
-    regex.contains(sender.display_name, '^SSA\b')
-    or strings.icontains(sender.display_name, "Social Security Administration")
-  )
-  // Contains a link
-  and length(body.links) >= 1
 
-  // Not from a .gov domain
-  and not sender.email.domain.tld == ".gov"
-
-  // Secure messsage wording
-  and (
-    strings.icontains(body.current_thread.text, "Secure Message")
-    or strings.contains(body.current_thread.text, "SSA Statement Viewer")
-    // real SSA phone number
-    or strings.icontains(body.current_thread.text, "1-800-772-1213")
+  and not (
+    sender.email.domain.root_domain in $high_trust_sender_root_domains
+    and coalesce(headers.auth_summary.dmarc.pass, false)
   )
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
-tags: []
+tags:
+- Mimecast Hard to Fix
 type: rule
