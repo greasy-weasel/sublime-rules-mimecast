@@ -1,0 +1,63 @@
+attack_types:
+- BEC/Fraud
+- Credential Phishing
+description: Detects messages impersonating UK government agencies (Home Office, UK
+  Visas and Immigration, gov.uk) that contain links not leading to legitimate gov.uk
+  domains or show credential theft language, from senders not authenticated as official
+  government domains.
+detection_methods:
+- Content analysis
+- Header analysis
+- Natural Language Understanding
+- Sender analysis
+- URL analysis
+id: f35d846a-5a72-56a7-9ee7-14cc8899ddff
+name: 'Brand impersonation: UK government Home Office'
+severity: high
+source: "type.inbound\n\n// UK government agencies in display name or subject with\
+  \ homograph protection\nand (\n  any([\n        strings.replace_confusables(sender.display_name),\n\
+  \        strings.replace_confusables(subject.subject)\n      ],\n      strings.ilike(.,\n\
+  \                    \"*sponsorship management system*\",\n                    \"\
+  *Sponsor Management System*\"\n      )\n      // exact match of high confidence\n\
+  \      or . in~ (\"Home Office\", \"uk home office\", \"UK Visas and Immigration\"\
+  )\n  )\n  // image is srced from the actual home office URL\n  or strings.icontains(body.html.raw,\n\
+  \                       '\"https://www.points.homeoffice.gov.uk/gui-sms-jsf/images/'\n\
+  \  )\n  // observed footers in messages\n  or 2 of (\n    strings.icontains(body.current_thread.text,\
+  \ '\xA9 Crown Copyright '),\n    strings.icontains(body.current_thread.text, '\xA9\
+  \ 2025 Home Office'),\n    strings.icontains(body.current_thread.text, '\xA9 UK\
+  \ Visas and Immigration'),\n    regex.icontains(body.current_thread.text, ' [||\u2013\
+  -\u2014] Home Office'),\n    regex.icontains(body.current_thread.text, ' [|\u2013\
+  -\u2014] UK Visas and Immigration'),\n    strings.icontains(body.current_thread.text,\n\
+  \                      'This is an automated message from UK Visas and Immigration.'\n\
+  \    ),\n    strings.icontains(body.current_thread.text,\n                     \
+  \ 'This is an automated notification from the Home Office'\n    ),\n    regex.icontains(body.current_thread.text,\n\
+  \                      'You(?: are|''re) receiving this notification as a registered\
+  \ SMS user'\n    ),\n    regex.icontains(body.current_thread.text,\n           \
+  \           'If you are not the designated.{0,50}SMS user'\n    ),\n  )\n)\n\n//\
+  \  Not from legitimate UK government domains\nand not (\n  sender.email.domain.tld\
+  \ == \"gov.uk\" and headers.auth_summary.dmarc.pass\n)\n\n//\nand (\n  // there\
+  \ are links that do not link to \"gov.uk\"\n  not all(body.links, .href_url.domain.tld\
+  \ == \"gov.uk\")\n  // OR credential theft intent detected\n  or any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  \         .name == \"cred_theft\" and .confidence in (\"medium\", \"high\")\n  )\n\
+  \  // link based indicators\n  or any(body.links,\n         // suspicious display\
+  \ text\n         (\n           .display_text in (\"Access SMS\", \"Login to SMS\"\
+  , \"Log in to SMS\", \"Access UKVI Account\")\n           and .href_url.domain.tld\
+  \ != \"gov.uk\"\n         )\n         // there are mismatched links\n         or\
+  \ (\n           .display_url.domain.tld == \"gov.uk\"\n           and .href_url.domain.tld\
+  \ != \"gov.uk\"\n           and .mismatched\n         )\n\n         // the path\
+  \ refers to the uk stuff\n         or (\n           .href_url.domain.tld != \"gov.uk\"\
+  \n           and strings.icontains(.href_url.path, 'gov.uk')\n         )\n  )\n\
+  )\n\n// no previous threads\nand not (length(headers.references) > 0 or length(body.previous_threads)\
+  \ > 0)\n// negate a high amount of links or newsletters\nand not (\n  length(body.links)\
+  \ > 20\n  or any(ml.nlu_classifier(body.html.display_text).topics,\n         .name\
+  \ == \"Newsletters and Digests\"\n  )\n)\n//  High-trust domain exclusion\nand (\n\
+  \  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n \
+  \   and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+- Lookalike domain
+tags:
+- Mimecast Hard to Fix
+type: rule
