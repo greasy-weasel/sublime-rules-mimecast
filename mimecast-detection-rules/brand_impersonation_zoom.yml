@@ -24,7 +24,7 @@ source: "type.inbound\nand (\n  // the social links in the footer\n  3 of (\n   
   \    )\n  )\n  or (\n    length(beta.ml_topic(body.html.display_text).topics) ==\
   \ 1\n    and all(beta.ml_topic(body.html.display_text).topics,\n            .name\
   \ in (\"Events and Webinars\", \"Software and App Updates\")\n            and .confidence\
-  \ != \"low\"\n    )\n    and any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \ != \"low\"\n    )\n    and any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \            .name == \"Zoom\" and .confidence == \"high\"\n    )\n    and any(body.links,\n\
   \            any(ml.nlu_classifier(.display_text).intents,\n                .name\
   \ == \"cred_theft\" and .confidence == \"high\"\n            )\n    )\n  )\n  or\

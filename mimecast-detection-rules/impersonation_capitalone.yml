@@ -18,7 +18,7 @@ source: "type.inbound\nand (\n  any([\n        strings.replace_confusables(sende
   \      or strings.icontains(., 'CapitalOne')\n\n      // slower checks next\n  \
   \    or regex.icontains(., 'Capital.?One')\n      // levenshtein distince similar\
   \ to captial one\n      or strings.ilevenshtein(., 'Capital One') <= 2\n  )\n  or\
-  \ any(ml.logo_detect(beta.message_screenshot()).brands,\n         .name == \"Capital\
+  \ any(ml.logo_detect(file.message_screenshot()).brands,\n         .name == \"Capital\
   \ One Bank\" and .confidence != \"low\"\n  )\n)\nand not (\n  sender.email.domain.root_domain\
   \ in (\n    \"capitalone.co.uk\",\n    \"capitalone.com\",\n    \"capitaloneshopping.com\"\
   ,\n    \"capitalonesoftware.com\",\n    \"capitalonebooking.com\",\n    \"capitalonetravel.com\"\

@@ -61,10 +61,10 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \        (\n          .file_type =~ \"gif\"\n          or any(file.explode(.),\n\
   \                 any(.scan.exiftool.fields,\n                     .key == \"Warning\"\
   \ and .value == \"Truncated PNG image\"\n                 )\n          )\n     \
-  \   )\n    )\n    and (\n      any(ml.logo_detect(beta.message_screenshot()).brands,\n\
-  \          (\n            .name == \"DocuSign\"\n            or any(file.explode(beta.message_screenshot()),\n\
+  \   )\n    )\n    and (\n      any(ml.logo_detect(file.message_screenshot()).brands,\n\
+  \          (\n            .name == \"DocuSign\"\n            or any(file.explode(file.message_screenshot()),\n\
   \                   strings.ilike(.scan.ocr.raw, \"*DocuSign*\")\n            )\n\
-  \          )\n      )\n      and (\n        any(file.explode(beta.message_screenshot()),\n\
+  \          )\n      )\n      and (\n        any(file.explode(file.message_screenshot()),\n\
   \            (\n              any(ml.nlu_classifier(.scan.ocr.raw).intents,\n  \
   \                .name == \"cred_theft\" and .confidence != \"low\"\n          \
   \    )\n              or regex.icontains(.scan.ocr.raw,\n                      \
@@ -74,7 +74,7 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \                                 \"Dokument (\xFCberpr\xFCfen|pr\xFCfen|unterschreiben|geschickt)\"\
   ,\n                                 // German (important|urgent|immediate)\n   \
   \                              \"(wichtig|dringend|sofort)\"\n              )\n\
-  \            )\n        )\n      )\n      and not any(file.explode(beta.message_screenshot()),\n\
+  \            )\n        )\n      )\n      and not any(file.explode(file.message_screenshot()),\n\
   \                  strings.ilike(.scan.ocr.raw,\n                              \
   \  \"*DocuSigned By*\",\n                                \"*DocuSign Envelope ID*\"\
   ,\n                                \"*Certificate Of Completion*\",\n          \

@@ -20,7 +20,7 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \                       \"*shared this document*\"\n          )\n      )\n     \
   \ or any(beta.ml_topic(body.current_thread.text).topics,\n             .name ==\
   \ \"File Sharing and Cloud Services\"\n             and .confidence == \"high\"\n\
-  \      )\n      or any(file.explode(beta.message_screenshot()),\n             strings.ilike(.scan.ocr.raw,\n\
+  \      )\n      or any(file.explode(file.message_screenshot()),\n             strings.ilike(.scan.ocr.raw,\n\
   \                           \"*shared a file with you*\",\n                    \
   \       \"*shared with you*\",\n                           \"*invited you to access\
   \ a file*\",\n                           \"*received a document*\",\n          \
@@ -62,7 +62,7 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \           \"S vami\", // Slovak\n           \"Med dig\", // Danish\n         \
   \  \"Amb vost\xE8\", // Catalan\n           \"Teiega\", // Estonian\n          \
   \ \"S vama\", // Serbian\n         ],\n         strings.icontains(subject.subject,\
-  \ .)\n  )\n)\n\n// contains logic that impersonates Microsoft\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \ .)\n  )\n)\n\n// contains logic that impersonates Microsoft\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      strings.starts_with(.name, \"Microsoft\")\n  )\n  or any(attachments,\n \
   \        .file_type in $file_types_images\n         and any(ml.logo_detect(.).brands,\n\
   \                 strings.starts_with(.name, \"Microsoft\")\n         )\n  )\n \

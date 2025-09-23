@@ -1,46 +1,41 @@
-attack_types:
-- Credential Phishing
-description: Detects suspicious content in Zoom Events notifications that contain
-  credential theft language and links to file hosting sites.
-detection_methods:
-- Header analysis
-- HTML analysis
-- Natural Language Understanding
-- URL analysis
-id: c8fce846-4745-597d-a90c-4c788dcb402a
-name: Zoom Events newsletter abuse
+name: "Zoom Events newsletter abuse"
+description: "Detects suspicious content in Zoom Events notifications that contain credential theft language and links to file hosting sites."
+type: "rule"
+severity: "medium"
 references:
-- https://blog.reconinfosec.com/zoom-events-phishing
-severity: medium
-source: |-
+  - "https://blog.reconinfosec.com/zoom-events-phishing"
+source: |
   type.inbound
   and sender.email.email == "noreply-zoomevents@zoom.us"
-  and headers.auth_summary.spf.pass
-  and headers.auth_summary.dmarc.pass
-
+  and (
+    headers.auth_summary.spf.pass
+    or headers.auth_summary.dmarc.pass
+  )
+  
   // extract the actor controlled message from the email body
   and any(html.xpath(body.html,
                      "//div[@class='eb-content css-1l7xmti']//td[@data-dynamic-style-background-color='email.bodyColor.color' and @style='border-radius: 8px; background-color: rgb(255, 255, 255);']"
           ).nodes,
-          any(regex.extract(.display_text, '(?P<body_text>[\s\S]*?)Visit the'),
-              any(ml.nlu_classifier(.named_groups['body_text']).intents,
+          // look at the content before the copyright footer in the template and pass it to NLU to see if it's cred theft 
+          any(html.xpath(.,
+                         "//td[@data-dynamic-style-background-color='email.bodyColor.color']/*[position() < last()]"
+              ).nodes,
+              any(ml.nlu_classifier(..display_text).intents,
                   .name == "cred_theft" and .confidence != "low"
               )
           )
   )
 
-  and (
-    any(body.links,
-         any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
-        or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
-        or any(body.links,  .href_url.query_params == "domain=docs.zoom.us" )
-    )
-  )
+attack_types:
+  - "Credential Phishing"
 tactics_and_techniques:
-- Free file host
-- Free subdomain host
-- Social engineering
-- 'Impersonation: Brand'
-tags:
-- Mimecast Changes Complete
-type: rule
+  - "Free file host"
+  - "Free subdomain host"
+  - "Social engineering"
+  - "Impersonation: Brand"
+detection_methods:
+  - "Header analysis"
+  - "HTML analysis"
+  - "Natural Language Understanding"
+  - "URL analysis"
+id: "c8fce846-4745-597d-a90c-4c788dcb402a"

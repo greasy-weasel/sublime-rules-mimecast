@@ -13,7 +13,7 @@ name: 'Attachment: Adobe image lure in body or attachment with suspicious link'
 severity: medium
 source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $file_types_images))\
   \ == 0\n  or length(filter(attachments, .file_type != \"pdf\")) == 0\n)\nand (\n\
-  \  (\n    any(ml.logo_detect(beta.message_screenshot()).brands, .name == \"Adobe\"\
+  \  (\n    any(ml.logo_detect(file.message_screenshot()).brands, .name == \"Adobe\"\
   )\n    and 0 < length(body.links) < 10\n    and any(body.links, .display_text is\
   \ null)\n    and (\n      length(filter(body.links,\n                    (\n   \
   \                   .display_text is null\n                      and .display_url.url\

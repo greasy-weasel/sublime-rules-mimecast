@@ -19,29 +19,45 @@ source: "type.inbound\nand length(subject.subject) <= 10\n// there are no links,
   \                   or network.whois(.display_url.domain).days_old < 30\n      \
   \      )\n  ) == length(body.links)\n)\nand (body.current_thread.text is null or\
   \ length(body.current_thread.text) < 50)\nand 0 < length(attachments) < 4\nand any(attachments,\n\
-  \        (.content_type == \"text/plain\" or .file_type in (\"doc\", \"docx\"))\n\
-  \        and any(file.explode(.),\n                (.depth == 0 or .flavors.mime\
-  \ == \"text/plain\")\n                and any(.scan.strings.strings,\n         \
-  \               strings.ilike(.,\n                                      \"*mcafee*\"\
-  ,\n                                      \"*norton*\",\n                       \
-  \               \"*geek squad*\",\n                                      \"*paypal*\"\
-  ,\n                                      \"*ebay*\",\n                         \
-  \             \"*symantec*\",\n                                      \"*best buy*\"\
-  ,\n                                      \"*lifelock*\",\n                     \
-  \                 \"*geek total*\"\n                        )\n                \
-  \        and any(..scan.strings.strings,\n                                regex.icontains(.,\n\
-  \                                                '\\b\\+?(\\d{1}.)?\\(?\\d{3}?\\\
-  )?.~?.?\\d{3}.?~?.\\d{4}\\b',\n                                                '\\\
-  +?([ilo0-9]{1}.)?\\(?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n             \
-  \                                   '\\+?([ilo0-9]{1,2})?\\s?\\(?\\d{3}\\)?[\\s\\\
-  .\\-\u22C5]{0,5}[ilo0-9]{3}[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n                \
-  \                )\n                        )\n                )\n        )\n)\n\
-  and profile.by_sender().prevalence != \"common\"\nand not profile.by_sender().solicited\n\
-  and not profile.by_sender().any_messages_benign\n\n// negate highly trusted sender\
-  \ domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
-  \ in $high_trust_sender_root_domains\n    and (\n      any(distinct(headers.hops,\
-  \ .authentication_results.dmarc is not null),\n          strings.ilike(.authentication_results.dmarc,\
-  \ \"*fail\")\n      )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
+  \        (\n          .content_type == \"text/plain\"\n          or .file_type in\
+  \ (\"doc\", \"docx\", \"xls\", \"xlsx\")\n        )\n        and any(file.explode(.),\n\
+  \                (.depth == 0 or .flavors.mime == \"text/plain\")\n            \
+  \    // 4 of the following strings are found\n                and 4 of (\n     \
+  \             // this section is synced with attachment_callback_phish_with_pdf.yml\
+  \ and body_callback_phishing_no_attachment.yml\n                  strings.icontains(.scan.strings.raw,\
+  \ \"purchase\"),\n                  strings.icontains(.scan.strings.raw, \"payment\"\
+  ),\n                  strings.icontains(.scan.strings.raw, \"transaction\"),\n \
+  \                 strings.icontains(.scan.strings.raw, \"subscription\"),\n    \
+  \              strings.icontains(.scan.strings.raw, \"antivirus\"),\n          \
+  \        strings.icontains(.scan.strings.raw, \"order\"),\n                  strings.icontains(.scan.strings.raw,\
+  \ \"support\"),\n                  strings.icontains(.scan.strings.raw, \"help line\"\
+  ),\n                  strings.icontains(.scan.strings.raw, \"receipt\"),\n     \
+  \             strings.icontains(.scan.strings.raw, \"invoice\"),\n             \
+  \     strings.icontains(.scan.strings.raw, \"call\"),\n                  strings.icontains(.scan.strings.raw,\
+  \ \"helpdesk\"),\n                  strings.icontains(.scan.strings.raw, \"cancel\"\
+  ),\n                  strings.icontains(.scan.strings.raw, \"renew\"),\n       \
+  \           strings.icontains(.scan.strings.raw, \"refund\"),\n                \
+  \  regex.icontains(.scan.strings.raw, \"(?:reach|contact) us at\"),\n          \
+  \        strings.icontains(.scan.strings.raw, \"+1\"),\n                  strings.icontains(.scan.strings.raw,\
+  \ \"amount\"),\n                  strings.icontains(.scan.strings.raw, \"charged\"\
+  ),\n                  strings.icontains(.scan.strings.raw, \"crypto\"),\n      \
+  \            strings.icontains(.scan.strings.raw, \"wallet address\"),\n       \
+  \           regex.icontains(.scan.strings.raw, '\\$\\d{3}\\.\\d{2}\\b'),\n     \
+  \             regex.icontains(.scan.strings.raw,\n                             \
+  \     '\\+?([ilo0-9]{1}.)?\\(?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n    \
+  \                              '\\+?([ilo0-9]{1,2})?\\s?\\(?\\d{3}\\)?[\\s\\.\\\
+  -\u22C5]{0,5}[ilo0-9]{3}[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n                  ),\n\
+  \                )\n                // this section is synced with attachment_callback_phish_with_pdf.yml\
+  \ and body_callback_phishing_no_attachment.yml\n                and regex.icontains(.scan.strings.raw,\n\
+  \                                    '(p.{0,3}a.{0,3}y.{0,3}p.{0,3}a.{0,3}l|ma?c.?fee|n[o0]rt[o0]n|geek.{0,5}squad|ebay|symantec|best\
+  \ buy|lifel[o0]c|secure anywhere|starz|utilities premium|pc security|at&t)'\n  \
+  \              )\n        )\n)\nand profile.by_sender().prevalence != \"common\"\
+  \nand not profile.by_sender().solicited\nand not profile.by_sender().any_messages_benign\n\
+  \n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \    and (\n      any(distinct(headers.hops, .authentication_results.dmarc is not\
+  \ null),\n          strings.ilike(.authentication_results.dmarc, \"*fail\")\n  \
+  \    )\n    )\n  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
   )"
 tactics_and_techniques:
 - Evasion

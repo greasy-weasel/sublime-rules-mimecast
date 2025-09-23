@@ -12,7 +12,7 @@ name: 'Brand impersonation: Adobe with suspicious language and link'
 severity: high
 source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  (\n\
   \    length(attachments) > 0\n    and all(attachments, .file_type in $file_types_images)\n\
-  \  )\n  or length(attachments) == 0\n)\nand length(body.links) > 0\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  \  )\n  or length(attachments) == 0\n)\nand length(body.links) > 0\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      .name == \"Adobe\" and .confidence in (\"high\")\n  )\n  or (\n    strings.icontains(body.current_thread.text,\
   \ \"adobe\")\n    and (\n      // leverage topic analysis to pick up on themes\n\
   \      (\n        length(ml.nlu_classifier(body.current_thread.text).topics) ==\
@@ -22,7 +22,7 @@ source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  
   \      or strings.icontains(body.current_thread.text, 'review the document')\n \
   \     or strings.icontains(body.current_thread.text, 'access file')\n      or strings.icontains(body.current_thread.text,\
   \ 'pending document')\n    )\n    and length(body.current_thread.text) < 2000\n\
-  \  )\n)\nand (\n  any(file.explode(beta.message_screenshot()),\n      strings.ilike(.scan.ocr.raw,\n\
+  \  )\n)\nand (\n  any(file.explode(file.message_screenshot()),\n      strings.ilike(.scan.ocr.raw,\n\
   \                    \"*review*\",\n                    \"*sign*\",\n          \
   \          \"*view*\",\n                    \"open\",\n                    \"*completed\
   \ document*\",\n                    \"*open agreement*\",\n                    \"\

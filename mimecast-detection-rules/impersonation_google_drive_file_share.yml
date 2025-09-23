@@ -19,7 +19,7 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   *shared a document*\",\n                        \"*shared this document*\",\n  \
   \                      \"*shared an item*\",\n                        \"*received\
   \ this email because you*\",\n                        \"*shared a*with you*\"\n\
-  \          )\n      )\n      or any(file.explode(beta.message_screenshot()),\n \
+  \          )\n      )\n      or any(file.explode(file.message_screenshot()),\n \
   \            strings.ilike(.scan.ocr.raw,\n                           \"*shared\
   \ a file with you*\",\n                           \"*shared with you*\",\n     \
   \                      \"*invited you to review*\",\n                          \
@@ -55,7 +55,7 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \       \"S vami\", // Slovak\n           \"Med dig\", // Danish\n           \"\
   Amb vost\xE8\", // Catalan\n           \"Teiega\", // Estonian\n           \"S vama\"\
   , // Serbian\n         ],\n         strings.icontains(subject.subject, .)\n  )\n\
-  )\n\n// contains logic that impersonates Google\nand (\n  any(ml.logo_detect(beta.message_screenshot()).brands,\n\
+  )\n\n// contains logic that impersonates Google\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      strings.starts_with(.name, \"Google\")\n  )\n  or any(attachments,\n    \
   \     .file_type in $file_types_images\n         and any(ml.logo_detect(.).brands,\
   \ strings.starts_with(.name, \"Google\"))\n  )\n  or strings.icontains(body.current_thread.text,\n\
