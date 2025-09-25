@@ -11,7 +11,7 @@ detection_methods:
 - Header analysis
 - Sender analysis
 id: 609081ef-ca1a-577f-a886-a590e39655eb
-name: 'Link: Multistage landing - Abuse Adobe Acrobat hosted PDF'
+name: 'Link: Multistage landing - Abused Adobe Acrobat hosted PDF'
 severity: medium
 source: |-
   type.inbound
