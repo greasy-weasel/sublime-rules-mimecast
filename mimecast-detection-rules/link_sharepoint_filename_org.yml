@@ -22,7 +22,8 @@ source: |-
   and (
     // use the display text of the link to determine the name of the file
     any(filter(body.links,
-               (
+                not(any($tenant_domains, ..href_url.query_params == strings.concat("domain=",.)))
+               and (
                   strings.ends_with(.href_url.query_params,"sharepoint.com")
                  or  strings.ends_with(.href_url.query_params,"1drv.ms")
                  // handle urls with mimecast rewriting
@@ -35,7 +36,6 @@ source: |-
                )
                and .display_text != "Open"
         ),
-
 
         // the document name is the same as the org name
         // as determined by the footer
@@ -51,6 +51,7 @@ source: |-
                                 )
           )
         )
+        or .display_text =~ sender.email.domain.sld
     )
   )
 tactics_and_techniques:
