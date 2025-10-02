@@ -70,7 +70,11 @@ source: "type.inbound\nand length(attachments) == 0\nand (\n  (\n    (\n      (\
   \ \"\u7B54\u590D:\")\n        or strings.istarts_with(subject.subject, \"AW:\")\n\
   \        or strings.istarts_with(subject.subject, \"TR:\")\n        or strings.istarts_with(subject.subject,\
   \ \"FWD:\")\n        or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\\
-  s?:')\n      )\n    )\n  )\n  or length(headers.references) == 0\n)"
+  s?:')\n      )\n    )\n  )\n  or length(headers.references) == 0\n)\n// negate highly\
+  \ trusted sender domains unless they fail DMARC authentication\nand (\n  (\n   \
+  \ sender.email.domain.root_domain in $high_trust_sender_root_domains\n    and not\
+  \ headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain not\
+  \ in $high_trust_sender_root_domains\n)"
 tactics_and_techniques:
 - Evasion
 - Social engineering

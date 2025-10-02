@@ -34,9 +34,11 @@ source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and len
   \                \"Dokument (\xFCberpr\xFCfen|pr\xFCfen|unterschreiben|geschickt)\"\
   ,\n                                   // German (important|urgent|immediate)\n \
   \                                  \"(wichtig|dringend|sofort)\"\n             \
-  \      )\n                   and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\\
-  n\\n\\n\\n\\n\\n\\n\") > 3\n                 )\n               )\n        )\n  \
-  \    )\n      and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\n\
+  \      )\n                   and any(ml.nlu_classifier(.scan.ocr.raw).topics,\n\
+  \                           .name == \"E-Signature\"\n                   )\n   \
+  \                and not strings.count(.scan.ocr.raw, \"\\n\\n\\n\\n\\n\\n\\n\\\
+  n\\n\\n\") > 3\n                 )\n               )\n        )\n      )\n     \
+  \ and not any(file.explode(.),\n                  strings.ilike(.scan.ocr.raw,\n\
   \                                \"*DocuSigned By*\",\n                        \
   \        \"*DocuSign Envelope ID*\",\n                                \"*Certificate\
   \ Of Completion*\",\n                                \"*Adobe Sign*\",\n       \
