@@ -21,8 +21,12 @@ source: "type.inbound\nand (\n  strings.icontains(body.current_thread.text, 'Goo
   \ 'GoogleKarri\xE4r')\n  // Dutch\n  or strings.icontains(body.current_thread.text,\
   \ 'Google Carri\xE8res')\n  or strings.icontains(body.current_thread.text, 'GoogleCarri\xE8\
   res')\n  // Turkish\n  or strings.icontains(body.current_thread.text, 'Google Kariyer')\n\
-  \  or strings.icontains(body.current_thread.text, 'GoogleKariyer')\n)\nand not any(body.links,\
-  \  any([\"google.com\", \"c.gle\"], strings.ends_with(..href_url.query_params,.))\
+  \  or strings.icontains(body.current_thread.text, 'GoogleKariyer')\n  // The screenshot\
+  \ OCR captures google careers or the google logo\n  or (\n    sender.email.domain.root_domain\
+  \ == \"salesforce.com\"\n    and (\n      regex.icontains(beta.ocr(file.message_screenshot()).text,\n\
+  \                      \"google careers\"\n      )\n      or any(ml.logo_detect(file.message_screenshot()).brands,\n\
+  \             strings.starts_with(.name, \"Google\")\n      )\n    )\n  )\n)\nand\
+  \ not any(body.links,  any([\"google.com\", \"c.gle\"], strings.ends_with(..href_url.query_params,.))\
   \ )\nand not (\n  sender.email.domain.root_domain in (\"google.com\")\n  and headers.auth_summary.dmarc.pass\n\
   )"
 tactics_and_techniques:
