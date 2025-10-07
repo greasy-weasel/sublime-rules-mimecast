@@ -145,7 +145,11 @@ source: "type.inbound\nand any(beta.ml_topic(body.current_thread.text).topics,\n
   \           and network.whois(.href_url.domain).registrar_name == network.whois(sender.email.domain\n\
   \              ).registrar_name\n            )\n            and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
   \    )\n  ),\n\n  // known patterns\n  any(body.links, regex.imatch(.href_url.path,\
-  \ '^/ey[a-z]/.{2,}$'))\n)"
+  \ '^/ey[a-z]/.{2,}$'))\n)\n\n// negate microsoft quarantine messages\nand not (\n\
+  \  any(body.links,\n      (\n        strings.icontains(.display_text, \"Review Message\"\
+  )\n        or strings.icontains(.display_text, \"Passer en revue le message\")\n\
+  \      )\n      and (\n         .href_url.query_params == \"domain=security.microsoft.com\"\
+  \n        and .href_url.path == \"/quarantine\"\n      )\n  )\n)"
 tactics_and_techniques:
 - Social engineering
 - 'Impersonation: Brand'
