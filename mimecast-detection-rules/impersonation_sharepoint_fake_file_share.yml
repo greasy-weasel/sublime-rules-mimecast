@@ -18,28 +18,31 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   ,\n                        \"*received a document*\",\n                        \"\
   *shared a document*\",\n                        \"*shared a new document*\",\n \
   \                       \"*shared this document*\"\n          )\n      )\n     \
-  \ or any(beta.ml_topic(body.current_thread.text).topics,\n             .name ==\
-  \ \"File Sharing and Cloud Services\"\n             and .confidence == \"high\"\n\
-  \      )\n      or any(file.explode(file.message_screenshot()),\n             strings.ilike(.scan.ocr.raw,\n\
-  \                           \"*shared a file with you*\",\n                    \
-  \       \"*shared with you*\",\n                           \"*invited you to access\
-  \ a file*\",\n                           \"*received a document*\",\n          \
-  \                 \"*shared a document*\",\n                           \"*shared\
-  \ a new document*\",\n                           \"*shared this document*\"\n  \
-  \           )\n             or any(beta.ml_topic(.scan.ocr.raw).topics,\n      \
-  \              .name == \"File Sharing and Cloud Services\"\n                  \
-  \  and .confidence == \"high\"\n             )\n      )\n    )\n    and (\n    \
-  \  strings.ilike(subject.subject,\n                    \"*shared*\",\n         \
-  \           \"*updated*\",\n                    \"*sign*\",\n                  \
-  \  \"*review*\",\n                    \"*scanned*\"\n      )\n      or strings.ilike(subject.subject,\n\
-  \                       \"*Excel*\",\n                       \"*SharePoint*\",\n\
-  \                       \"*PowerPoint*\",\n                       \"*OneNote*\"\n\
-  \      )\n      or strings.ilike(sender.display_name,\n                       \"\
-  *Excel*\",\n                       \"*SharePoint*\",\n                       \"\
-  *PowerPoint*\",\n                       \"*OneNote*\"\n      )\n      or any(body.links,\
-  \ strings.icontains(.display_text, \"OPEN DOCUMENT\"))\n      or subject.subject\
-  \ is null\n      or subject.subject == \"\"\n      // the org as determined by NLU\
-  \ is in the subject\n      or any(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \ or any(ml.nlu_classifier(body.current_thread.text).topics,\n             .name\
+  \ == \"File Sharing and Cloud Services\"\n             and .confidence == \"high\"\
+  \n      )\n      //\n      // This rule makes use of a beta feature and is subject\
+  \ to change without notice\n      // using the beta feature in custom rules is not\
+  \ suggested until it has been formally released\n      //\n      or strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
+  \                       \"*shared a file with you*\",\n                       \"\
+  *shared with you*\",\n                       \"*invited you to access a file*\"\
+  ,\n                       \"*received a document*\",\n                       \"\
+  *shared a document*\",\n                       \"*shared a new document*\",\n  \
+  \                     \"*shared this document*\"\n      )\n      //\n      // This\
+  \ rule makes use of a beta feature and is subject to change without notice\n   \
+  \   // using the beta feature in custom rules is not suggested until it has been\
+  \ formally released\n      //\n      or any(ml.nlu_classifier(beta.ocr(file.message_screenshot()).text).topics,\n\
+  \             .name == \"File Sharing and Cloud Services\"\n             and .confidence\
+  \ == \"high\"\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n\
+  \                    \"*shared*\",\n                    \"*updated*\",\n       \
+  \             \"*sign*\",\n                    \"*review*\",\n                 \
+  \   \"*scanned*\"\n      )\n      or strings.ilike(subject.subject,\n          \
+  \             \"*Excel*\",\n                       \"*SharePoint*\",\n         \
+  \              \"*PowerPoint*\",\n                       \"*OneNote*\"\n      )\n\
+  \      or strings.ilike(sender.display_name,\n                       \"*Excel*\"\
+  ,\n                       \"*SharePoint*\",\n                       \"*PowerPoint*\"\
+  ,\n                       \"*OneNote*\"\n      )\n      or any(body.links, strings.icontains(.display_text,\
+  \ \"OPEN DOCUMENT\"))\n      or subject.subject is null\n      or subject.subject\
+  \ == \"\"\n      // the org as determined by NLU is in the subject\n      or any(ml.nlu_classifier(body.current_thread.text).entities,\n\
   \             .name == \"org\" and strings.icontains(subject.subject, .text)\n \
   \     )\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n          \
   \ \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n           \"Con\
@@ -154,34 +157,34 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   \        \"aka.ms\",\n              \"microsoft.com\",\n              \"sharepoint.com\"\
   \n            ], strings.ends_with(..href_url.query_params,.))\n)\n// if there is\
   \ a Sharepoint link, ensure the link doesn't match any org SLDs\nand not any(body.links,\n\
-  \            ( strings.ends_with(.href_url.query_params,\"sharepoint.com\")\n  \
-  \          and any($org_slds, . == ..href_url.domain.subdomain))\n            or\
-  \  any($tenant_domains, ..href_url.query_params == strings.concat(\"domain=\",.))\n\
-  )\nand sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
+  \            (\n               strings.ends_with(.href_url.query_params,\"sharepoint.com\"\
+  )\n              and any($org_slds, . == ..href_url.domain.subdomain)\n        \
+  \    )\n            or  any($tenant_domains, ..href_url.query_params == strings.concat(\"\
+  domain=\",.))\n)\nand sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
   \ not in (\n  \"bing.com\",\n  \"microsoft.com\",\n  \"microsoftonline.com\",\n\
   \  \"microsoftsupport.com\",\n  \"microsoft365.com\",\n  \"office.com\",\n  \"onedrive.com\"\
   ,\n  \"sharepointonline.com\",\n  \"yammer.com\",\n  // ignore microsoft privacy\
-  \ statement links\n  \"aka.ms\"\n)\n\nand not (\n   (\n    (\n      strings.istarts_with(subject.subject,\
+  \ statement links\n  \"aka.ms\"\n)\nand not (\n  (\n    (\n      strings.istarts_with(subject.subject,\
   \ \"RE:\")\n      or strings.istarts_with(subject.subject, \"R:\")\n      or strings.istarts_with(subject.subject,\
   \ \"ODG:\")\n      or strings.istarts_with(subject.subject, \"\u7B54\u590D:\")\n\
   \      or strings.istarts_with(subject.subject, \"AW:\")\n      or strings.istarts_with(subject.subject,\
   \ \"TR:\")\n      or strings.istarts_with(subject.subject, \"FWD:\")\n      or regex.imatch(subject.subject,\
   \ '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:')\n      or regex.imatch(subject.subject,\n\
   \                      '^\\[?(EXT|EXTERNAL)\\]?[: ]\\s*(RE|FWD?|FW|AW|TR|ODG|\u7B54\
-  \u590D):.*'\n      )\n    )\n    and (\n      (\n        length(headers.references)\
-  \ > 0\n        or headers.in_reply_to is not null\n      )\n      // ensure that\
-  \ there are actual threads\n      and (\n        length(body.previous_threads) >\
-  \ 0\n        or (length(body.html.display_text) - length(body.current_thread.text))\
-  \ > 200\n      )\n    )\n  )\n)\n\n// negate highly trusted sender domains unless\
-  \ they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
-  \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
-  \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
-  )\nand (\n  profile.by_sender().solicited == false\n  or profile.by_sender_email().prevalence\
-  \ == \"new\"\n  or profile.by_sender_email().days_since.last_contact > 30\n  or\
-  \ (\n    profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_messages_benign\n\
-  \  )\n  // or it's a spoof of the org_domain\n  or (\n    sender.email.domain.domain\
-  \ in $org_domains\n    and not (\n      headers.auth_summary.spf.pass\n      or\
-  \ coalesce(headers.auth_summary.dmarc.pass, false)\n    )\n  )\n)\nand not profile.by_sender().any_messages_benign"
+  \u590D):.*'\n      )\n    )\n    and (\n      (length(headers.references) > 0 or\
+  \ headers.in_reply_to is not null)\n      // ensure that there are actual threads\n\
+  \      and (\n        length(body.previous_threads) > 0\n        or (length(body.html.display_text)\
+  \ - length(body.current_thread.text)) > 200\n      )\n    )\n  )\n)\n\n// negate\
+  \ highly trusted sender domains unless they fail DMARC authentication\nand (\n \
+  \ (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n  \
+  \  and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
+  \ not in $high_trust_sender_root_domains\n)\nand (\n  profile.by_sender().solicited\
+  \ == false\n  or profile.by_sender_email().prevalence == \"new\"\n  or profile.by_sender_email().days_since.last_contact\
+  \ > 30\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n    and\
+  \ not profile.by_sender().any_messages_benign\n  )\n  // or it's a spoof of the\
+  \ org_domain\n  or (\n    sender.email.domain.domain in $org_domains\n    and not\
+  \ (\n      headers.auth_summary.spf.pass\n      or coalesce(headers.auth_summary.dmarc.pass,\
+  \ false)\n    )\n  )\n)\nand not profile.by_sender().any_messages_benign"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
