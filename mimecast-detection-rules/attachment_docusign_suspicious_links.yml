@@ -15,13 +15,15 @@ name: 'Brand impersonation: DocuSign branded attachment lure with no DocuSign li
 severity: high
 source: "type.inbound\nand (\n  (\n    0 < length(attachments) <= 8\n    and length(filter(attachments,\
   \ .file_type in $file_types_images)) > 0\n  )\n  or (\n    length(attachments) >\
-  \ 0\n    and all(attachments,\n            .file_type in $file_types_images or .file_type\
-  \ == 'pdf'\n    )\n  )\n)\nand (\n  // if there are links, ensure they are not docusign\
-  \ links\n  (\n    length(body.links) != 0\n    and any(body.links,\n           \
-  \ not strings.ilike(.href_url.domain.root_domain, \"docusign.*\")\n    )\n  )\n\
-  \  // sometimes there are no body links and it's all in the PDF attachment\n  or\
-  \ length(body.links) == 0\n)\nand (\n  // check the image or pdf attachments for\
-  \ Docusign\n  any(filter(attachments,\n             .file_type in $file_types_images\
+  \ 0\n    and all(attachments,\n            .file_type in $file_types_images\n  \
+  \          or .file_type == 'pdf'\n            or (\n              .file_extension\
+  \ == \"ics\"\n              or .content_type in (\"text/calendar\", \"application/ics\"\
+  )\n            )\n    )\n  )\n)\nand (\n  // if there are links, ensure they are\
+  \ not docusign links\n  (\n    length(body.links) != 0\n    and any(body.links,\n\
+  \            not strings.ilike(.href_url.domain.root_domain, \"docusign.*\")\n \
+  \   )\n  )\n  // sometimes there are no body links and it's all in the PDF attachment\n\
+  \  or length(body.links) == 0\n)\nand (\n  // check the image or pdf attachments\
+  \ for Docusign\n  any(filter(attachments,\n             .file_type in $file_types_images\
   \ or .file_type == 'pdf'\n      ),\n      (\n        any(ml.logo_detect(.).brands,\
   \ .name == \"DocuSign\")\n        or any(file.explode(.),\n               strings.ilike(.scan.ocr.raw,\
   \ \"*DocuSign*\")\n               and (\n                 any(ml.nlu_classifier(.scan.ocr.raw).intents,\n\
