@@ -18,13 +18,17 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \ (\n            \"News and Current Events\",\n            \"Newsletters and Digests\"\
   ,\n            \"Advertising and Promotions\"\n          )\n          and .confidence\
   \ in (\"high\", \"medium\")\n  )\n)\nand (\n  (\n    any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text)).intents,\n\
-  \        (.name == \"extortion\" and .confidence == \"high\")\n    )\n    and any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text\n\
-  \                              )\n            ).entities,\n            .name ==\
-  \ \"financial\" or .name is not null and regex.icontains(.text,  \"cyb\u1E1B[r\u0157\
-  \u0159\u1E59\u0211\u0213\u024D\u0280\u027C\u027D\u0433]c[r\u0157\u0159\u1E59\u0211\
-  \u0213\u024D\u0280\u027C\u027D\u0433]imina[l\u013A\u013C\u013E\u1E37\u1E39\u1E3D\
-  \u0142\u0196\u029F\u1E3B]s\")\n    )\n  )\n  // manual indicators failsafe\n  or\
-  \ 3 of (\n    // malware terms\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \        (.name == \"extortion\" and .confidence == \"high\")\n    )\n    and (\n\
+  \      any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text\n\
+  \                            )\n          ).entities,\n          .name == \"financial\"\
+  \n          or (\n            .name is not null\n            and regex.icontains(.text,\n\
+  \                                \"cyb\u1E1B[r\u0157\u0159\u1E59\u0211\u0213\u024D\
+  \u0280\u027C\u027D\u0433]c[r\u0157\u0159\u1E59\u0211\u0213\u024D\u0280\u027C\u027D\
+  \u0433]imina[l\u013A\u013C\u013E\u1E37\u1E39\u1E3D\u0142\u0196\u029F\u1E3B]s\"\n\
+  \            )\n          )\n      )\n      or any(ml.nlu_classifier(strings.replace_confusables(body.current_thread.text\n\
+  \                               )\n             ).topics,\n             .name ==\
+  \ \"Financial Communications\" and .confidence != \"low\"\n      )\n    )\n  )\n\
+  \  // manual indicators failsafe\n  or 3 of (\n    // malware terms\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    \"(?:(?:spy|[m\u1E41][a\u0201]l)[w\u0175][a\u0201][r\u0157\
   ]e|[t\u0162][r\u0157\u0213][o\u1ED1]j[a\u01FB][n\u0146]|[r\u0213]emote (?:entry|cont[r\u0159\
   ]o[l\u013A])|infiltrat(?:ed|ion)|backdoor|vi[r\u1E59]us|intruder|(?:your|the).{0,15}(?:device|system|computer|phone).{0,10}(?:became|was|got|is).{0,5}comprom[\u1E2F\
@@ -46,15 +50,15 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \                    '(?:\\bsen[dt]|forward|expose)\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}\\\
   s*to\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}(?:contacts|media|family|f[r\u0157]iends|coworkers|associates)'\n\
   \    ),\n    // bitcoin language (excluding newsletters)\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                      '[b\u1E06]it[c\u0109\u0188][o\xF6\u0629]+in|\\bbtc\\b|blockchain'\n\
-  \      )\n      // negate cryptocurrency newsletters\n      and not (\n        any(body.links,\n\
-  \            strings.icontains(.display_text, \"unsubscribe\")\n            and\
-  \ (\n              strings.icontains(.href_url.path, \"unsubscribe\")\n        \
-  \      // handle mimecast URL rewrites\n              or (\n                .href_url.domain.root_domain\
-  \ == 'mimecastprotect.com'\n                and strings.icontains(.href_url.query_params,\n\
-  \                                      sender.email.domain.root_domain\n       \
-  \         )\n              )\n            )\n        )\n      )\n    ),\n    (\n\
-  \      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                      '[b\u1E06\u1E02]it[c\u0109\u0188][o\xF6\u0629]+in|\\bbtc\\\
+  b|blockchain'\n      )\n      // negate cryptocurrency newsletters\n      and not\
+  \ (\n        any(body.links,\n            strings.icontains(.display_text, \"unsubscribe\"\
+  )\n            and (\n              strings.icontains(.href_url.path, \"unsubscribe\"\
+  )\n              // handle mimecast URL rewrites\n              or (\n         \
+  \       .href_url.domain.root_domain == 'mimecastprotect.com'\n                and\
+  \ strings.icontains(.href_url.query_params,\n                                  \
+  \    sender.email.domain.root_domain\n                )\n              )\n     \
+  \       )\n        )\n      )\n    ),\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                      '(?:contact the police|(?:bitcoin|\\bbtc\\b).{0,20}wallet)'\n\
   \      )\n      and regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                          '(?:\\b[13][a-km-zA-HJ-NP-Z0-9]{24,34}\\b)|\\bX[1-9A-HJ-NP-Za-km-z]{33}\\\
