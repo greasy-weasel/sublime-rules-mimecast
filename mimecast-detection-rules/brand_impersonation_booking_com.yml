@@ -79,6 +79,20 @@ source: |-
       and not profile.by_sender().any_messages_benign
     )
   )
+
+  // negate microsoft quarantine messages
+  and not (
+    any(body.links,
+        (
+          strings.icontains(.display_text, "Review Message")
+          or strings.icontains(.display_text, "Passer en revue le message")
+        )
+        and (
+           .href_url.query_params == "domain=security.microsoft.com"
+          and .href_url.path == "/quarantine"
+        )
+    )
+  )
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
