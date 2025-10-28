@@ -41,9 +41,9 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \    ),\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    \"(?:pe[r\u0157]ve[r\u0157]t|pe[r\u0157]ve[r\u0157]sion|mastu[r\u0157\
   ]bat)\"\n    ),\n    // a timeframe to pay\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                    '[ilo0-9]{2} (?:hou[r\u0157\u1E5D]s|uu[r\u0157])',\n      \
-  \              '(?:one|tw[o\u1EDD]|2|th[r\u0157]ee|\\d) [d\u1E0D][a\u1EA3\u01E1\u0105\
-  ]y[s\u1E63]?'\n    ),\n    // a promise from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                    '[ilo0-9]{2} (?:hou[r\u0157\u1E5D][s\u1E63]|uu[r\u0157])',\n\
+  \                    '(?:one|tw[o\u1EDD]|2|th[r\u0157]ee|\\d) [d\u1E0D][a\u1EA3\u01E1\
+  \u0105]y[s\u1E63]?'\n    ),\n    // a promise from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    '(?:pe[r\u0157]manently|will|I''ll) delete|([r\u0157]emove|destroy)\
   \ (?:[\\p{L}\\p{M}\\p{N}]+\\s*){0,4} (?:data|ev[\u1E2Fi\xEF\u012F\u012B\xED]dence|v[\u1E2F\
   i\xEF\xED\u012F\u012B]deos?)'\n    ),\n    // a threat from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
