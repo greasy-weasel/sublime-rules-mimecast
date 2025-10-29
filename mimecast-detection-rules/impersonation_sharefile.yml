@@ -11,28 +11,30 @@ id: f8330307-67fe-5b49-b850-bfdc17955aea
 name: 'Brand Impersonation: ShareFile'
 severity: medium
 source: "type.inbound\nand (\n  0 < length(body.links) < 100\n  or 0 < length(filter(attachments,\
-  \ .file_type in $file_types_images)) <= 5\n)\nand (\n  strings.icontains(sender.display_name,\
-  \ 'ShareFile')\n  or strings.icontains(subject.subject, 'ShareFile Attachments')\n\
-  \  or strings.ilevenshtein(sender.display_name, 'ShareFile') <= 2\n  or strings.icontains(sender.email.domain.domain,\
-  \ 'sharefile')\n  // message body\n  or strings.icontains(body.current_thread.text,\
-  \ 'ShareFile Attachments')\n  or strings.icontains(body.current_thread.text,\n \
-  \                      'Click here to change how often ShareFile sends emails'\n\
-  \  )\n  or strings.icontains(body.current_thread.text,\n                       'uses\
-  \ ShareFile to share documents securely'\n  )\n  or strings.icontains(body.current_thread.text,\n\
-  \                       'ShareFile is a tool for sending, receiving, and organizing\
-  \ your business files online'\n  )\n or regex.icontains(body.current_thread.text,\n\
-  \                     'shared a (?:file|document)\\s*(?:\\w+\\s+){0,3}\\s*via sharefile'\n\
-  \n  )\n  or strings.icontains(body.current_thread.text, 'Powered By Citrix ShareFile')\n\
-  \  or regex.icontains(body.current_thread.text, '\xA9 20\\d\\d ShareFile')\n\n \
-  \ // any of the attached images contain the same message body wording\n  or (\n\
-  \    0 < length(attachments) <= 5\n    and all(attachments, .file_type in $file_types_images)\n\
-  \    and any(attachments,\n            any(file.explode(.),\n                strings.icontains(.scan.ocr.raw,\
-  \ 'ShareFile Attachments')\n                or strings.icontains(.scan.ocr.raw,\n\
-  \                                     'Click here to change how often ShareFile\
-  \ sends emails'\n                )\n                or strings.icontains(.scan.ocr.raw,\n\
-  \                                     'uses ShareFile to share documents securely'\n\
+  \ .file_type in $file_types_images)) <= 5\n  or length(filter(attachments, .file_type\
+  \ == \"pdf\")) == 1\n)\nand (\n  strings.icontains(sender.display_name, 'ShareFile')\n\
+  \  or strings.icontains(subject.subject, 'ShareFile Attachments')\n  or strings.ilevenshtein(sender.display_name,\
+  \ 'ShareFile') <= 2\n  or strings.icontains(sender.email.domain.domain, 'sharefile')\n\
+  \  // message body\n  or strings.icontains(body.current_thread.text, 'ShareFile\
+  \ Attachments')\n  or strings.icontains(body.current_thread.text,\n            \
+  \           'Click here to change how often ShareFile sends emails'\n  )\n  or strings.icontains(body.current_thread.text,\n\
+  \                       'uses ShareFile to share documents securely'\n  )\n  or\
+  \ strings.icontains(body.current_thread.text,\n                       'ShareFile\
+  \ is a tool for sending, receiving, and organizing your business files online'\n\
+  \  )\n or regex.icontains(body.current_thread.text,\n                     'shared\
+  \ a (?:file|document)\\s*(?:\\w+\\s+){0,3}\\s*via sharefile'\n\n  )\n  or strings.icontains(body.current_thread.text,\
+  \ 'Powered By Citrix ShareFile')\n  or regex.icontains(body.current_thread.text,\
+  \ '\xA9 20\\d\\d ShareFile')\n\n  // any of the attached images contain the same\
+  \ message body wording\n  or (\n    0 < length(attachments) <= 5\n    and (\n  \
+  \    all(attachments, .file_type in $file_types_images)\n      or (\n        length(filter(attachments,\
+  \ .file_type == \"pdf\")) == 1\n      )\n    )\n    and any(attachments,\n     \
+  \       any(file.explode(.),\n                strings.icontains(.scan.ocr.raw, 'ShareFile\
+  \ Attachments')\n                or strings.icontains(.scan.ocr.raw,\n         \
+  \                            'Click here to change how often ShareFile sends emails'\n\
   \                )\n                or strings.icontains(.scan.ocr.raw,\n      \
-  \                               'ShareFile is a tool for sending, receiving, and\
+  \                               'uses ShareFile to share documents securely'\n \
+  \               )\n                or strings.icontains(.scan.ocr.raw,\n       \
+  \                              'ShareFile is a tool for sending, receiving, and\
   \ organizing your business files online'\n                )\n                or\
   \ strings.icontains(.scan.ocr.raw,\n                                     'Powered\
   \ By Citrix ShareFile'\n                )\n                or regex.icontains(body.current_thread.text,\n\
