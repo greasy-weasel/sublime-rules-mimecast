@@ -50,15 +50,15 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \                    '(?:\\bsen[dt]|forward|expose)\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}\\\
   s*to\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}(?:contacts|media|family|f[r\u0157]iends|coworkers|associates)'\n\
   \    ),\n    // bitcoin language (excluding newsletters)\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                      '[b\u1E06\u1E02]it[c\u0109\u0188][o\xF6\u0629]+in|\\bbtc\\\
-  b|blockchain'\n      )\n      // negate cryptocurrency newsletters\n      and not\
-  \ (\n        any(body.links,\n            strings.icontains(.display_text, \"unsubscribe\"\
-  )\n            and (\n              strings.icontains(.href_url.path, \"unsubscribe\"\
-  )\n              // handle mimecast URL rewrites\n              or (\n         \
-  \       .href_url.domain.root_domain == 'mimecastprotect.com'\n                and\
-  \ strings.icontains(.href_url.query_params,\n                                  \
-  \    sender.email.domain.root_domain\n                )\n              )\n     \
-  \       )\n        )\n      )\n    ),\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \                      '[b\u1E06\u1E02]it[c\u0109\u0188\u0107][o\xF6\u0629]+in|\\\
+  bbtc\\b|blockchain'\n      )\n      // negate cryptocurrency newsletters\n     \
+  \ and not (\n        any(body.links,\n            strings.icontains(.display_text,\
+  \ \"unsubscribe\")\n            and (\n              strings.icontains(.href_url.path,\
+  \ \"unsubscribe\")\n              // handle mimecast URL rewrites\n            \
+  \  or (\n                .href_url.domain.root_domain == 'mimecastprotect.com'\n\
+  \                and strings.icontains(.href_url.query_params,\n               \
+  \                       sender.email.domain.root_domain\n                )\n   \
+  \           )\n            )\n        )\n      )\n    ),\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                      '(?:contact the police|(?:bitcoin|\\bbtc\\b).{0,20}wallet)'\n\
   \      )\n      and regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                          '(?:\\b[13][a-km-zA-HJ-NP-Z0-9]{24,34}\\b)|\\bX[1-9A-HJ-NP-Za-km-z]{33}\\\
