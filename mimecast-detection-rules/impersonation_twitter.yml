@@ -30,6 +30,8 @@ source: |-
                         "*appeal*"
           ),
           strings.contains(body.current_thread.text, '1355 Market Street'),
+          strings.contains(body.current_thread.text, 'San Francisco, CA 94103'),
+          strings.contains(body.current_thread.text, 'X Corp'),
           strings.ilike(body.current_thread.text, '*865 FM 1209*bastrop*')
         )
         or (

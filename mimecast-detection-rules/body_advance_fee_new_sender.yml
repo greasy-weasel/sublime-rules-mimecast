@@ -19,9 +19,10 @@ source: "type.inbound\nand (\n  sender.email.domain.domain in $free_email_provid
   \       (\n              .email.domain.root_domain in $free_email_providers\n  \
   \            or .email.domain.tld in $suspicious_tlds\n            )\n         \
   \   and .email.email != sender.email.email\n    )\n  )\n  or sender.email.domain.tld\
-  \ in $suspicious_tlds\n)\nand (\n  any(ml.nlu_classifier(body.current_thread.text).intents,\n\
-  \      .name == \"advance_fee\" and .confidence in (\"medium\", \"high\")\n  )\n\
-  \  or (\n    length(body.current_thread.text) < 200\n    and regex.icontains(body.current_thread.text,\n\
+  \ in $suspicious_tlds\n  or strings.iends_with(sender.email.domain.tld, \".jp\"\
+  )\n)\nand (\n  any(ml.nlu_classifier(body.current_thread.text).intents,\n      .name\
+  \ == \"advance_fee\" and .confidence in (\"medium\", \"high\")\n  )\n  or (\n  \
+  \  length(body.current_thread.text) < 200\n    and regex.icontains(body.current_thread.text,\n\
   \                        '(donation|inheritence|\\$\\d,\\d{3}\\,\\d{3}|lottery)'\n\
   \    )\n    and not regex.icontains(body.current_thread.text,\n                \
   \            '(closed.{0,50})?\\$\\d,\\d{3}\\,\\d{3}.{0,100}(homes|realty|sale)?'\n\

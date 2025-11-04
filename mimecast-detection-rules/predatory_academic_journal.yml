@@ -146,10 +146,12 @@ source: "type.inbound\nand any(beta.ml_topic(body.current_thread.text).topics,\n
   \              ).registrar_name\n            )\n            and  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
   \    )\n  ),\n\n  // known patterns\n  any(body.links, regex.imatch(.href_url.path,\
   \ '^/ey[a-z]/.{2,}$'))\n)\n\n// negate microsoft quarantine messages\nand not (\n\
-  \  any(body.links,\n      (\n        strings.icontains(.display_text, \"Review Message\"\
-  )\n        or strings.icontains(.display_text, \"Passer en revue le message\")\n\
-  \      )\n      and (\n         .href_url.query_params == \"domain=security.microsoft.com\"\
-  \n        and .href_url.path == \"/quarantine\"\n      )\n  )\n)"
+  \  sender.email.email == \"quarantine@messaging.microsoft.com\"\n  and (\n    headers.auth_summary.dmarc.pass\n\
+  \    // no sender auth but MS AuthAs is Internal\n    or (\n      not coalesce(headers.auth_summary.dmarc.pass,\
+  \ false)\n      and any(headers.hops,\n              .index == 0\n             \
+  \ and any(.fields,\n                      .name == \"X-MS-Exchange-CrossTenant-AuthAs\"\
+  \n                      and .value == \"Internal\"\n              )\n      )\n \
+  \   )\n  )\n)"
 tactics_and_techniques:
 - Social engineering
 - 'Impersonation: Brand'
