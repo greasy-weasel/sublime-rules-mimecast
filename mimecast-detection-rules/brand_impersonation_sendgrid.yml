@@ -1,8 +1,20 @@
-name: "Brand impersonation: SendGrid"
-description: "Detects inbound messages that impersonate Twilio/SendGrid through display name or domain manipulation, combined with security or authentication-themed content, while failing authentication checks and originating from untrusted sources."
-type: "rule"
-severity: "medium"
-source: |
+attack_types:
+- BEC/Fraud
+- Credential Phishing
+- Spam
+description: Detects inbound messages that impersonate Twilio/SendGrid through display
+  name or domain manipulation, combined with security or authentication-themed content,
+  while failing authentication checks and originating from untrusted sources.
+detection_methods:
+- Content analysis
+- Header analysis
+- Natural Language Understanding
+- Optical Character Recognition
+- Sender analysis
+id: d800124f-6aa4-58e1-8fa7-beec4958924f
+name: 'Brand impersonation: SendGrid'
+severity: medium
+source: |-
   type.inbound
   and (
     (
@@ -46,6 +58,42 @@ source: |
         )
       )
     )
+    // SendGrid content from non-SendGrid marketing platforms
+    or (
+      sender.email.domain.root_domain in (
+        "selfcast.com",
+        "mailchimp.com",
+        "constantcontact.com",
+        "hubspot.com",
+        "klaviyo.com",
+        "mailgun.com"
+      )
+      and (
+        (
+          (
+            strings.icontains(body.current_thread.text, "sendgrid")
+            or strings.icontains(subject.subject, "sendgrid")
+          )
+          and 3 of (
+            strings.icontains(body.current_thread.text, "webhook"),
+            strings.icontains(body.current_thread.text, "endpoint"),
+            strings.icontains(body.current_thread.text, "api"),
+            strings.icontains(body.current_thread.text, "delivery"),
+            strings.icontains(body.current_thread.text, "event notification")
+          )
+        )
+        and (
+          // Look for SendGrid-related content with non-SendGrid tracking links
+          any(body.links,
+              strings.icontains(.href_url.url, "selfcast.com")
+              or (
+                .display_url.url is not null
+                and strings.icontains(.display_url.url, "sendgrid.com")
+              )
+          )
+        )
+      )
+    )
   )
   and (
     // Content analysis using ML/NLU
@@ -54,7 +102,8 @@ source: |
           "Security and Authentication",
           "Secure Message",
           "Reminders and Notifications",
-          "Software and App Updates"
+          "Software and App Updates",
+          "Customer Service and Support"
         )
         and .confidence in ("medium", "high")
     )
@@ -63,7 +112,8 @@ source: |
              "Security and Authentication",
              "Secure Message",
              "Reminders and Notifications",
-             "Software and App Updates"
+             "Software and App Updates",
+             "Customer Service and Support"
            )
            and .confidence in ("medium", "high")
     )
@@ -74,7 +124,7 @@ source: |
            .name == "cred_theft" and .confidence == "high"
     )
   )
-  
+
   // and the sender is not in org_domains or from sendgrid domains and passes auth
   and not (
     (
@@ -100,18 +150,9 @@ source: |
     or sender.email.domain.root_domain not in $high_trust_sender_root_domains
   )
   and not profile.by_sender().solicited
-
-attack_types:
-  - "BEC/Fraud"
-  - "Credential Phishing"
-  - "Spam"
 tactics_and_techniques:
-  - "Impersonation: Brand"
-  - "Social engineering"
-detection_methods:
-  - "Content analysis"
-  - "Header analysis"
-  - "Natural Language Understanding"
-  - "Optical Character Recognition"
-  - "Sender analysis"
-id: "d800124f-6aa4-58e1-8fa7-beec4958924f"
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

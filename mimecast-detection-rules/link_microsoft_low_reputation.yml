@@ -15,15 +15,23 @@ id: b59201b6-f253-55a6-9c0a-e1500a32a751
 name: 'Brand impersonation: Microsoft with low reputation links'
 severity: medium
 source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand any(body.links,\n\
-  \        (\n           not(any($tranco_1m, strings.ends_with(..href_url.query_params,.)))\n\
-  \          or  any($free_file_hosts, ..href_url.query_params == strings.concat(\"\
-  domain=\",.))\n          or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))\n\
-  \          or  any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))\n\
-  \          or  any($url_shorteners, ..href_url.query_params == strings.concat(\"\
-  domain=\",.))\n          or  any($social_landing_hosts, ..href_url.query_params\
-  \ == strings.concat(\"domain=\",.))\n          or\n\n          // mass mailer link,\
-  \ masks the actual URL\n           any([\n            \"hubspotlinks.com\",\n  \
-  \          \"mandrillapp.com\",\n            \"sendgrid.net\",\n            \"rs6.net\"\
+  \        (\n          .href_url.domain.tld == \"ru\"\n          or  not(any($tranco_1m,\
+  \ strings.ends_with(..href_url.query_params,.)))\n          or  any($free_file_hosts,\
+  \ ..href_url.query_params == strings.concat(\"domain=\",.))\n          or  any($free_file_hosts,\
+  \ strings.ends_with(..href_url.query_params,.))\n          or  any($free_subdomain_hosts,\
+  \ strings.ends_with(..href_url.query_params,.))\n          or  any($url_shorteners,\
+  \ ..href_url.query_params == strings.concat(\"domain=\",.))\n          or  any($social_landing_hosts,\
+  \ ..href_url.query_params == strings.concat(\"domain=\",.))\n          // account\
+  \ for URL rewrites\n          or (\n            any(.href_url.query_params_decoded[\"\
+  domain\"],\n                strings.parse_domain(.).tld == \"ru\"\n            \
+  \    or strings.parse_domain(.).root_domain not in~ $tranco_1m\n               \
+  \ or strings.parse_domain(.).domain in~ $free_file_hosts\n                or strings.parse_domain(.).root_domain\
+  \ in~ $free_file_hosts\n                or strings.parse_domain(.).root_domain in~\
+  \ $free_subdomain_hosts\n                or strings.parse_domain(.).domain in~ $url_shorteners\n\
+  \                or strings.parse_domain(.).domain in~ $social_landing_hosts\n \
+  \           )\n          )\n          or\n\n          // mass mailer link, masks\
+  \ the actual URL\n           any([\n            \"hubspotlinks.com\",\n        \
+  \    \"mandrillapp.com\",\n            \"sendgrid.net\",\n            \"rs6.net\"\
   \n          ], strings.ends_with(..href_url.query_params,.))\n\n          // Google\
   \ AMP redirect\n          or (\n            .href_url.domain.sld == \"google\"\n\
   \            and strings.starts_with(.href_url.path, \"/amp/\")\n          )\n\n\
@@ -34,20 +42,20 @@ source: "type.inbound\nand 0 < length(body.links) < 50\n// suspicious link\nand 
   beehiiv.com\")\n        )\n\n        // exclude sources of potential FPs\n     \
   \   and (\n           not(any([\n            \"svc.ms\",\n            \"sharepoint.com\"\
   ,\n            \"1drv.ms\",\n            \"microsoft.com\",\n            \"aka.ms\"\
-  ,\n            \"msftauthimages.net\",\n            \"mimecastprotect.com\",\n \
-  \           \"office.com\",\n            \"microsoftproject.com\"\n          ],\
-  \ strings.ends_with(..href_url.query_params,.)))\n          or any(body.links, \
-  \ any($free_file_hosts, ..href_url.query_params == strings.concat(\"domain=\",.))\
-  \ )\n        )\n        and  not(any($org_domains, strings.ends_with(..href_url.query_params,.)))\n\
-  \        and .href_url.domain.valid\n)\n\n// not a reply\nand (\n    length(headers.references)\
-  \ == 0\n    or not any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\"\
-  )))\n)\n\n// Microsoft logo\nand (\n  any(attachments,\n      .file_type in $file_types_images\n\
-  \      and any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Microsoft\"\
-  ))\n  )\n  or strings.istarts_with(strings.replace_confusables(body.current_thread.text),\
-  \ \"Microsoft \")\n  or (\n    regex.imatch(strings.replace_confusables(body.current_thread.text),\n\
-  \                 '[\\n\\s]*[o0O]ff[il1]ce\\b.*'\n    )\n    and not regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                 'office (for lease|rent|sale)'\n    )\n  )\n  or any(ml.logo_detect(file.message_screenshot()).brands,\n\
-  \         strings.starts_with(.name, \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n\
+  ,\n            \"msftauthimages.net\",\n            \"office.com\",\n          \
+  \  \"microsoftproject.com\"\n          ], strings.ends_with(..href_url.query_params,.)))\n\
+  \          or any(body.links,  any($free_file_hosts, ..href_url.query_params ==\
+  \ strings.concat(\"domain=\",.)) )\n        )\n        and  not(any($org_domains,\
+  \ strings.ends_with(..href_url.query_params,.)))\n        and .href_url.domain.valid\n\
+  )\n\n// not a reply\nand (\n    length(headers.references) == 0\n    or not any(headers.hops,\
+  \ any(.fields, strings.ilike(.name, \"In-Reply-To\")))\n)\n\n// Microsoft logo\n\
+  and (\n  any(attachments,\n      .file_type in $file_types_images\n      and any(ml.logo_detect(.).brands,\
+  \ strings.starts_with(.name, \"Microsoft\"))\n  )\n  or strings.istarts_with(strings.replace_confusables(body.current_thread.text),\n\
+  \                          \"Microsoft \"\n  )\n  or (\n    regex.imatch(strings.replace_confusables(body.current_thread.text),\n\
+  \                 '[\\n\\s]*[o0O]ff[il1]ce\\b.*'\n    )\n    and not regex.icontains(strings.replace_confusables(body.current_thread.text\n\
+  \                            ),\n                            'office (for lease|rent|sale)'\n\
+  \    )\n  )\n  or any(ml.logo_detect(file.message_screenshot()).brands,\n      \
+  \   strings.starts_with(.name, \"Microsoft\")\n  )\n  or (\n    regex.icontains(body.html.raw,\n\
   \                    '<table[^>]*>\\s*<tbody[^>]*>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
   #[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\s*){2}\\s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"\
   #[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\s*){2}'\n    )\n    or regex.icontains(body.html.raw,\n\
