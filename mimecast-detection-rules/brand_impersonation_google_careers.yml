@@ -27,8 +27,8 @@ source: "type.inbound\nand (\n  strings.icontains(body.current_thread.text, 'Goo
   \                      \"google careers\"\n      )\n      or any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \             strings.starts_with(.name, \"Google\")\n      )\n    )\n  )\n)\nand\
   \ not any(body.links,  any([\"google.com\", \"c.gle\"], strings.ends_with(..href_url.query_params,.))\
-  \ )\nand not (\n  sender.email.domain.root_domain in (\"google.com\")\n  and headers.auth_summary.dmarc.pass\n\
-  )"
+  \ )\nand not (\n  sender.email.domain.root_domain in (\"google.com\", \"sublimesecurity.com\"\
+  )\n  and headers.auth_summary.dmarc.pass\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
