@@ -1,0 +1,41 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Proofpoint secure messaging services that
+  contain Proofpoint branding text but lack legitimate Proofpoint secure sharing URIs
+  or authentic attachment indicators, suggesting fraudulent use of the brand.
+detection_methods:
+- Content analysis
+- File analysis
+- Header analysis
+- URL analysis
+id: 84b72d02-f80c-56d0-9b42-c5f92750ec11
+name: 'Brand impersonation: Proofpoint secure messaging without legitimate indicators'
+severity: high
+source: "type.inbound\nand (\n  // matching proofpoint secure messaging\n  strings.contains(body.current_thread.text,\n\
+  \                   \"Secured by Proofpoint Encryption,\"\n  )\n  or regex.icontains(body.current_thread.text,\n\
+  \                     ('Copyright \xA9 2009-202\\d Proofpoint, Inc.')\n  )\n)\n\
+  and length(body.current_thread.links) >= 1\n// pfpt secure share uri\nand not (\n\
+  \  any(body.links,\n      // negate the actual dest of the legit \"click here\"\
+  \ link\n      .href_url.path == \"/formpostdir/securereader\"\n      // negate where\
+  \ the link domain is mimecast and check LA for the pfpt URI\n      or (\n      \
+  \   strings.ends_with(.href_url.query_params,\"mimecastprotect.com\")\n        and\
+  \ ml.link_analysis(., mode=\"aggressive\").effective_url.path == \"/formpostdir/securereader\"\
+  \n      )\n      or (\n         strings.ends_with(.href_url.query_params,\"mimecastprotect.com\"\
+  )\n        and .display_text =~ \"Click here\"\n        and strings.parse_domain(.href_url.query_params_decoded[\"\
+  domain\"][0]).root_domain == sender.email.domain.root_domain\n      )\n  )\n)\n\
+  // negate actual SecureMessageAtt.html links that ave been quarantined by mimecast\n\
+  and not any(attachments,\n            // pfpt attachment file\n            .file_name\
+  \ == \"SecureMessageAtt.html\"\n            // mimecast quarantine details\n   \
+  \         or (\n              .content_type == \"message/rfc822\"\n            \
+  \  and length(file.parse_eml(.).body.links) == 1\n              and any(file.parse_eml(.).body.links,\n\
+  \                      .display_text == \"download it\"\n                      and\
+  \  strings.ends_with(.href_url.query_params,\"mimecast.com\")\n              )\n\
+  \              and strings.ends_with(file.parse_eml(.).headers.message_id,\n   \
+  \                                 \"@localhost>\"\n              )\n           \
+  \ )\n)"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

@@ -11,9 +11,14 @@ id: 4fd791d1-a053-5c2d-80dd-c6dcdc112a62
 name: 'Brand impersonation: Quickbooks'
 severity: medium
 source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quickbook*')\n\
-  \    or strings.ilike(sender.display_name, 'intuit*')\n    or strings.ilevenshtein(sender.display_name,\
-  \ 'quickbooks') <= 1\n    or strings.ilike(sender.email.domain.domain, '*quickbook*')\n\
-  \  )\n  or strings.ilike(body.current_thread.text, \"*invoice*\")\n)\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
+  \    or strings.like(sender.display_name, \"QB-*\")\n    or strings.ilike(sender.display_name,\
+  \ 'intuit*')\n    or strings.ilevenshtein(sender.display_name, 'quickbooks') <=\
+  \ 1\n    or strings.ilike(sender.email.domain.domain, '*quickbook*')\n    or (\n\
+  \      length(filter(ml.nlu_classifier(body.current_thread.text).entities,\n   \
+  \                 strings.icontains(.text, \"quickbooks\")\n             )\n   \
+  \   ) > 2\n      and any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  \              .name == \"cred_theft\"\n      )\n    )\n  )\n  or strings.ilike(body.current_thread.text,\
+  \ \"*invoice*\")\n)\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      .name == \"Quickbooks\" and .confidence in (\"medium\", \"high\")\n  )\n\
   \  // contains the address and copyright\n  or (\n    strings.icontains(body.current_thread.text,\n\
   \                      '2800 E. Commerce Center Place, Tucson, AZ 85706'\n    )\n\
@@ -26,12 +31,17 @@ source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quick
   (?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n                    '\\+?([ilo0-9]{1,2})?\\\
   s?\\(?\\d{3}\\)?[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{3}[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n\
   \    )\n    and any(ml.nlu_classifier(body.current_thread.text).topics,\n      \
-  \      .name == \"Software and App Updates\"\n    )\n\n    // we need to re-check\
-  \ for QB indicators, otherwise we can have \"*invoice*\"\n    // and this block,\
-  \ which is much more than just QB impersonation\n    and (\n      strings.ilike(sender.display_name,\
-  \ '*quickbooks*')\n      or strings.ilevenshtein(sender.display_name, 'quickbooks')\
-  \ <= 1\n      or strings.ilike(sender.email.domain.domain, '*quickbooks*')\n   \
-  \ )\n  )\n)\nand sender.email.domain.root_domain not in~ (\n  'intuit.com',\n  'turbotax.com',\n\
+  \      .name in (\"Software and App Updates\", \"Security and Authentication\")\n\
+  \    )\n\n    // we need to re-check for QB indicators, otherwise we can have \"\
+  *invoice*\"\n    // and this block, which is much more than just QB impersonation\n\
+  \    and (\n      strings.ilike(sender.display_name, 'quickbook*')\n      or strings.like(sender.display_name,\
+  \ \"QB-*\")\n      or strings.ilike(sender.display_name, 'intuit*')\n      or strings.ilevenshtein(sender.display_name,\
+  \ 'quickbooks') <= 1\n      or strings.ilike(sender.email.domain.domain, '*quickbook*')\n\
+  \      or (\n        length(filter(ml.nlu_classifier(body.current_thread.text).entities,\n\
+  \                      strings.icontains(.text, \"quickbooks\")\n              \
+  \ )\n        ) > 2\n        and any(ml.nlu_classifier(body.current_thread.text).intents,\n\
+  \                .name == \"cred_theft\"\n        )\n      )\n    )\n  )\n)\nand\
+  \ sender.email.domain.root_domain not in~ (\n  'intuit.com',\n  'turbotax.com',\n\
   \  'intuit.ca',\n  'meliopayments.com',\n  'qemailserver.com',\n  'intuit.co.uk',\n\
   \  'quickbooksonline.com',\n  'tsheets.com'\n)\nand (\n  not profile.by_sender().any_messages_benign\n\
   \  and not profile.by_sender().solicited\n)\n// links in body are not known QB domains\
