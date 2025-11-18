@@ -11,7 +11,8 @@ detection_methods:
 id: d53848e4-fc40-5bd1-ad5e-c9c4e85a669f
 name: 'Brand impersonation: Capital One'
 severity: high
-source: "type.inbound\nand (\n  any([\n        strings.replace_confusables(sender.display_name),\n\
+source: "type.inbound\n// limit evaluation of a regex heavy rule\nand length(body.current_thread.text)\
+  \ < 2000000\nand (\n  any([\n        strings.replace_confusables(sender.display_name),\n\
   \        strings.replace_confusables(subject.subject),\n        // domain parts\
   \ of sender\n        sender.email.local_part,\n        sender.email.domain.sld\n\
   \      ],\n      // quick checks first\n      strings.icontains(., 'Capital One')\n\
