@@ -48,9 +48,11 @@ source: "type.inbound\n// fake thread check\nand (\n  (\n    (\n      strings.is
   \ \"*.jp\")),\n\n  // known suspicious pattern in the URL path\n  any(body.links,\
   \ regex.match(.href_url.path, '\\/[a-z]{3}\\d[a-z]')),\n\n  // link display text\
   \ is in all caps\n  any(body.links, regex.match(.display_text, '[A-Z ]+')),\n\n\
-  \  // display name contains an email\n  regex.contains(sender.display_name, '[a-z0-9]+@[a-z]+'),\n\
-  \n  // Sender domain is empty\n  sender.email.domain.domain == \"\",\n\n  // sender\
-  \ domain matches no body domains\n  all(body.links,\n       not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
+  \  // link display text contains invisible characters (U+200F)\n  any(body.links,\
+  \ strings.contains(.display_text, \"\\u{200F}\")),\n\n  // display name contains\
+  \ an email\n  regex.contains(sender.display_name, '[a-z0-9]+@[a-z]+'),\n\n  // Sender\
+  \ domain is empty\n  sender.email.domain.domain == \"\",\n\n  // sender domain matches\
+  \ no body domains\n  all(body.links,\n       not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))\n\
   \  ),\n\n  // body contains name of VIP\n  (\n    any($org_vips, strings.icontains(body.html.inner_text,\
   \ .display_name))\n    or any($org_vips, strings.icontains(body.plain.raw, .display_name))\n\
   \  ),\n\n  // new body domain\n  any(body.links, network.whois(.href_url.domain).days_old\
