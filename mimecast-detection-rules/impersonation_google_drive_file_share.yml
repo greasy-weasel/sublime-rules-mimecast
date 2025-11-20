@@ -66,30 +66,62 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \ style=\"width:100%; border:1px solid #dadce0; border-radius:6px; border-spacing:0;\
   \ border-collapse:separate; table-layout:fixed\" role=\"presentation\">'\n  )\n\
   \  or any(attachments,\n         .file_type in $file_types_images\n         and\
-  \ any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Google\"))\n  )\n \
-  \ or strings.icontains(body.current_thread.text,\n                       strings.concat(\"\
-  You have received this email because \",\n                                     \
-  \ sender.email.email,\n                                      \" shared a document\
-  \ with you\"\n                       )\n  )\n  or strings.icontains(body.current_thread.text,\n\
+  \ (\n           any(ml.logo_detect(.).brands, strings.starts_with(.name, \"Google\"\
+  ))\n           or strings.icontains(beta.ocr(.).text,\n                        \
+  \        strings.concat(\"You have received this email because \",\n           \
+  \                                    sender.email.email,\n                     \
+  \                          \" shared a document with you\"\n                   \
+  \             )\n           )\n           or strings.icontains(beta.ocr(.).text,\n\
+  \                                strings.concat(\"You have received this email because\
+  \ \",\n                                               sender.email.email,\n    \
+  \                                           \" received a file or folder\"\n   \
+  \                             )\n           )\n           or any(recipients.to,\n\
+  \                  strings.icontains(beta.ocr(..).text,\n                      \
+  \              strings.concat(\"You have received this email because \",\n     \
+  \                                              .email.email,\n                 \
+  \                                  \" shared a document with you\"\n           \
+  \                         )\n                  )\n           )\n           or any(recipients.to,\n\
+  \                  strings.icontains(beta.ocr(..).text,\n                      \
+  \              strings.concat(\"You have received this email because \",\n     \
+  \                                              .email.email,\n                 \
+  \                                  \" received a file or folder\"\n            \
+  \                        )\n                  )\n           )\n           or strings.icontains(beta.ocr(.).text,\n\
+  \                                strings.concat(sender.display_name,\n         \
+  \                                      \" (\",\n                               \
+  \                sender.email.email,\n                                         \
+  \      \") \",\n                                               \"shared\"\n    \
+  \                            )\n           )\n         )\n  )\n  or strings.icontains(body.current_thread.text,\n\
   \                       strings.concat(\"You have received this email because \"\
   ,\n                                      sender.email.email,\n                 \
-  \                     \" received a file or folder\"\n                       )\n\
-  \  )\n  or any(recipients.to,\n         strings.icontains(body.current_thread.text,\n\
-  \                           strings.concat(\"You have received this email because\
-  \ \",\n                                          .email.email,\n               \
-  \                           \" shared a document with you\"\n                  \
-  \         )\n         )\n  )\n  or any(recipients.to,\n         strings.icontains(body.current_thread.text,\n\
-  \                           strings.concat(\"You have received this email because\
-  \ \",\n                                          .email.email,\n               \
-  \                           \" received a file or folder\"\n                   \
-  \        )\n         )\n  )\n  // Google address from footer\n  or 2 of (\n    strings.icontains(body.current_thread.text,\
+  \                     \" shared a document with you\"\n                       )\n\
+  \  )\n  or strings.icontains(body.current_thread.text,\n                       strings.concat(\"\
+  You have received this email because \",\n                                     \
+  \ sender.email.email,\n                                      \" received a file\
+  \ or folder\"\n                       )\n  )\n  or any(recipients.to,\n        \
+  \ strings.icontains(body.current_thread.text,\n                           strings.concat(\"\
+  You have received this email because \",\n                                     \
+  \     .email.email,\n                                          \" shared a document\
+  \ with you\"\n                           )\n         )\n  )\n  or any(recipients.to,\n\
+  \         strings.icontains(body.current_thread.text,\n                        \
+  \   strings.concat(\"You have received this email because \",\n                \
+  \                          .email.email,\n                                     \
+  \     \" received a file or folder\"\n                           )\n         )\n\
+  \  )\n  or strings.icontains(body.current_thread.text,\n                       strings.concat(sender.display_name,\n\
+  \                                      \" (\",\n                               \
+  \       sender.email.email,\n                                      \") \",\n   \
+  \                                   \"shared\"\n                       )\n  )\n\
+  \  // Google address from footer\n  or 2 of (\n    strings.icontains(body.current_thread.text,\
   \ 'Google LLC'),\n    strings.icontains(body.current_thread.text, '1600 Amphitheatre\
   \ Parkway'),\n    strings.icontains(body.current_thread.text, 'Mountain View, CA\
   \ 94043'),\n  )\n)\nand not all(body.links,  any([\"google.com\"], strings.ends_with(..href_url.query_params,.))\
   \ )\nand sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
   \ not in (\"google.com\")\nand not (\n  all(headers.references, strings.ends_with(.,\
   \ '@docs-share.google.com'))\n  and headers.return_path.domain.domain == \"doclist.bounces.google.com\"\
-  \n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  \n)\n// negate first threads that are a legitimate Google Drive share\nand not (\n\
+  \  length(body.previous_threads) != 0\n  and length(body.previous_threads[length(body.previous_threads)\
+  \ - 1].links) != 0\n  and all(body.previous_threads[length(body.previous_threads)\
+  \ - 1].links,\n           strings.ends_with(.href_url.query_params,\"google.com\"\
+  )\n  )\n)\n\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)\nand (\n  profile.by_sender().solicited\
