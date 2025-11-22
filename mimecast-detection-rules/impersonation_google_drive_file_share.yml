@@ -36,19 +36,20 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \             \"*sign*\",\n                    \"*review*\"\n      )\n      or any(recipients.to,\n\
   \             strings.icontains(subject.subject, .email.domain.sld)\n      )\n \
   \     or strings.ilike(subject.subject, \"*Docs*\", \"*Sheets*\", \"*Slides*\")\n\
-  \      or any(body.links, strings.icontains(.display_text, \"open document\"))\n\
-  \      or strings.ilike(sender.display_name, \"*Google Drive*\")\n      or subject.subject\
-  \ is null\n      or subject.subject == \"\"\n    )\n  )\n  or any([\n          \
-  \ \"Contigo\", // Spanish\n           \"Avec vous\", // French\n           \"Mit\
-  \ Ihnen\", // German\n           \"Con te\", // Italian\n           \"Com voc\xEA\
-  \", // Portuguese\n           \"Met u\", // Dutch\n           \"\u0421 \u0432\u0430\
-  \u043C\u0438\", // Russian\n           \"\u4E0E\u4F60\", // Chinese (Simplified)\n\
-  \           \"\u8207\u60A8\", // Chinese (Traditional)\n           \"\u3042\u306A\
-  \u305F\u3068\", // Japanese\n           \"\uB2F9\uC2E0\uACFC\", // Korean\n    \
-  \       \"\u0645\u0639\u0643\", // Arabic\n           \"\u0622\u067E \u06A9\u06D2\
-  \ \u0633\u0627\u062A\u06BE\", // Urdu\n           \"\u0986\u09AA\u09A8\u09BE\u09B0\
-  \ \u09B8\u09BE\u09A5\u09C7\", // Bengali\n           \"\u0906\u092A\u0915\u0947\
-  \ \u0938\u093E\u0925\", // Hindi\n           \"Sizinle\", // Turkish // Azerbaijani\n\
+  \      or any(body.links,\n             strings.icontains(.display_text, \"open\
+  \ document\")\n             or strings.iends_with(.display_text, \".pdf\")\n   \
+  \   )\n      or strings.ilike(sender.display_name, \"*Google Drive*\")\n      or\
+  \ subject.subject is null\n      or subject.subject == \"\"\n    )\n  )\n  or any([\n\
+  \           \"Contigo\", // Spanish\n           \"Avec vous\", // French\n     \
+  \      \"Mit Ihnen\", // German\n           \"Con te\", // Italian\n           \"\
+  Com voc\xEA\", // Portuguese\n           \"Met u\", // Dutch\n           \"\u0421\
+  \ \u0432\u0430\u043C\u0438\", // Russian\n           \"\u4E0E\u4F60\", // Chinese\
+  \ (Simplified)\n           \"\u8207\u60A8\", // Chinese (Traditional)\n        \
+  \   \"\u3042\u306A\u305F\u3068\", // Japanese\n           \"\uB2F9\uC2E0\uACFC\"\
+  , // Korean\n           \"\u0645\u0639\u0643\", // Arabic\n           \"\u0622\u067E\
+  \ \u06A9\u06D2 \u0633\u0627\u062A\u06BE\", // Urdu\n           \"\u0986\u09AA\u09A8\
+  \u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7\", // Bengali\n           \"\u0906\u092A\u0915\
+  \u0947 \u0938\u093E\u0925\", // Hindi\n           \"Sizinle\", // Turkish // Azerbaijani\n\
   \           \"Med dig\", // Swedish\n           \"Z tob\u0105\", // Polish\n   \
   \        \"\u0417 \u0432\u0430\u043C\u0438\", // Ukrainian\n           \"\xD6nnel\"\
   , // Hungarian\n           \"\u039C\u03B1\u03B6\u03AF \u03C3\u03B1\u03C2\", // Greek\n\
