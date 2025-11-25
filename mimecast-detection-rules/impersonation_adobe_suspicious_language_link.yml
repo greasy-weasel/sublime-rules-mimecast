@@ -10,35 +10,39 @@ detection_methods:
 id: 32cc8bf1-f4d7-549f-a970-eade24b7c6ae
 name: 'Brand impersonation: Adobe with suspicious language and link'
 severity: high
-source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  (\n\
+source: "type.inbound\n// All attachments are images or 0 attachments\nand (\n  (\n\
   \    length(attachments) > 0\n    and all(attachments, .file_type in $file_types_images)\n\
   \  )\n  or length(attachments) == 0\n)\nand length(body.links) > 0\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      .name == \"Adobe\" and .confidence in (\"high\")\n  )\n  or (\n    strings.icontains(body.current_thread.text,\
-  \ \"adobe\")\n    and (\n      // leverage topic analysis to pick up on themes\n\
-  \      (\n        length(ml.nlu_classifier(body.current_thread.text).topics) ==\
-  \ 1\n        and all(ml.nlu_classifier(body.current_thread.text).topics,\n     \
-  \           .name == \"File Sharing and Cloud Services\"\n                and .confidence\
-  \ != \"low\"\n        )\n      )\n      // keywords if topic anlayis doesn't match\n\
+  \ \"adobe\")\n    and not strings.icontains(body.current_thread.text, \"adobe marketplace\"\
+  )\n    and not strings.icontains(body.current_thread.text, \"adobe analytics\")\n\
+  \    and (\n      // Leverage topic analysis to pick up on themes\n      (\n   \
+  \     length(ml.nlu_classifier(body.current_thread.text).topics) == 1\n        and\
+  \ all(ml.nlu_classifier(body.current_thread.text).topics,\n                .name\
+  \ == \"File Sharing and Cloud Services\"\n                and .confidence != \"\
+  low\"\n        )\n      )\n      // Key phrases if topic anlayis doesn't match\n\
   \      or strings.icontains(body.current_thread.text, 'review the document')\n \
   \     or strings.icontains(body.current_thread.text, 'access file')\n      or strings.icontains(body.current_thread.text,\
-  \ 'pending document')\n    )\n    and length(body.current_thread.text) < 2000\n\
-  \  )\n)\nand (\n  (\n      //\n      // This rule makes use of a beta feature and\
-  \ is subject to change without notice\n      // using the beta feature in custom\
-  \ rules is not suggested until it has been formally released\n      //\n      strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
-  \                    \"*review*\",\n                    \"*sign*\",\n          \
-  \          \"*view*\",\n                    \"open\",\n                    \"*completed\
-  \ document*\",\n                    \"*open agreement*\",\n                    \"\
-  *open document*\"\n      )\n      and not strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
-  \                            \"*view this email*\",\n                          \
-  \  \"*view*browser*\",\n                            \"*business review*\"\n    \
-  \  )\n  )\n  or any(body.links,\n         strings.ilike(.display_text,\n       \
-  \                \"*review*\",\n                       \"*sign*\",\n           \
-  \            \"*view*\",\n                       \"open\",\n                   \
-  \    \"*completed document*\",\n                       \"*open agreement*\",\n \
-  \                      \"*open document*\",\n                       \"*continue*\"\
+  \ 'pending document')\n      or any(body.links, strings.ilike(.display_text, 'review\
+  \ and sign'))\n    )\n    and length(body.current_thread.text) < 2000\n  )\n)\n\
+  and (\n  (\n    //\n    // This rule makes use of a beta feature and is subject\
+  \ to change without notice\n    // using the beta feature in custom rules is not\
+  \ suggested until it has been formally released\n    //\n    strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
+  \                  \"*review*\",\n                  \"*sign*\",\n              \
+  \    \"*view*\",\n                  \"open\",\n                  \"*completed document*\"\
+  ,\n                  \"*open agreement*\",\n                  \"*open document*\"\
+  \n    )\n    and not strings.ilike(beta.ocr(file.message_screenshot()).text,\n \
+  \                         \"*view this email*\",\n                          \"*view*browser*\"\
+  ,\n                          \"*view online*\",\n                          \"*business\
+  \ review*\"\n    )\n  )\n  or any(body.links,\n         strings.ilike(.display_text,\n\
+  \                       \"*review*\",\n                       \"*sign*\",\n    \
+  \                   \"*view*\",\n                       \"open\",\n            \
+  \           \"*completed document*\",\n                       \"*open agreement*\"\
+  ,\n                       \"*open document*\",\n                       \"*continue*\"\
   \n         )\n         and not strings.ilike(.display_text,\n                  \
   \             \"*view this email*\",\n                               \"*view*browser*\"\
-  \n         )\n  )\n)\nand (\n  (\n    (\n      length(headers.references) > 0\n\
+  ,\n                               \"*view online*\"\n         )\n  )\n)\n// Negate\
+  \ replies & forwards\nand (\n  (\n    (\n      length(headers.references) > 0\n\
   \      or not any(headers.hops,\n                 any(.fields, strings.ilike(.name,\
   \ \"In-Reply-To\"))\n      )\n    )\n    and not (\n      (\n        strings.istarts_with(subject.subject,\
   \ \"RE:\")\n        or strings.istarts_with(subject.subject, \"RES:\")\n       \
@@ -48,16 +52,23 @@ source: "type.inbound\n// all attachments are images or 0 attachments\nand (\n  
   \ \"TR:\")\n        or strings.istarts_with(subject.subject, \"FWD:\")\n       \
   \ or regex.imatch(subject.subject,\n                        '^\\[?/{0,2}(EXT|EXTERNAL)\\\
   ]?/{0,2}[: ]\\s*(RE|FWD?|FW|AW|TR|ODG|\u7B54\u590D):.*'\n        )\n      )\n  \
-  \  )\n  )\n  or length(headers.references) == 0\n)\nand not any(ml.nlu_classifier(body.current_thread.text).topics,\n\
-  \            .name == \"Advertising and Promotions\" and .confidence == \"high\"\
-  \n)\nand (\n  (\n    headers.auth_summary.spf.pass\n    and headers.auth_summary.dmarc.pass\n\
+  \  )\n  )\n  or length(headers.references) == 0\n)\n// Negate certain common topics\n\
+  and not any(ml.nlu_classifier(body.current_thread.text).topics,\n            .name\
+  \ in (\n              \"Advertising and Promotions\",\n              \"Events and\
+  \ Webinars\",\n              \"Professional and Career Development\",\n        \
+  \      \"Newsletters and Digests\"\n            )\n            and .confidence !=\
+  \ \"low\"\n)\nand (\n  (\n    headers.auth_summary.spf.pass\n    and headers.auth_summary.dmarc.pass\n\
   \    and (\n      not profile.by_sender().solicited\n      or profile.by_sender().any_messages_malicious_or_spam\n\
   \      or profile.by_sender_email().days_since.last_contact > 14\n    )\n    and\
-  \ not profile.by_sender().any_messages_benign\n    and not sender.email.domain.root_domain\
-  \ in (\n      \"adobe-events.com\",\n      \"frame.io\",\n      \"workfront.com\"\
-  \n    )\n  )\n  or not headers.auth_summary.spf.pass\n  or headers.auth_summary.spf.pass\
-  \ is null\n  or not headers.auth_summary.dmarc.pass\n  or headers.auth_summary.dmarc.pass\
-  \ is null\n)\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
+  \ not profile.by_sender().any_messages_benign\n    // Negate affiliates, sub-products\
+  \ & legitimate domains\n    and not sender.email.domain.root_domain in (\n     \
+  \ \"adobe-events.com\",\n      \"frame.io\",\n      \"nudgesecurity.io\",\n    \
+  \  \"adobesignsandbox.com\",\n      \"magento.com\",\n      \"workfront.com\"\n\
+  \    )\n    // Continued\n    and not any(headers.domains, .root_domain == \"zohomail.com\"\
+  )\n    and not strings.iends_with(headers.message_id, 'omniture.com>')\n  )\n  or\
+  \ not headers.auth_summary.spf.pass\n  or headers.auth_summary.spf.pass is null\n\
+  \  or not headers.auth_summary.dmarc.pass\n  or headers.auth_summary.dmarc.pass\
+  \ is null\n)\n// Negate highly trusted sender domains unless they fail DMARC authentication\n\
   and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)"
