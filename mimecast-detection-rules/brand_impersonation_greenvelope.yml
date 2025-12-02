@@ -1,0 +1,38 @@
+attack_types:
+- Credential Phishing
+description: Detects messages impersonating Greenvelope invitations not originating
+  from legitimate Greenvelope domain.
+detection_methods:
+- Content analysis
+- Sender analysis
+id: 9cbbf9b8-a44a-5d86-8caa-3aef898841c1
+name: 'Brand impersonation: Greenvelope'
+severity: medium
+source: "type.inbound\n// Looking for greenvelope phrasing or indicators in HTML\n\
+  and (\n  strings.icontains(body.html.inner_text, \"Powered by greenvelope\")\n\n\
+  \  // Look for alt text in HTML for standardized greenvelope formatting if string\
+  \ is not avail.\n  or strings.icontains(body.html.raw, 'alt=\"Greenvelope\"')\n\
+  \  or strings.icontains(body.html.raw,\n                       'https://www.greenvelope.com/viewer/envelope.ashx'\n\
+  \  )\n  or strings.icontains(body.current_thread.text, '\xA9 2025 Greenvelope, LLC')\n\
+  \  or strings.icontains(body.current_thread.text,\n                       '8 The\
+  \ Green #8901, Dover, DE 19901'\n  )\n)\n\n// no links going to greenvlope cards/\"\
+  admin\" links\nand length(filter(body.links,\n                   strings.ends_with(.href_url.query_params,\"\
+  greenvelope.com\")\n                  and (\n                    // card links\n\
+  \                    strings.istarts_with(.href_url.path, '/card/')\n          \
+  \          // user links are links for the person that created the card\n      \
+  \              or strings.istarts_with(.href_url.path, '/user/')\n             \
+  \     )\n           )\n) == 0\n\n// Legitimate sender will be from greenvelope,\
+  \ negating known non-associated domains.\nand not (\n  (\n    sender.email.domain.root_domain\
+  \ in (\n      \"greenvelope.com\",\n      'greenvelope-email.com'\n    )\n    and\
+  \ headers.auth_summary.spf.pass\n  )\n  or headers.return_path.domain.root_domain\
+  \ in (\n    \"greenvelope.com\",\n    'greenvelope-email.com'\n  )\n)\n\n// avoid\
+  \ fwd/replies\nand not (\n  subject.is_forward\n  or subject.is_reply\n  or length(headers.references)\
+  \ != 0\n  or headers.in_reply_to is not null\n  or length(body.previous_threads)\
+  \ > 0\n)\n\n// Capping length to limit FP's\nand length(body.current_thread.text)\
+  \ < 1500"
+tactics_and_techniques:
+- 'Impersonation: Brand'
+- Social engineering
+tags:
+- Mimecast Hard to Fix
+type: rule

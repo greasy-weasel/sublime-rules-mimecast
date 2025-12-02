@@ -11,82 +11,50 @@ detection_methods:
 id: 6196767e-6264-5833-96f3-d1e34424d7b5
 name: 'Impersonation: Social Security Administration (SSA)'
 severity: medium
-source: |-
-  type.inbound
-
-  // Identifies as SSA without catching strings such as "Alyssa"
-  and (
-    regex.contains(sender.display_name, '^SSA\b')
-    or strings.icontains(sender.display_name, "Social Security Administration")
-    // there are confusables in the display name
-    or (
-      strings.replace_confusables(sender.display_name) != sender.display_name
-      and strings.contains(strings.replace_confusables(sender.display_name), "SSA")
-    )
-    or any([sender.display_name, subject.subject],
-           regex.icontains(strings.replace_confusables(.), 'Social (?:benefits|security)', )
-    )
-    // display name or subject references a statement
-    or (
-      any([sender.display_name, subject.subject],
-          regex.icontains(strings.replace_confusables(.),
-                          '(Digital|(e[[:punct:]]?))\s?Statements?.{0,10}(Generated|Created|Issued|Ready)'
-          )
-      )
-      // with SSA impersonation in the body
-      and strings.icontains(body.current_thread.text,
-                            'Social Security Administration'
-      )
-    )
-  )
-  // Contains a link
-  and length(body.links) >= 1
-
-  // Not from a .gov domain
-  and not (sender.email.domain.tld == "gov" and headers.auth_summary.dmarc.pass)
-
-  // Additional suspicious indicator
-  and (
-    any(ml.nlu_classifier(body.current_thread.text).topics,
-        .name == "Secure Message" and .confidence == "high"
-    )
-    or strings.icontains(body.current_thread.text, "SSA Statement Viewer")
-    or strings.icontains(body.current_thread.text, "Social Security Statement")
-    or regex.icontains(body.current_thread.text,
-                       "(?:view|open) (?:your|the).{0,8} (statement|document)"
-    )
-    // real SSA phone number
-    or strings.icontains(body.current_thread.text, "1-800-772-1213")
-    or any(body.links,
-           any(regex.extract(.href_url.path, '\.(?P<ext>[^./?#]+)(?:[?#]|$)'),
-               .named_groups["ext"] in $file_extensions_executables
-           )
-    )
-    or any(ml.logo_detect(file.message_screenshot()).brands,
-           .name == "SSA" and .confidence == "high"
-    )
-  )
-  and not any(ml.nlu_classifier(body.current_thread.text).topics,
-              .name in (
-                "Newsletters and Digests",
-                "Advertising and Promotions",
-                "Events and Webinars"
-              )
-              and .confidence == "high"
-  )
-  // not a forward or reply
-  and (headers.in_reply_to is null or length(headers.references) == 0)
-  and (
-    not profile.by_sender().solicited
-    or (
-      profile.by_sender().any_messages_malicious_or_spam
-      and not profile.by_sender().any_messages_benign
-    )
-  )
-  and not (
-    sender.email.domain.root_domain in $high_trust_sender_root_domains
-    and coalesce(headers.auth_summary.dmarc.pass, false)
-  )
+source: "type.inbound\nand length(attachments) < 2\n// Identifies as SSA without catching\
+  \ strings such as \"Alyssa\"\nand (\n  regex.contains(sender.display_name, '^SSA\\\
+  b')\n  or strings.icontains(sender.display_name, \"Social Security Administration\"\
+  )\n  // there are confusables in the display name\n  or (\n    strings.replace_confusables(sender.display_name)\
+  \ != sender.display_name\n    and strings.contains(strings.replace_confusables(sender.display_name),\n\
+  \                         \"SSA\"\n    )\n  )\n  or any([sender.display_name, subject.subject],\n\
+  \         regex.icontains(strings.replace_confusables(.),\n                    \
+  \     'Social (?:benefits|security)',\n         )\n  )\n  or (\n    any(attachments,\n\
+  \        .file_type in (\"doc\", \"docx\")\n        and any(file.explode(.),\n \
+  \               strings.icontains(.scan.strings.raw,\n                         \
+  \         \"Social Security Administration\"\n                )\n        )\n   \
+  \ )\n  )\n  // display name or subject references a statement\n  or (\n    any([sender.display_name,\
+  \ subject.subject],\n        regex.icontains(strings.replace_confusables(.),\n \
+  \                       '(Digital|(e[[:punct:]]?))\\s?Statements?.{0,10}(Generated|Created|Issued|Ready)'\n\
+  \        )\n    )\n    // with SSA impersonation in the body\n    and strings.icontains(body.current_thread.text,\n\
+  \                          'Social Security Administration'\n    )\n  )\n)\n\n//\
+  \ Not from a .gov domain\nand not (sender.email.domain.tld == \"gov\" and headers.auth_summary.dmarc.pass)\n\
+  \n// Additional suspicious indicator\nand (\n  any(ml.nlu_classifier(body.current_thread.text).topics,\n\
+  \      .name == \"Secure Message\" and .confidence == \"high\"\n  )\n  or strings.icontains(body.current_thread.text,\
+  \ \"SSA Statement Viewer\")\n  or strings.icontains(body.current_thread.text, \"\
+  Social Security Statement\")\n  or regex.icontains(body.current_thread.text,\n \
+  \                    \"(?:view|open) (?:your|the).{0,8} (statement|document)\"\n\
+  \  )\n  // real SSA phone number\n  or strings.icontains(body.current_thread.text,\
+  \ \"1-800-772-1213\")\n  or any(body.links,\n         any(regex.extract(.href_url.path,\
+  \ '\\.(?P<ext>[^./?#]+)(?:[?#]|$)'),\n             .named_groups[\"ext\"] in $file_extensions_executables\n\
+  \         )\n  )\n  or any(ml.logo_detect(file.message_screenshot()).brands,\n \
+  \        .name == \"SSA\" and .confidence == \"high\"\n  )\n  or (\n    any(attachments,\n\
+  \        .file_type in (\"doc\", \"docx\")\n        and any(file.explode(.),\n \
+  \               strings.icontains(.scan.strings.raw, \"suspended\")\n          \
+  \      or strings.icontains(.scan.strings.raw, \"fraudulent\")\n               \
+  \ or strings.icontains(.scan.strings.raw, \"violated\")\n                or strings.icontains(.scan.strings.raw,\
+  \ \"false identity\")\n                or regex.icontains(.scan.strings.raw,\n \
+  \                                  '\\+?([ilo0-9]{1}.)?\\(?[ilo0-9]{3}?\\)?.[ilo0-9]{3}.?[ilo0-9]{4}',\n\
+  \                                   '\\+?([ilo0-9]{1,2})?\\s?\\(?\\d{3}\\)?[\\s\\\
+  .\\-\u22C5]{0,5}[ilo0-9]{3}[\\s\\.\\-\u22C5]{0,5}[ilo0-9]{4}'\n                )\n\
+  \        )\n    )\n  )\n)\nand not any(ml.nlu_classifier(body.current_thread.text).topics,\n\
+  \            .name in (\n              \"Newsletters and Digests\",\n          \
+  \    \"Advertising and Promotions\",\n              \"Events and Webinars\"\n  \
+  \          )\n            and .confidence == \"high\"\n)\n// not a forward or reply\n\
+  and (headers.in_reply_to is null or length(headers.references) == 0)\nand (\n  not\
+  \ profile.by_sender().solicited\n  or (\n    profile.by_sender().any_messages_malicious_or_spam\n\
+  \    and not profile.by_sender().any_messages_benign\n  )\n)\nand not (\n  sender.email.domain.root_domain\
+  \ in $high_trust_sender_root_domains\n  and coalesce(headers.auth_summary.dmarc.pass,\
+  \ false)\n)"
 tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
