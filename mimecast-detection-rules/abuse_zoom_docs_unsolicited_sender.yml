@@ -13,52 +13,54 @@ source: |-
   type.inbound
   and sender.email.domain.root_domain == "zoom.us"
   and strings.ends_with(sender.display_name, "Zoom Docs")
-  and any(html.xpath(body.html, '//h2').nodes,
-          // extract the sender email out of the message body
-          any(regex.iextract(.display_text,
-                             '^(?P<sender_display_name>[^\(]+)\((?P<sender_email>[^\)]+@(?P<sender_domain>[^\)]+))\)'
-              ),
-              .named_groups["sender_domain"] not in $org_domains
-              and .named_groups["sender_email"] not in $recipient_emails
-              and .named_groups["sender_email"] not in $sender_emails
-              and not (
-                .named_groups["sender_domain"] not in $free_email_providers
-                and .named_groups["sender_domain"] in $recipient_domains
-                and .named_groups["sender_domain"] in $sender_domains
-              )
-          )
-          or any(body.links,
-                  .href_url.query_params == "domain=docs.zoom.us"
-                 and any(filter(ml.link_analysis(., mode="aggressive").final_dom.links,
-                                .href_url.domain.root_domain != 'zoom.us'
-                                and .href_url.domain.domain != 'zoom.us'
-                         ),
-                         (
-                           // any of those links domains are new
-                           network.whois(.href_url.domain).days_old < 30
-                           // go to free file hosts
-                           or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
-                           or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
+  and (
+    any(html.xpath(body.html, '//h2').nodes,
+        // extract the sender email out of the message body
+        any(regex.iextract(.display_text,
+                           '^(?P<sender_display_name>[^\(]+)\((?P<sender_email>[^\)]+@(?P<sender_domain>[^\)]+))\)'
+            ),
+            .named_groups["sender_domain"] not in $org_domains
+            and .named_groups["sender_email"] not in $recipient_emails
+            and .named_groups["sender_email"] not in $sender_emails
+            and not (
+              .named_groups["sender_domain"] not in $free_email_providers
+              and .named_groups["sender_domain"] in $recipient_domains
+              and .named_groups["sender_domain"] in $sender_domains
+            )
+        )
+    )
+    or any(body.links,
+            .href_url.query_params == "domain=docs.zoom.us"
+           and any(filter(ml.link_analysis(., mode="aggressive").final_dom.links,
+                          .href_url.domain.root_domain != 'zoom.us'
+                          and .href_url.domain.domain != 'zoom.us'
+                   ),
+                   (
+                     // any of those links domains are new
+                     network.whois(.href_url.domain).days_old < 30
+                     // go to free file hosts
+                     or  any($free_file_hosts, strings.ends_with(..href_url.query_params,.))
+                     or  any($free_file_hosts, ..href_url.query_params == strings.concat("domain=",.))
 
-                           // go to free subdomains hosts
-                           or (
-                              any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
-                             // where there is a subdomain
-                             and .href_url.domain.subdomain is not null
-                             and  strings.starts_with(.href_url.query_params,"domain=www."))
-                           )
-                           // go to url shortners
-                           or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
-                           or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
-                           or (
-                             // find any links that mention common "action" words
-                             regex.icontains(.display_text,
-                                             '(?:view|click|show|access|download|goto|Validate|Va[il]idar|login|verify|account)'
-                             )
-                           )
-                         )
-                 )
-          )
+                     // go to free subdomains hosts
+                     or (
+                        any($free_subdomain_hosts, strings.ends_with(..href_url.query_params,.))
+                       // where there is a subdomain
+                       and .href_url.domain.subdomain is not null
+                       and  strings.starts_with(.href_url.query_params,"domain=www."))
+                     )
+                     // go to url shortners
+                     or  any($url_shorteners, strings.ends_with(..href_url.query_params,.))
+                     or  any($url_shorteners, ..href_url.query_params == strings.concat("domain=",.))
+                     or (
+                       // find any links that mention common "action" words
+                       regex.icontains(.display_text,
+                                       '(?:view|click|show|access|download|goto|Validate|Va[il]idar|login|verify|account)'
+                       )
+                     )
+                   )
+           )
+    )
   )
 tactics_and_techniques:
 - Social engineering
