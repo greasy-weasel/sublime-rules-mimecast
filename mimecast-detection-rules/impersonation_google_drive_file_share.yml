@@ -20,10 +20,11 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \                      \"*shared this document*\",\n                        \"*shared\
   \ an item*\",\n                        \"*received this email because you*\",\n\
   \                        \"*shared a*with you*\",\n                        \"*automated\
-  \ *mail from google*drive*\"\n          )\n      )\n      //\n      // This rule\
-  \ makes use of a beta feature and is subject to change without notice\n      //\
-  \ using the beta feature in custom rules is not suggested until it has been formally\
-  \ released\n      //\n      or strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
+  \ *mail from google*drive*\",\n                        \"*added as an editor*\"\
+  ,\n                        \"*invited you to edit*\"\n          )\n      )\n   \
+  \   //\n      // This rule makes use of a beta feature and is subject to change\
+  \ without notice\n      // using the beta feature in custom rules is not suggested\
+  \ until it has been formally released\n      //\n      or strings.ilike(beta.ocr(file.message_screenshot()).text,\n\
   \                       \"*shared a file with you*\",\n                       \"\
   *shared with you*\",\n                       \"*invited you to review*\",\n    \
   \                   \"*received a document*\",\n                       \"*shared\
@@ -31,37 +32,38 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \              \"*shared this document*\",\n                       \"*shared an\
   \ item*\",\n                       \"*received this email because you*\",\n    \
   \                   \"*shared a*with you*\",\n                       \"*automated\
-  \ *mail from google*drive*\"\n      )\n    )\n    and (\n      strings.ilike(subject.subject,\n\
-  \                    \"*shared*\",\n                    \"*updated*\",\n       \
-  \             \"*sign*\",\n                    \"*review*\"\n      )\n      or any(recipients.to,\n\
-  \             strings.icontains(subject.subject, .email.domain.sld)\n      )\n \
-  \     or strings.ilike(subject.subject, \"*Docs*\", \"*Sheets*\", \"*Slides*\")\n\
-  \      or any(body.links,\n             strings.icontains(.display_text, \"open\
-  \ document\")\n             or strings.iends_with(.display_text, \".pdf\")\n   \
-  \   )\n      or strings.ilike(sender.display_name, \"*Google Drive*\")\n      or\
-  \ subject.subject is null\n      or subject.subject == \"\"\n    )\n  )\n  or any([\n\
-  \           \"Contigo\", // Spanish\n           \"Avec vous\", // French\n     \
-  \      \"Mit Ihnen\", // German\n           \"Con te\", // Italian\n           \"\
-  Com voc\xEA\", // Portuguese\n           \"Met u\", // Dutch\n           \"\u0421\
-  \ \u0432\u0430\u043C\u0438\", // Russian\n           \"\u4E0E\u4F60\", // Chinese\
-  \ (Simplified)\n           \"\u8207\u60A8\", // Chinese (Traditional)\n        \
-  \   \"\u3042\u306A\u305F\u3068\", // Japanese\n           \"\uB2F9\uC2E0\uACFC\"\
-  , // Korean\n           \"\u0645\u0639\u0643\", // Arabic\n           \"\u0622\u067E\
-  \ \u06A9\u06D2 \u0633\u0627\u062A\u06BE\", // Urdu\n           \"\u0986\u09AA\u09A8\
-  \u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7\", // Bengali\n           \"\u0906\u092A\u0915\
-  \u0947 \u0938\u093E\u0925\", // Hindi\n           \"Sizinle\", // Turkish // Azerbaijani\n\
-  \           \"Med dig\", // Swedish\n           \"Z tob\u0105\", // Polish\n   \
-  \        \"\u0417 \u0432\u0430\u043C\u0438\", // Ukrainian\n           \"\xD6nnel\"\
-  , // Hungarian\n           \"\u039C\u03B1\u03B6\u03AF \u03C3\u03B1\u03C2\", // Greek\n\
-  \           \"\u05D0\u05D9\u05EA\u05DA\", // Hebrew\n           \"\u0E01\u0E31\u0E1A\
-  \u0E04\u0E38\u0E13\", // Thai\n           \"V\u1EDBi b\u1EA1n\", // Vietnamese\n\
-  \           \"Dengan Anda\", // Indonesian // Malay\n           \"Nawe\", // Swahili\n\
-  \           \"Cu dumneavoastr\u0103\", // Romanian\n           \"S v\xE1mi\", //\
-  \ Czech\n           \"Med deg\", // Norwegian\n           \"S vami\", // Slovak\n\
-  \           \"Med dig\", // Danish\n           \"Amb vost\xE8\", // Catalan\n  \
-  \         \"Teiega\", // Estonian\n           \"S vama\", // Serbian\n         ],\n\
-  \         strings.icontains(subject.subject, .)\n  )\n)\n\n// contains logic that\
-  \ impersonates Google\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
+  \ *mail from google*drive*\",\n                       \"*added as an editor*\",\n\
+  \                       \"*invited you to edit*\"\n      )\n    )\n    and (\n \
+  \     strings.ilike(subject.subject,\n                    \"*shared*\",\n      \
+  \              \"*updated*\",\n                    \"*sign*\",\n               \
+  \     \"*review*\"\n      )\n      or any(recipients.to,\n             strings.icontains(subject.subject,\
+  \ .email.domain.sld)\n      )\n      or strings.ilike(subject.subject, \"*Docs*\"\
+  , \"*Sheets*\", \"*Slides*\")\n      or any(body.links,\n             strings.icontains(.display_text,\
+  \ \"open document\")\n             or strings.iends_with(.display_text, \".pdf\"\
+  )\n      )\n      or strings.ilike(sender.display_name, \"*Google Drive*\")\n  \
+  \    or subject.subject is null\n      or subject.subject == \"\"\n      or regex.icontains(body.current_thread.text,\
+  \ '^g.o.o.g.l.e')\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n\
+  \           \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n    \
+  \       \"Con te\", // Italian\n           \"Com voc\xEA\", // Portuguese\n    \
+  \       \"Met u\", // Dutch\n           \"\u0421 \u0432\u0430\u043C\u0438\", //\
+  \ Russian\n           \"\u4E0E\u4F60\", // Chinese (Simplified)\n           \"\u8207\
+  \u60A8\", // Chinese (Traditional)\n           \"\u3042\u306A\u305F\u3068\", //\
+  \ Japanese\n           \"\uB2F9\uC2E0\uACFC\", // Korean\n           \"\u0645\u0639\
+  \u0643\", // Arabic\n           \"\u0622\u067E \u06A9\u06D2 \u0633\u0627\u062A\u06BE\
+  \", // Urdu\n           \"\u0986\u09AA\u09A8\u09BE\u09B0 \u09B8\u09BE\u09A5\u09C7\
+  \", // Bengali\n           \"\u0906\u092A\u0915\u0947 \u0938\u093E\u0925\", // Hindi\n\
+  \           \"Sizinle\", // Turkish // Azerbaijani\n           \"Med dig\", // Swedish\n\
+  \           \"Z tob\u0105\", // Polish\n           \"\u0417 \u0432\u0430\u043C\u0438\
+  \", // Ukrainian\n           \"\xD6nnel\", // Hungarian\n           \"\u039C\u03B1\
+  \u03B6\u03AF \u03C3\u03B1\u03C2\", // Greek\n           \"\u05D0\u05D9\u05EA\u05DA\
+  \", // Hebrew\n           \"\u0E01\u0E31\u0E1A\u0E04\u0E38\u0E13\", // Thai\n  \
+  \         \"V\u1EDBi b\u1EA1n\", // Vietnamese\n           \"Dengan Anda\", // Indonesian\
+  \ // Malay\n           \"Nawe\", // Swahili\n           \"Cu dumneavoastr\u0103\"\
+  , // Romanian\n           \"S v\xE1mi\", // Czech\n           \"Med deg\", // Norwegian\n\
+  \           \"S vami\", // Slovak\n           \"Med dig\", // Danish\n         \
+  \  \"Amb vost\xE8\", // Catalan\n           \"Teiega\", // Estonian\n          \
+  \ \"S vama\", // Serbian\n         ],\n         strings.icontains(subject.subject,\
+  \ .)\n  )\n)\n\n// contains logic that impersonates Google\nand (\n  any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \      strings.starts_with(.name, \"Google\")\n  )\n  // Google Drive share box\
   \ formatting\n  or strings.icontains(body.html.raw,\n                       '<table\
   \ style=\"width:100%; border:1px solid #dadce0; border-radius:6px; border-spacing:0;\
