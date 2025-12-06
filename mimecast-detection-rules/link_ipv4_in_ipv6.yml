@@ -1,0 +1,22 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: Detects links containing IPv4-mapped IPv6 addresses in the format [::ffff:xxxx:xxxx],
+  commonly used to obfuscate malicious URLs and evade detection systems.
+detection_methods:
+- Content analysis
+- URL analysis
+id: caacf30c-fd89-5869-a945-c660ff9bda40
+name: 'Link: IPv4-mapped IPv6 address obfuscation'
+severity: medium
+source: |-
+  type.inbound
+  and any(body.links,
+      regex.icontains(.href_url.url, '\[::ffff:[0-9a-f]{4}:[0-9a-f]{4}\]')
+  )
+tactics_and_techniques:
+- Evasion
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule
