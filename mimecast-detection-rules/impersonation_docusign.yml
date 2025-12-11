@@ -174,8 +174,8 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \ now\" or \"Review document\"\n// this should always be a known docusign domain,\n\
   // even with branded docusign subdomains\nand (\n  any(\n      // filter links that\
   \ match docusign wording\n      filter(body.links,\n             // we've observed\
-  \ invisible characters in the display name\n             // such as U+034f(look\
-  \ carefully): \"Revi\u034Few Now\"\n             (\n               strings.ilevenshtein(.display_text,\
+  \ invisible characters in the display name\n             // such as U+034F: \"Revi\\\
+  x{034F}ew Now\"\n             (\n               strings.ilevenshtein(.display_text,\
   \ \"Review Now\") <= 3\n               or strings.ilevenshtein(.display_text, \"\
   Review and Sign\") <= 3\n               or (\n                 strings.icontains(.display_text,\
   \ \"Review\")\n                 // negate benign uses of the \"review\" term\n \

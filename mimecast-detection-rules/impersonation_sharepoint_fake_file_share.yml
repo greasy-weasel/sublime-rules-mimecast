@@ -74,7 +74,7 @@ source: "type.inbound\n\n// Sharepoint body content looks like this\nand (\n  (\
   s*</tr>\\s*<tr[^>]*>\\s*(<td[^>]*bgcolor=\"#[0-9A-Fa-f]{6}\"[^>]*>\\s*&nbsp;\\s*</td>\\\
   s*){2}'\n  )\n  or 3 of (\n    regex.icontains(body.html.raw, '.password-expiration'),\n\
   \    regex.icontains(body.html.raw, 'color: #2672ec;'),\n    regex.icontains(body.html.raw,\
-  \ 'M\xADic\xADro\xADso\xADft')\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
+  \ 'M\\x{00AD}ic\\x{00AD}ro\\x{00AD}so\\x{00AD}ft')\n  )\n  or 4 of (\n    regex.icontains(body.html.raw,\
   \ 'rgb\\(246,\\s?93,\\s?53\\)'),\n    regex.icontains(body.html.raw, 'rgb\\(129,\\\
   s?187,\\s?5\\)'),\n    regex.icontains(body.html.raw, 'rgb\\(4,\\s?165,\\s?240\\\
   )'),\n    regex.icontains(body.html.raw, 'rgb\\(255,\\s?186,\\s?7\\)'),\n  )\n \
