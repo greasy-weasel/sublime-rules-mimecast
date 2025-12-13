@@ -13,7 +13,7 @@ source: "type.inbound\n\nand 0 < length(body.links) < 10\n\n//  display name or 
   \ contains confusable vowels\nand any([subject.subject, sender.display_name],\n\
   \        regex.icontains(., '(\u0430|\u0435|\u0438|\u043E|\u0443)')\n)\n\n// and\
   \ suspicious subject\nand regex.icontains(subject.subject,\n                   \
-  \ // https://github.com/sublime-security/static-files/blob/master/suspicious_subjects_regex.txt\n\
+  \ // https://github.com/sublime-security/static-files/blob/main/suspicious_subjects_regex.txt\n\
   \                    \"termination.*notice\",\n                    \"38417\",\n\
   \                    \":completed\",\n                    \"[il1]{2}mit.*ma[il1]{2}\
   \ ?bo?x\",\n                    \"[il][il][il]egai[ -]\",\n                    \"\
@@ -83,7 +83,7 @@ source: "type.inbound\n\nand 0 < length(body.links) < 10\n\n//  display name or 
   ,\n                    \"web ?-?ma[il1]{2}\",\n                    \"web[ -]?ma[il1]{2}\"\
   ,\n                    \"will.be.suspended\",\n                    \"your (customer\
   \ )?account .as\",\n                    \"your.office.365\",\n                 \
-  \   \"your.online.access\",\n\n                    // https://github.com/sublime-security/static-files/blob/master/suspicious_subjects.txt\n\
+  \   \"your.online.access\",\n\n                    // https://github.com/sublime-security/static-files/blob/main/suspicious_subjects.txt\n\
   \                    \"account has been limited\",\n                    \"action\
   \ required\",\n                    \"almost full\",\n                    \"apd notifi\
   \ cation\",\n                    \"are you at your desk\",\n                   \

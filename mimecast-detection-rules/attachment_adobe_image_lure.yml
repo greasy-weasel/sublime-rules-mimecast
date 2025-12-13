@@ -38,14 +38,17 @@ source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $fi
   \ strings.istarts_with(subject.subject, \"FWD:\")\n        or regex.imatch(subject.subject,\
   \ '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?)\\s?:')\n      )\n    )\n  )\n  or length(headers.references)\
   \ == 0\n)\n\n// not a newsletter or advertisement\nand not any(headers.hops, any(.fields,\
-  \ .name == \"List-Unsubscribe-Post\"))\nand not any(beta.ml_topic(body.current_thread.text).topics,\n\
+  \ .name == \"List-Unsubscribe-Post\"))\nand not any(ml.nlu_classifier(body.current_thread.text).topics,\n\
   \            .name in (\"Advertising and Promotions\", \"Newsletters and Digests\"\
   )\n            and .confidence == \"high\"\n)\n\n// negate highly trusted sender\
   \ domains unless they fail DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain\
   \ in $high_trust_sender_root_domains\n    and not headers.auth_summary.dmarc.pass\n\
   \  )\n  or sender.email.domain.root_domain not in $high_trust_sender_root_domains\n\
-  )\nand (\n  not profile.by_sender_email().solicited\n  or profile.by_sender_email().prevalence\
-  \ == \"new\"\n  or (\n    profile.by_sender_email().any_messages_malicious_or_spam\n\
+  )\nand (\n  // exclude solicited senders\n  not profile.by_sender_email().solicited\n\
+  \  or profile.by_sender_email().prevalence == \"new\"\n  or length(recipients.to)\
+  \ == 0\n  // domains for recipients to/cc must be valid\n  or (\n    all(recipients.to,\
+  \ .email.domain.valid == false)\n    and all(recipients.cc, .email.domain.valid\
+  \ == false)\n  )\n  or (\n    profile.by_sender_email().any_messages_malicious_or_spam\n\
   \    and not profile.by_sender_email().any_messages_benign\n  )\n)\nand not profile.by_sender_email().any_messages_benign"
 tactics_and_techniques:
 - Image as content
