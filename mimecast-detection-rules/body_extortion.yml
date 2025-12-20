@@ -43,16 +43,17 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   ]bat)\"\n    ),\n    // a timeframe to pay\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    '[ilo0-9]{2} (?:hou[r\u0157\u1E5D][s\u1E63]|uu[r\u0157])',\n\
   \                    '(?:one|tw[o\u1EDD]|2|th[r\u0157]ee|\\d) [d\u1E0D][a\u1EA3\u01E1\
-  \u0105]y[s\u1E63]?'\n    ),\n    // a promise from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
+  \u0105]y[s\u1E63]?',\n                    'set a timer'\n    ),\n    // a promise\
+  \ from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    '(?:pe[r\u0157]manently|will|I''ll) delete|([r\u0157]emove|destroy)\
   \ (?:[\\p{L}\\p{M}\\p{N}]+\\s*){0,4} (?:data|ev[\u1E2Fi\xEF\u012F\u012B\xED]dence|v[\u1E2F\
   i\xEF\xED\u012F\u012B]deos?)'\n    ),\n    // a threat from the actor\n    regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                    '(?:\\bsen[dt]|forward|expose)\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}\\\
   s*to\\s*(?:[\\p{L}\\p{N}]+\\s*){0,5}(?:contacts|media|family|f[r\u0157]iends|coworkers|associates)'\n\
   \    ),\n    // bitcoin language (excluding newsletters)\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                      '[b\u1E06\u1E02]it[c\u0109\u0188\u0107][o\xF6\u0629]+in|\\\
-  bbtc\\b|blockchain'\n      )\n      // negate cryptocurrency newsletters\n     \
-  \ and not (\n        any(body.links,\n            strings.icontains(.display_text,\
+  \                      '[b\u1E06\u1E02]it[c\u0109\u0188][o\xF6\u0629]i[n\u0146\u0272\
+  ]|\\bbtc\\b|blockchain'\n      )\n      // negate cryptocurrency newsletters\n \
+  \     and not (\n        any(body.links,\n            strings.icontains(.display_text,\
   \ \"unsubscribe\")\n            and (\n              strings.icontains(.href_url.path,\
   \ \"unsubscribe\")\n              // handle mimecast URL rewrites\n            \
   \  or (\n                .href_url.domain.root_domain == 'mimecastprotect.com'\n\
@@ -69,13 +70,19 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \  )\n  or any(headers.hops, any(.fields, .name == \"X-Google-Group-Id\"))\n\n \
   \ // many extortion emails spoof sender domains and fail sender authentication\n\
   \  or (\n    not headers.auth_summary.dmarc.pass\n    or headers.auth_summary.dmarc.pass\
-  \ is null\n    or not headers.auth_summary.spf.pass\n  )\n)\n\n// negate benign\
-  \ newsletters that mention cyber extortion\nand not (\n  any(body.links,\n     \
-  \ strings.icontains(.display_text, \"unsubscribe\")\n      and strings.icontains(.href_url.path,\
-  \ \"unsubscribe\")\n  )\n  // newsletters are typically longer than the average\
-  \ extortion script\n  and length(body.current_thread.text) > 2000\n)\nand length(body.current_thread.text)\
-  \ < 8000\n// negate highly trusted sender domains unless they fail DMARC authentication\n\
-  and (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
+  \ is null\n    or not headers.auth_summary.spf.pass\n  )\n)\n// negate legit bounce\
+  \ backs\nand not any(ml.nlu_classifier(body.current_thread.text).topics,\n     \
+  \       .name in (\"Bounce Back and Delivery Failure Notifications\")\n)\n// negate\
+  \ legit forwards and replies\nand not (\n  (subject.is_reply or subject.is_forward)\n\
+  \  and length(body.previous_threads) > 0\n  and (length(headers.references) > 0\
+  \ or headers.in_reply_to is not null)\n)\n// negate benign newsletters that mention\
+  \ cyber extortion\nand not (\n  any(body.links,\n      strings.icontains(.display_text,\
+  \ \"unsubscribe\")\n      and strings.icontains(.href_url.path, \"unsubscribe\"\
+  )\n  )\n  // newsletters are typically longer than the average extortion script\n\
+  \  and length(body.current_thread.text) > 2000\n)\nand length(body.current_thread.text)\
+  \ < 8000\n// negate TOS collisions from legal phrasing\nand not strings.icontains(body.current_thread.text,\
+  \ \"terms of service\")\n// negate highly trusted sender domains unless they fail\
+  \ DMARC authentication\nand (\n  (\n    sender.email.domain.root_domain in $high_trust_sender_root_domains\n\
   \    and not headers.auth_summary.dmarc.pass\n  )\n  or sender.email.domain.root_domain\
   \ not in $high_trust_sender_root_domains\n)"
 tactics_and_techniques:

@@ -33,15 +33,23 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \ item*\",\n                       \"*received this email because you*\",\n    \
   \                   \"*shared a*with you*\",\n                       \"*automated\
   \ *mail from google*drive*\",\n                       \"*added as an editor*\",\n\
-  \                       \"*invited you to edit*\"\n      )\n    )\n    and (\n \
-  \     strings.ilike(subject.subject,\n                    \"*shared*\",\n      \
-  \              \"*updated*\",\n                    \"*sign*\",\n               \
-  \     \"*review*\"\n      )\n      or any(recipients.to,\n             strings.icontains(subject.subject,\
-  \ .email.domain.sld)\n      )\n      or strings.ilike(subject.subject, \"*Docs*\"\
-  , \"*Sheets*\", \"*Slides*\")\n      or any(body.links,\n             strings.icontains(.display_text,\
-  \ \"open document\")\n             or strings.iends_with(.display_text, \".pdf\"\
-  )\n      )\n      or strings.ilike(sender.display_name, \"*Google Drive*\")\n  \
-  \    or subject.subject is null\n      or subject.subject == \"\"\n      or regex.icontains(body.current_thread.text,\
+  \                       \"*invited you to edit*\"\n      )\n      // suspicious\
+  \ subjects\n      or (\n        (\n          regex.icontains(subject.subject, 'shared\
+  \ \\\".*\\\" with you')\n          and sender.email.domain.root_domain != \"dropbox.com\"\
+  \n        )\n        // with Google Drive terminology in body content\n        and\
+  \ any([body.current_thread.text, body.plain.raw],\n                strings.ilike(.,\n\
+  \                              \"*Google Drive*\",\n                           \
+  \   \"*Google Doc*\",\n                              \"*Google Sheet*\",\n     \
+  \                         \"*Google Slide*\"\n                )\n        )\n   \
+  \   )\n    )\n    and (\n      strings.ilike(subject.subject,\n                \
+  \    \"*shared*\",\n                    \"*updated*\",\n                    \"*sign*\"\
+  ,\n                    \"*review*\"\n      )\n      or any(recipients.to,\n    \
+  \         strings.icontains(subject.subject, .email.domain.sld)\n      )\n     \
+  \ or strings.ilike(subject.subject, \"*Docs*\", \"*Sheets*\", \"*Slides*\")\n  \
+  \    or any(body.links,\n             strings.icontains(.display_text, \"open document\"\
+  )\n             or strings.iends_with(.display_text, \".pdf\")\n      )\n      or\
+  \ strings.ilike(sender.display_name, \"*Google Drive*\")\n      or subject.subject\
+  \ is null\n      or subject.subject == \"\"\n      or regex.icontains(body.current_thread.text,\
   \ '^g.o.o.g.l.e')\n    )\n  )\n  or any([\n           \"Contigo\", // Spanish\n\
   \           \"Avec vous\", // French\n           \"Mit Ihnen\", // German\n    \
   \       \"Con te\", // Italian\n           \"Com voc\xEA\", // Portuguese\n    \
@@ -116,8 +124,11 @@ source: "type.inbound\n\n// Google Drive body content looks like this\nand (\n  
   \  // Google address from footer\n  or 2 of (\n    strings.icontains(body.current_thread.text,\
   \ 'Google LLC'),\n    strings.icontains(body.current_thread.text, '1600 Amphitheatre\
   \ Parkway'),\n    strings.icontains(body.current_thread.text, 'Mountain View, CA\
-  \ 94043'),\n  )\n)\nand not all(body.links,  any([\"google.com\"], strings.ends_with(..href_url.query_params,.))\
-  \ )\nand sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
+  \ 94043'),\n  )\n)\nand not (\n  // Google Sites has been observed abused\n  all(body.links,\n\
+  \       any([\"google.com\"], strings.ends_with(..href_url.query_params,.))\n  \
+  \    // allow for matches against sites.google.com, which has been observed being\
+  \ abused\n      and .href_url.domain.domain != \"sites.google.com\"\n  )\n)\nand\
+  \ sender.email.domain.root_domain not in $org_domains\nand sender.email.domain.root_domain\
   \ not in (\"google.com\")\nand not (\n  all(headers.references, strings.ends_with(.,\
   \ '@docs-share.google.com'))\n  and headers.return_path.domain.domain == \"doclist.bounces.google.com\"\
   \n)\n// negate first threads that are a legitimate Google Drive share\nand not (\n\
@@ -134,5 +145,5 @@ tactics_and_techniques:
 - 'Impersonation: Brand'
 - Social engineering
 tags:
-- Mimecast Changes Complete
+- Mimecast Needs Fix
 type: rule
