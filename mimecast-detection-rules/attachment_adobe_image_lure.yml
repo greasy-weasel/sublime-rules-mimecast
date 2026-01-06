@@ -11,12 +11,18 @@ detection_methods:
 id: 1d7add81-9822-576a-bcae-c4440e75e393
 name: 'Attachment: Adobe image lure in body or attachment with suspicious link'
 severity: medium
-source: "type.inbound\nand (\n  length(filter(attachments, .file_type not in $file_types_images))\
-  \ == 0\n  or length(filter(attachments, .file_type != \"pdf\")) == 0\n)\nand (\n\
-  \  (\n    any(ml.logo_detect(file.message_screenshot()).brands, .name == \"Adobe\"\
-  )\n    and 0 < length(body.links) < 10\n    and any(body.links, .display_text is\
-  \ null)\n    and (\n      length(filter(body.links,\n                    (\n   \
-  \                   .display_text is null\n                      and .display_url.url\
+source: "type.inbound\nand (\n  // all images\n  length(filter(attachments, .file_type\
+  \ not in $file_types_images)) == 0\n  // only pdf attachments\n  or length(filter(attachments,\
+  \ .file_type != \"pdf\")) == 0\n  // pdf and image attachements where images are\
+  \ all embedded into the message body\n  or length(filter(attachments,\n        \
+  \           .file_type == 'pdf'\n                   or (\n                     .file_type\
+  \ in $file_types_images\n                     and strings.icontains(body.html.raw,\n\
+  \                                           strings.concat(\"cid:\", .content_id)\n\
+  \                     )\n                   )\n            )\n  ) == length(attachments)\n\
+  )\nand (\n  (\n    any(ml.logo_detect(file.message_screenshot()).brands, .name ==\
+  \ \"Adobe\")\n    and 0 < length(body.links) < 10\n    and any(body.links, .display_text\
+  \ is null)\n    and (\n      length(filter(body.links,\n                    (\n\
+  \                      .display_text is null\n                      and .display_url.url\
   \ == sender.email.domain.root_domain\n                    )\n                  \
   \  or  any([\n                      \"aka.ms\",\n                      \"mimecast.com\"\
   ,\n                      \"mimecastprotect.com\",\n                      \"cisco.com\"\
