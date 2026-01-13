@@ -55,14 +55,14 @@ source: |-
               and strings.starts_with(.href_url.path, "/amp/")
             )
 
-           // Recipient email address in link
-           or any(body.links,
-                  any(recipients.to,
-                      strings.icontains(..href_url.url, .email.email)
-                      and any(recipients.to, .email.domain.valid)
-                  )
-           )
-           or  strings.ends_with(.href_url.query_params,"beehiiv.com")
+            // Recipient email address in link
+            or any(body.links,
+                   any(recipients.to,
+                       strings.icontains(..href_url.url, .email.email)
+                       and any(recipients.to, .email.domain.valid)
+                   )
+            )
+            or  strings.ends_with(.href_url.query_params,"beehiiv.com")
           )
 
           // exclude sources of potential FPs
@@ -85,8 +85,8 @@ source: |-
 
   // not a reply
   and (
-      length(headers.references) == 0
-      or not any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
+    length(headers.references) == 0
+    or not any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
   )
 
   // Microsoft logo
@@ -280,7 +280,6 @@ source: |-
                         "*renewal*"
       )
     )
-
     or (
       any(attachments,
           .file_type in $file_types_images
@@ -372,11 +371,11 @@ source: |-
 
   // negate legitimate Office 365 bouncebacks
   and not (
-      length(attachments) > 0
-      and all(attachments,
-          .content_type in ("message/delivery-status", "message/rfc822")
-      )
-      and (sender.email.local_part in ('postmaster', 'mailer-daemon'))
+    length(attachments) > 0
+    and all(attachments,
+            .content_type in ("message/delivery-status", "message/rfc822")
+    )
+    and (sender.email.local_part in ('postmaster', 'mailer-daemon'))
   )
 
   // negate Microsoft "welcome to the X group" notifications

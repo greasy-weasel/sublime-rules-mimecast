@@ -14,26 +14,28 @@ severity: low
 source: "type.inbound\nand (\n  sender.email.domain.root_domain == \"onmicrosoft.com\"\
   \n  or (\n    strings.icontains(sender.display_name, \"onmicrosoft.com\")\n    and\
   \ sender.email.domain.valid == false\n  )\n)\nand length(recipients.to) < 2\nand\
-  \ length(body.links) > 0\n// bounce-back negations\nand not strings.like(sender.email.local_part,\
-  \ \"*postmaster*\", \"*mailer-daemon*\", \"*administrator*\")\nand not any(attachments,\n\
-  \            .content_type in (\n              \"message/rfc822\",\n           \
-  \   \"message/delivery-status\",\n              \"text/calendar\"\n            )\n\
-  \            or (.content_type == \"text/plain\" and .file_extension == \"ics\"\
-  )\n)\n// negating legit replies\nand not (\n  (\n    strings.istarts_with(subject.subject,\
+  \ length(body.links) > 0\n// bounce-back negations\nand not strings.like(sender.email.local_part,\n\
+  \                     \"*postmaster*\",\n                     \"*mailer-daemon*\"\
+  ,\n                     \"*administrator*\"\n)\nand not any(attachments,\n     \
+  \       .content_type in (\n              \"message/rfc822\",\n              \"\
+  message/delivery-status\",\n              \"text/calendar\"\n            )\n   \
+  \         or (.content_type == \"text/plain\" and .file_extension == \"ics\")\n\
+  )\n// negating legit replies\nand not (\n  (\n    strings.istarts_with(subject.subject,\
   \ \"RE:\")\n    or strings.istarts_with(subject.subject, \"FW:\")\n    or strings.istarts_with(subject.subject,\
-  \ \"FWD:\")\n    or regex.imatch(subject.subject, '(\\[[^\\]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\\
-  s?:.*')\n    or strings.istarts_with(subject.subject, \"R\xE9ponse automatique\"\
-  )\n  )\n  and (\n    length(headers.references) > 0\n    and any(headers.hops, any(.fields,\
-  \ strings.ilike(.name, \"In-Reply-To\")))\n  )\n)\n// negating auto-replies\nand\
-  \ not (\n  any(headers.hops,\n      any(.fields, .name =~ \"auto-submitted\" and\
-  \ .value =~ \"auto-generated\")\n      and any(.fields,\n              .name =~\
-  \ \"X-MS-Exchange-Generated-Message-Source\"\n              and .value not in (\"\
-  Antispam Quarantine Agent\")\n      )\n  )\n)\n// Microsoft has some legit onmicrosoft\
-  \ domains...\nand not (\n  sender.email.domain.domain == \"microsoft.onmicrosoft.com\"\
-  \n  and headers.auth_summary.spf.pass\n  and all(body.links,  strings.ends_with(.href_url.query_params,\"\
-  microsoft.com\") )\n)\n// construct the proper sender domain and check against known\
-  \ recipients\nand not strings.concat(sender.email.domain.subdomain,  \".\", sender.email.domain.tld)\
-  \ in $recipient_domains\nand (\n  not profile.by_sender().solicited\n  or (\n  \
+  \ \"FWD:\")\n    or regex.imatch(subject.subject,\n                    '(\\[[^\\\
+  ]]+\\]\\s?){0,3}(re|fwd?|automat.*)\\s?:.*'\n    )\n    or strings.istarts_with(subject.subject,\
+  \ \"R\xE9ponse automatique\")\n  )\n  and (\n    length(headers.references) > 0\n\
+  \    and any(headers.hops, any(.fields, strings.ilike(.name, \"In-Reply-To\")))\n\
+  \  )\n)\n// negating auto-replies\nand not (\n  any(headers.hops,\n      any(.fields,\
+  \ .name =~ \"auto-submitted\" and .value =~ \"auto-generated\")\n      and any(.fields,\n\
+  \              .name =~ \"X-MS-Exchange-Generated-Message-Source\"\n           \
+  \   and .value not in (\"Antispam Quarantine Agent\")\n      )\n  )\n)\n// Microsoft\
+  \ has some legit onmicrosoft domains...\nand not (\n  sender.email.domain.domain\
+  \ == \"microsoft.onmicrosoft.com\"\n  and headers.auth_summary.spf.pass\n  and all(body.links,\
+  \  strings.ends_with(.href_url.query_params,\"microsoft.com\") )\n)\n// construct\
+  \ the proper sender domain and check against known recipients\nand not strings.concat(sender.email.domain.subdomain,\n\
+  \                       \".\",\n                       sender.email.domain.tld\n\
+  ) in $recipient_domains\nand (\n  not profile.by_sender().solicited\n  or (\n  \
   \  profile.by_sender().any_messages_malicious_or_spam\n    and not profile.by_sender().any_messages_benign\n\
   \  )\n)\nand not sender.email.domain.domain in $org_domains"
 tactics_and_techniques:

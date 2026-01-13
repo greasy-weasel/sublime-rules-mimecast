@@ -12,9 +12,9 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-     strings.ends_with(.href_url.query_params,"emlakarsa.net")
-    and strings.icontains(.href_url.query_params, "_setLang")
-    and strings.icontains(.href_url.query_params, "redirect=")
+           strings.ends_with(.href_url.query_params,"emlakarsa.net")
+          and strings.icontains(.href_url.query_params, "_setLang")
+          and strings.icontains(.href_url.query_params, "redirect=")
   )
   and sender.email.domain.root_domain != 'emlakarsa.net'
   and (

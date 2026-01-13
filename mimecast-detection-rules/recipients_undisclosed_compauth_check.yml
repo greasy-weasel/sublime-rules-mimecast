@@ -13,7 +13,10 @@ name: Suspicious recipients pattern with no Compauth pass and suspicious content
 severity: medium
 source: |-
   type.inbound
-  and (length(recipients.to) == 0 or all(recipients.to, .display_name == "Undisclosed recipients"))
+  and (
+    length(recipients.to) == 0
+    or all(recipients.to, .display_name == "Undisclosed recipients")
+  )
   and length(recipients.cc) == 0
   and length(recipients.bcc) == 0
   and 2 of (
@@ -31,7 +34,8 @@ source: |-
     (
       any(body.links,
           any([ml.link_analysis(.)],
-              .credphish.disposition == "phishing" and .credphish.confidence in ("high")
+              .credphish.disposition == "phishing"
+              and .credphish.confidence in ("high")
           )
       )
     )

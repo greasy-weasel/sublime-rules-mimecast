@@ -62,8 +62,6 @@ source: |-
                   "*discuss*fees*",
                   "*W2*",
                   "*CPA*"
-
-
     )
     // suspicious patterns
     or (

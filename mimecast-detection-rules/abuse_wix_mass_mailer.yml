@@ -1,0 +1,24 @@
+attack_types:
+- Credential Phishing
+- Malware/Ransomware
+description: Detects messages containing Wix-encoded links that redirect through bulk
+  mailing service domains, potentially bypassing security controls through legitimate
+  redirect services.
+detection_methods:
+- URL analysis
+- Sender analysis
+id: 60af216d-6896-58d0-95f0-bc590bd67f92
+name: 'Service abuse: Wix redirect through bulk mailer domains'
+severity: low
+source: |-
+  type.inbound
+  and any(filter(body.links, 'wix' in .href_url.rewrite.encoders),
+           any($bulk_mailer_url_root_domains, strings.ends_with(..href_url.query_params,.))
+  )
+tactics_and_techniques:
+- Evasion
+- Open redirect
+tags:
+- Attack surface reduction
+- Mimecast Hard to Fix
+type: rule

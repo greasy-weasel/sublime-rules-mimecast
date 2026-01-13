@@ -21,7 +21,7 @@ source: |-
       and not strings.ilike(body.current_thread.text, "*unmonitored*")
     )
     or (
-       //
+      //
       // This rule makes use of a beta feature and is subject to change without notice
       // using the beta feature in custom rules is not suggested until it has been formally released
       //

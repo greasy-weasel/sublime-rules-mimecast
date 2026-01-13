@@ -12,16 +12,16 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-     strings.ends_with(.href_url.query_params,"documentmailbox.com")
-    and strings.icontains(.href_url.path, 'RedirectTarget.aspx')
-    and strings.icontains(.href_url.query_params, 'TargetUrl=')
+           strings.ends_with(.href_url.query_params,"documentmailbox.com")
+          and strings.icontains(.href_url.path, 'RedirectTarget.aspx')
+          and strings.icontains(.href_url.query_params, 'TargetUrl=')
   )
-
   and length(filter(body.links,
-     strings.ends_with(.href_url.query_params,"documentmailbox.com")
-    and strings.icontains(.href_url.path, 'RedirectTarget.aspx')
-    and strings.icontains(.href_url.query_params, 'TargetUrl=')
-  )) == 1
+                     strings.ends_with(.href_url.query_params,"documentmailbox.com")
+                    and strings.icontains(.href_url.path, 'RedirectTarget.aspx')
+                    and strings.icontains(.href_url.query_params, 'TargetUrl=')
+             )
+  ) == 1
 
   // negate highly trusted sender domains unless they fail DMARC authentication
   and (

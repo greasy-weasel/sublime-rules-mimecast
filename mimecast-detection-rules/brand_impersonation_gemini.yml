@@ -18,12 +18,12 @@ source: "type.inbound\nand (\n  // the address in the footer\n  (\n    regex.ico
   \ specific here due to other uses of the word \"Gemini\"\n  or (\n    sender.display_name\
   \ =~ \"Gemini\"\n    and any(ml.logo_detect(file.message_screenshot()).brands,\n\
   \            .name == \"Gemini Trust\" and .confidence != \"low\"\n    )\n  )\n\
-  \  // copyright footer\n  or strings.icontains(body.current_thread.text, '\xA9 2025\
-  \ Gemini Trust Company, LLC')\n\n  // the social links in the footer\n  or (\n \
-  \   length(filter(body.links,\n                  strings.icontains(.href_url.url,\n\
-  \                                    'https://www.instagram.com/gemini/'\n     \
-  \             )\n                  or strings.icontains(.href_url.url,\n       \
-  \                                'https://www.linkedin.com/company/geminitrust/'\n\
+  \  // copyright footer\n  or strings.icontains(body.current_thread.text,\n     \
+  \                  '\xA9 2025 Gemini Trust Company, LLC'\n  )\n\n  // the social\
+  \ links in the footer\n  or (\n    length(filter(body.links,\n                 \
+  \ strings.icontains(.href_url.url,\n                                    'https://www.instagram.com/gemini/'\n\
+  \                  )\n                  or strings.icontains(.href_url.url,\n  \
+  \                                     'https://www.linkedin.com/company/geminitrust/'\n\
   \                  )\n                  or strings.icontains(.href_url.url,\n  \
   \                                     'https://facebook.com/GeminiTrust'\n     \
   \             )\n                  or strings.icontains(.href_url.url,\n       \

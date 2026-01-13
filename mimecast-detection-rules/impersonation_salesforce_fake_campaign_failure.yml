@@ -31,10 +31,8 @@ source: |-
                     )
              )
   ) > 0
-
   and length(body.current_thread.text) <= 600
-  and strings.contains(body.current_thread.text, 'campaign'
-  )
+  and strings.contains(body.current_thread.text, 'campaign')
   and any(ml.nlu_classifier(body.current_thread.text).entities,
           .name == "urgency" and regex.icontains(.text, "(failed|cancelled)")
   )

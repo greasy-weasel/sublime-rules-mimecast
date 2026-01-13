@@ -31,7 +31,7 @@ source: |-
             ml.link_analysis(.).credphish.contains_login
             and (
               ml.link_analysis(.).final_dom.display_text != strings.replace_confusables(ml.link_analysis(.
-                                                                                         ).final_dom.display_text
+                                                                                        ).final_dom.display_text
               )
               or length(ml.link_analysis(.).redirect_history) > 1
             )

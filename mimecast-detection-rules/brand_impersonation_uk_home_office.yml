@@ -26,28 +26,29 @@ source: "type.inbound\n\n// UK government agencies in display name or subject wi
   \ '\xA9 Crown Copyright '),\n    strings.icontains(body.current_thread.text, '\xA9\
   \ 2025 Home Office'),\n    strings.icontains(body.current_thread.text, '\xA9 UK\
   \ Visas and Immigration'),\n    regex.icontains(body.current_thread.text, ' [||\u2013\
-  -\u2014] Home Office'),\n    regex.icontains(body.current_thread.text, ' [|\u2013\
-  -\u2014] UK Visas and Immigration'),\n    strings.icontains(body.current_thread.text,\n\
+  -\u2014] Home Office'),\n    regex.icontains(body.current_thread.text,\n       \
+  \             ' [|\u2013-\u2014] UK Visas and Immigration'\n    ),\n    strings.icontains(body.current_thread.text,\n\
   \                      'This is an automated message from UK Visas and Immigration.'\n\
   \    ),\n    strings.icontains(body.current_thread.text,\n                     \
   \ 'This is an automated notification from the Home Office'\n    ),\n    regex.icontains(body.current_thread.text,\n\
-  \                      'You(?: are|''re) receiving this notification as a registered\
+  \                    'You(?: are|''re) receiving this notification as a registered\
   \ SMS user'\n    ),\n    regex.icontains(body.current_thread.text,\n           \
-  \           'If you are not the designated.{0,50}SMS user'\n    ),\n  )\n)\n\n//\
-  \  Not from legitimate UK government domains\nand not (\n  sender.email.domain.tld\
+  \         'If you are not the designated.{0,50}SMS user'\n    ),\n  )\n)\n\n// \
+  \ Not from legitimate UK government domains\nand not (\n  sender.email.domain.tld\
   \ == \"gov.uk\" and headers.auth_summary.dmarc.pass\n)\n\n//\nand (\n  // there\
   \ are links that do not link to \"gov.uk\"\n  not all(body.links, .href_url.domain.tld\
   \ == \"gov.uk\")\n  // OR credential theft intent detected\n  or any(ml.nlu_classifier(body.current_thread.text).intents,\n\
   \         .name == \"cred_theft\" and .confidence in (\"medium\", \"high\")\n  )\n\
   \  // link based indicators\n  or any(body.links,\n         // suspicious display\
-  \ text\n         (\n           .display_text in (\"Access SMS\", \"Login to SMS\"\
-  , \"Log in to SMS\", \"Access UKVI Account\")\n           and .href_url.domain.tld\
-  \ != \"gov.uk\"\n         )\n         // there are mismatched links\n         or\
-  \ (\n           .display_url.domain.tld == \"gov.uk\"\n           and .href_url.domain.tld\
-  \ != \"gov.uk\"\n           and .mismatched\n         )\n\n         // the path\
-  \ refers to the uk stuff\n         or (\n           .href_url.domain.tld != \"gov.uk\"\
-  \n           and strings.icontains(.href_url.path, 'gov.uk')\n         )\n  )\n\
-  )\n\n// no previous threads\nand not (length(headers.references) > 0 or length(body.previous_threads)\
+  \ text\n         (\n           .display_text in (\n             \"Access SMS\",\n\
+  \             \"Login to SMS\",\n             \"Log in to SMS\",\n             \"\
+  Access UKVI Account\"\n           )\n           and .href_url.domain.tld != \"gov.uk\"\
+  \n         )\n         // there are mismatched links\n         or (\n          \
+  \ .display_url.domain.tld == \"gov.uk\"\n           and .href_url.domain.tld !=\
+  \ \"gov.uk\"\n           and .mismatched\n         )\n\n         // the path refers\
+  \ to the uk stuff\n         or (\n           .href_url.domain.tld != \"gov.uk\"\n\
+  \           and strings.icontains(.href_url.path, 'gov.uk')\n         )\n  )\n)\n\
+  \n// no previous threads\nand not (length(headers.references) > 0 or length(body.previous_threads)\
   \ > 0)\n// negate a high amount of links or newsletters\nand not (\n  length(body.links)\
   \ > 20\n  or any(ml.nlu_classifier(body.html.display_text).topics,\n         .name\
   \ == \"Newsletters and Digests\"\n  )\n)\n//  High-trust domain exclusion\nand (\n\

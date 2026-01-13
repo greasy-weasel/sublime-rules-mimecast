@@ -58,13 +58,19 @@ source: |-
 
     // or display text contains suspicious terms
     or any(body.links,
-           regex.icontains(.display_text, 'Congrat|Survey|package|delivery|\bclaim\b')
+           regex.icontains(.display_text,
+                           'Congrat|Survey|package|delivery|\bclaim\b'
+           )
            and not  strings.ends_with(.href_url.query_params,"surveymonkey.com")
     )
 
     // compauth failure
     or any(headers.hops,
-           .authentication_results.compauth.verdict not in ("pass", "softpass", "none")
+           .authentication_results.compauth.verdict not in (
+             "pass",
+             "softpass",
+             "none"
+           )
     )
 
     // all links display text is null or aka.ms

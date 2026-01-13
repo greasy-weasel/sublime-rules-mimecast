@@ -33,8 +33,10 @@ source: |-
                 strings.icontains(., "subject:")
               )
       )
-      and length(body.current_thread.text) + 100 < length(coalesce(body.html.display_text, body.plain.raw))
-
+      and length(body.current_thread.text) + 100 < length(coalesce(body.html.display_text,
+                                                                   body.plain.raw
+                                                          )
+      )
     )
   )
 

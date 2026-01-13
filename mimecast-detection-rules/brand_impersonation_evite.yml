@@ -17,9 +17,9 @@ source: |-
              )
   ) >= 2
   and length(filter(body.links,
-                          strings.ends_with(.href_url.query_params,"evite.com")
-                         and regex.contains(.href_url.path, '^/_ct/[a-f0-9]{40}/')
-                  )
+                     strings.ends_with(.href_url.query_params,"evite.com")
+                    and regex.contains(.href_url.path, '^/_ct/[a-f0-9]{40}/')
+             )
   ) < 3
   and not (
     (subject.is_forward or subject.is_reply)

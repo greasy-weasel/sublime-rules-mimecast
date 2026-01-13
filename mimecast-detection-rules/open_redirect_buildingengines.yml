@@ -17,7 +17,9 @@ source: |-
            .href_url.query_params == "domain=app.buildingengines.com"
           and strings.icontains(.href_url.query_params, '_redirectTo=')
           // Make sure it's not redirecting back to buildingengines.com
-          and not regex.icontains(.href_url.query_params, '_redirectTo=(?:https?(?:%3a|:))?(?:%2f|\/){2}[^&]*buildingengines\.com(?:\&|\/|$|%2f)')
+          and not regex.icontains(.href_url.query_params,
+                                  '_redirectTo=(?:https?(?:%3a|:))?(?:%2f|\/){2}[^&]*buildingengines\.com(?:\&|\/|$|%2f)'
+          )
   )
   // Exclude legitimate Building Engines domains as senders
   and not sender.email.domain.root_domain == "buildingengines.com"

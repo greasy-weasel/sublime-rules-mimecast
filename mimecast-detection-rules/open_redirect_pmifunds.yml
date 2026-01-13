@@ -12,10 +12,10 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       .href_url.query_params == "domain=trk.pmifunds.com"
-      and strings.icontains(.href_url.query_params, 'l=')
-      // not links where they redirect to pmifunds.com
-      and not regex.icontains(.href_url.query_params, 'l=[^&]*pmifunds\.com')
+           .href_url.query_params == "domain=trk.pmifunds.com"
+          and strings.icontains(.href_url.query_params, 'l=')
+          // not links where they redirect to pmifunds.com
+          and not regex.icontains(.href_url.query_params, 'l=[^&]*pmifunds\.com')
   )
   // remove uses that originate from pmifunds.com
   and not any(headers.domains, .root_domain == "pmifunds.com")

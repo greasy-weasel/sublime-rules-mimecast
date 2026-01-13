@@ -28,7 +28,9 @@ source: |-
       // make a list of distinct email slds
       distinct(map(recipients.to, .email.domain.sld)),
       // take the list of slds and cat it into a string of /sld/sld/ and search for it in links
-      any(body.links, strings.icontains(.href_url.path, strings.concat("/", .., "/", .., "/")))
+      any(body.links,
+          strings.icontains(.href_url.path, strings.concat("/", .., "/", .., "/"))
+      )
   )
 tactics_and_techniques:
 - Lookalike domain

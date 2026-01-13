@@ -12,9 +12,9 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       strings.ends_with(.href_url.query_params,"exactag.com")
-      and strings.icontains(.href_url.path, 'ai.aspx')
-      and strings.icontains(.href_url.query_params, 'url=')
+           strings.ends_with(.href_url.query_params,"exactag.com")
+          and strings.icontains(.href_url.path, 'ai.aspx')
+          and strings.icontains(.href_url.query_params, 'url=')
   )
 
   // negate highly trusted sender domains unless they fail DMARC authentication

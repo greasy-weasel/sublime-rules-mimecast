@@ -17,7 +17,8 @@ source: |-
 
   // Google Logo in Attachment
   and any(attachments,
-          .file_type in $file_types_images and any(ml.logo_detect(.).brands, .name in ("Google"))
+          .file_type in $file_types_images
+          and any(ml.logo_detect(.).brands, .name in ("Google"))
   )
   and any(attachments,
           .file_type in $file_types_images
@@ -37,7 +38,11 @@ source: |-
   // legitimate sign-in warnings contains links to google, gmail or googleapis.com
   and (
     not all(body.links,
-             any(["google.com", "gmail.com", "googleapis.com"], strings.ends_with(..href_url.query_params,.))
+             any([
+              "google.com",
+              "gmail.com",
+              "googleapis.com"
+            ], strings.ends_with(..href_url.query_params,.))
             or .href_url.domain.root_domain is null
     )
   )

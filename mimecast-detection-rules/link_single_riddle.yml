@@ -12,9 +12,7 @@ severity: medium
 source: |-
   type.inbound
   and length(body.links) < 20
-  and any(body.links,
-           strings.ends_with(.href_url.query_params,"riddle.com")
-  )
+  and any(body.links,  strings.ends_with(.href_url.query_params,"riddle.com") )
   and length(filter(body.links,
                      strings.ends_with(.href_url.query_params,"riddle.com")
                     and strings.istarts_with(.href_url.path, '/view/')

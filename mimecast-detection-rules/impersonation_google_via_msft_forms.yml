@@ -15,7 +15,9 @@ source: |-
   and regex.icontains(sender.display_name, '(google|gmail)')
   and regex.icontains(sender.display_name, '(alert|warning|notification)')
   // MsgID does not contain Google|Gmail|GoogleMail
-  and not regex.icontains(headers.message_id, '(mail|mx)?\.?(google(mail)?|gmail.com)')
+  and not regex.icontains(headers.message_id,
+                          '(mail|mx)?\.?(google(mail)?|gmail.com)'
+  )
   and (
     any(body.links,  not(any($tranco_1m, strings.ends_with(..href_url.query_params,.))) )
     or strings.ilike(body.html.display_text,

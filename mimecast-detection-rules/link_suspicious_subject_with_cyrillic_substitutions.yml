@@ -9,7 +9,7 @@ detection_methods:
 id: 10251c3c-b926-5742-9417-4cf58d182230
 name: Cyrillic vowel substitutions with suspicious subject from unknown sender
 severity: medium
-source: "type.inbound\n\nand 0 < length(body.links) < 10\n\n//  display name or subject\
+source: "type.inbound\nand 0 < length(body.links) < 10\n\n//  display name or subject\
   \ contains confusable vowels\nand any([subject.subject, sender.display_name],\n\
   \        regex.icontains(., '(\u0430|\u0435|\u0438|\u043E|\u0443)')\n)\n\n// and\
   \ suspicious subject\nand regex.icontains(subject.subject,\n                   \

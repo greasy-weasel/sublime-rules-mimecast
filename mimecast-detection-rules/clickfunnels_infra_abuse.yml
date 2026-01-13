@@ -65,7 +65,9 @@ source: |-
               .file_type in ("pdf")
               or .file_extension in ("pdf", "eml")
               or .file_extension in $file_extensions_macros
-              or (.content_type in ("message/rfc822") or .file_extension in ('eml'))
+              or (
+                .content_type in ("message/rfc822") or .file_extension in ('eml')
+              )
             )
             and any(file.explode(.),
                     any(.scan.url.urls,

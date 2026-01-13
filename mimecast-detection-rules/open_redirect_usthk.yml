@@ -12,9 +12,9 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       .href_url.query_params == "domain=shib.ust.hk"
-      and strings.icontains(.href_url.path, '/discovery.jsp')
-      and regex.icontains(.href_url.query_params, '(?:^|&)return=')
+           .href_url.query_params == "domain=shib.ust.hk"
+          and strings.icontains(.href_url.path, '/discovery.jsp')
+          and regex.icontains(.href_url.query_params, '(?:^|&)return=')
   )
 
   // negate highly trusted sender domains unless they fail DMARC authentication

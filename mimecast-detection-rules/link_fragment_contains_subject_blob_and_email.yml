@@ -19,7 +19,9 @@ source: |-
           ),
           any(body.links,
               strings.contains(.href_url.fragment, ..named_groups["string"])
-              and any(strings.scan_base64(.href_url.fragment), strings.contains(., recipients.to[0].email.email))
+              and any(strings.scan_base64(.href_url.fragment),
+                      strings.contains(., recipients.to[0].email.email)
+              )
           )
   )
 tactics_and_techniques:

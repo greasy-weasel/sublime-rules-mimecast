@@ -12,7 +12,9 @@ source: |-
   type.inbound
   and any(body.links,
            strings.ends_with(.href_url.query_params,"avast.com")
-          and strings.contains(.href_url.query_params, "DisplayRedirectCustomPage")
+          and strings.contains(.href_url.query_params,
+                               "DisplayRedirectCustomPage"
+          )
   )
   and sender.email.domain.root_domain != "avast.com"
   and (

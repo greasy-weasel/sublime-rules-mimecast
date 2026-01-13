@@ -12,8 +12,8 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       strings.ends_with(.href_url.query_params,"artkaderne.dk")
-      and strings.icontains(.href_url.query_params, "refurl=")
+           strings.ends_with(.href_url.query_params,"artkaderne.dk")
+          and strings.icontains(.href_url.query_params, "refurl=")
   )
   and not sender.email.domain.root_domain == "artkaderne.dk"
 

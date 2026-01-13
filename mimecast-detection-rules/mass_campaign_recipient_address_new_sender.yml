@@ -34,10 +34,14 @@ source: |-
           strings.icontains(subject.subject, .email.email)
           or strings.icontains(subject.subject, .email.local_part)
         )
-        and (.email.domain.valid or strings.icontains(.display_name, "undisclosed"))
+        and (
+          .email.domain.valid or strings.icontains(.display_name, "undisclosed")
+        )
     )
   )
-  and any(recipients.to, strings.icontains(body.current_thread.text, .email.email))
+  and any(recipients.to,
+          strings.icontains(body.current_thread.text, .email.email)
+  )
   and any(body.links,
           any(recipients.to,
               strings.icontains(..href_url.query_params, .email.email)

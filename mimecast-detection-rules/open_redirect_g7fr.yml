@@ -12,9 +12,9 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       strings.ends_with(.href_url.query_params,"g7.fr")
-      and strings.starts_with(.href_url.path, '//')
-      and strings.ends_with(.href_url.path, '/')
+           strings.ends_with(.href_url.query_params,"g7.fr")
+          and strings.starts_with(.href_url.path, '//')
+          and strings.ends_with(.href_url.path, '/')
   )
 
   // negate highly trusted sender domains unless they fail DMARC authentication

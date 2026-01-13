@@ -59,9 +59,9 @@ source: |-
     )
     // all links lead to a url shortener domain
     or (
-        length(body.links) > 0
-        and all(body.links,  any($url_shorteners, strings.ends_with(..href_url.query_params,.)) )
-      )
+      length(body.links) > 0
+      and all(body.links,  any($url_shorteners, strings.ends_with(..href_url.query_params,.)) )
+    )
   )
   and 1 of (
     ( // sender domain matches no body domains

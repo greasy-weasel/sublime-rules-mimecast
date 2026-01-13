@@ -42,7 +42,9 @@ source: |-
             or strings.icontains(., "Fax Status")
             or strings.icontains(., "Fax ID")
             or strings.icontains(., "New Fax Document")
-            or regex.icontains(., '(?:received|have) (a|(?:(.?\d.?))) (?:new )?e?fax')
+            or regex.icontains(.,
+                               '(?:received|have) (a|(?:(.?\d.?))) (?:new )?e?fax'
+            )
             or regex.icontains(., "to view (th(?:e|is) )?(?:fax|message)")
             or regex.icontains(.,
                                'transmit(?:ted|ting)?(?:\s+\w+){0,2}\s+(?:fax|facsimile)',
@@ -93,17 +95,13 @@ source: |-
                   // or they are used in the body and OCR on them contains fax wording
                   // the image is used in the HTML body
                   .file_type in $file_types_images
-                  and
-                  (
+                  and (
                     any(regex.extract(.content_id, '^\<(.*)\>$'),
-                          any(.groups,
-                              strings.icontains(body.html.raw,
-                                                strings.concat('src="cid:',
-                                                               .,
-                                                               '"'
-                                                )
-                              )
-                          )
+                        any(.groups,
+                            strings.icontains(body.html.raw,
+                                              strings.concat('src="cid:', ., '"')
+                            )
+                        )
                     )
                     or strings.icontains(body.html.raw, .content_id)
                   )

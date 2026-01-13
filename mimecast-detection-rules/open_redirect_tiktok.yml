@@ -12,9 +12,9 @@ severity: medium
 source: |-
   type.inbound
   and any(body.links,
-       strings.ends_with(.href_url.query_params,"tiktok.com")
-      and strings.icontains(.href_url.query_params, 'target=')
-      and strings.icontains(.href_url.query_params, 'aid=')
+           strings.ends_with(.href_url.query_params,"tiktok.com")
+          and strings.icontains(.href_url.query_params, 'target=')
+          and strings.icontains(.href_url.query_params, 'aid=')
   )
   // attempt to remove any FPs sent by TikTok actual
   and not (

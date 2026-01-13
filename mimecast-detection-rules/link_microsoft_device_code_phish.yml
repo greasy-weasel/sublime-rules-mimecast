@@ -22,7 +22,10 @@ source: |-
   type.inbound
 
   // Not from MS as the device code will be generated and sent by the attacker
-  and sender.email.domain.root_domain not in~ ("microsoft.com", "microsoftonline.com")
+  and sender.email.domain.root_domain not in~ (
+    "microsoft.com",
+    "microsoftonline.com"
+  )
 
   // Link to the device code MS pages
   and any(body.links,

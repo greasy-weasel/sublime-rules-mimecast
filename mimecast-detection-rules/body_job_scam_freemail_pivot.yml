@@ -21,7 +21,9 @@ source: |-
     or
 
     // HTML is not null but fake thread
-    (subject.is_reply or subject.is_forward)
+    (
+      subject.is_reply or subject.is_forward
+    )
     and (
       (length(headers.references) == 0 and headers.in_reply_to is null)
       or not any(headers.hops, any(.fields, strings.ilike(.name, "In-Reply-To")))
@@ -50,7 +52,9 @@ source: |-
       )
       and (
         length(recipients.to) == 0
-        or all(recipients.to, strings.ilike(.display_name, "Undisclosed?recipients"))
+        or all(recipients.to,
+               strings.ilike(.display_name, "Undisclosed?recipients")
+        )
       )
     )
   )

@@ -34,7 +34,7 @@ source: |-
               (
                 any(file.explode(.file),
                     any(.scan.exiftool.fields,
-                    // password protected pdf
+                        // password protected pdf
                         .key == "Warning"
                         and strings.icontains(.value, "password protected")
                     )

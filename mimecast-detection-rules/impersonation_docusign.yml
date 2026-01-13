@@ -44,12 +44,14 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \ appreciate you choosing DocuSign'\n      )\n      or strings.icontains(body.current_thread.text,\n\
   \                           'A document has been sent to you for'\n      )\n   \
   \   or strings.icontains(body.current_thread.text, 'Please Sign docusign')\n   \
-  \   or strings.icontains(body.current_thread.text, 'This email was sent via DocuSign')\n\
-  \      or strings.icontains(body.current_thread.text, 'This email was sent to you\
-  \ via DocuSign')\n      or strings.icontains(body.current_thread.text, 'This message\
-  \ was sent via DocuSign')\n      or strings.icontains(body.current_thread.text,\
-  \ 'This message was sent to you via DocuSign')\n      or strings.icontains(body.current_thread.text,\
-  \ 'review via DocuSign Electronic Signature')\n      or strings.icontains(body.current_thread.text,\
+  \   or strings.icontains(body.current_thread.text,\n                           'This\
+  \ email was sent via DocuSign'\n      )\n      or strings.icontains(body.current_thread.text,\n\
+  \                           'This email was sent to you via DocuSign'\n      )\n\
+  \      or strings.icontains(body.current_thread.text,\n                        \
+  \   'This message was sent via DocuSign'\n      )\n      or strings.icontains(body.current_thread.text,\n\
+  \                           'This message was sent to you via DocuSign'\n      )\n\
+  \      or strings.icontains(body.current_thread.text,\n                        \
+  \   'review via DocuSign Electronic Signature'\n      )\n      or strings.icontains(body.current_thread.text,\
   \ 'sent to you by DocuSign')\n      or strings.icontains(body.current_thread.text,\
   \ 'Processed by DocuSign')\n      or strings.icontains(body.current_thread.text,\n\
   \                           'Please read and sign the document'\n      )\n     \
@@ -130,7 +132,7 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \                      '<font size=\"?[0-9]\"?[^\\>]*>DocuSign</font>'\n      )\n\
   \      or regex.icontains(body.html.raw, '\\nDocu(?:<[^\\>]+>\\s*)+Sign<')\n   \
   \   or regex.icontains(body.html.raw,\n                         '<span[^>]*style=\"\
-  [^\"]*\">Docu.?Sign<\\/span>'\n      )\n\n      or any(html.xpath(body.html, '//h1').nodes,\n\
+  [^\"]*\">Docu.?Sign<\\/span>'\n      )\n      or any(html.xpath(body.html, '//h1').nodes,\n\
   \             regex.icontains(.display_text, 'Docu.?Sign')\n      )\n      or regex.icontains(body.html.raw,\n\
   \                         '<span[^>]*style=\"[^\"]*\">(Docu|D(?:ocu?)?)<\\/span>(?:<[^\\\
   >]+\\>){0,2}<span[^>]*style=\"[^\"]*\">(Sign|S(?:ign?)?)<\\/span>'\n      )\n  \
@@ -186,34 +188,33 @@ source: "type.inbound\nand (\n  // orgs can have docusign.company.com\n  strings
   \          or (\n                     strings.icontains(.display_text, \"Review\
   \ Message\")\n                     and (\n                        .href_url.query_params\
   \ == \"domain=security.microsoft.com\"\n                       and .href_url.path\
-  \ == \"/quarantine\"\n                     )\n                   )\n\n         \
-  \        )\n               )\n               or strings.icontains(.display_text,\
-  \ \"document\")\n               or strings.icontains(.display_text, \"docusign\"\
-  )\n               or strings.icontains(.display_text, \"Review on Docusign\")\n\
-  \               or (\n                 strings.icontains(.display_text, \"Sign\"\
-  )\n                 and strings.icontains(.display_text, \"Now\")\n            \
-  \   )\n             )\n      ),\n      // ensure those links aren't legit\n    \
-  \  not .href_url.domain.root_domain in (\n        \"docusign.com\",\n        \"\
-  docusign.net\",\n        'docusign.co.uk',\n        'docusign.com.br',\n       \
-  \ 'docusign.fr',\n        // other e-signature companies which use simliar wording\n\
-  \        \"insuresign.com\",\n        \"clixsign.com\",\n        \"esignlive.com\"\
-  ,\n        \"clickcontracts.com\",\n        \"adobesign.com\",\n        \"hellosign.com\"\
-  ,\n      )\n      and not (\n         strings.ends_with(.href_url.query_params,\"\
-  mimecastprotect.com\")\n        and (\n          .href_url.query_params is not null\n\
-  \          and regex.icontains(.href_url.query_params,\n                       \
-  \       'domain=(?:\\w+\\.)?docusign.(?:net|com|co\\.uk|com\\.br|fr)',\n       \
-  \                       // other e-signature companies\n                       \
-  \       'domain=(?:\\w+\\.)?(?:insuresign\\.com|clixsign\\.com|esignlive\\.com|clickcontracts\\\
-  .com|adobesign\\.com|hellosign\\.com)'\n          )\n        )\n      )\n  )\n \
-  \ // Suspicious attachment\n  or any(attachments,\n         (\n           .file_extension\
-  \ in~ (\"html\", \"htm\", \"shtml\", \"dhtml\")\n           or .file_extension in~\
-  \ $file_extensions_common_archives\n           or .file_type == \"html\"\n     \
-  \      or .content_type == \"text/html\"\n         )\n         and 1 of (\n    \
-  \       (\n             regex.icontains(file.parse_html(.).raw, '\\s{0,}<script.*')\n\
-  \             and regex.icontains(file.parse_html(.).raw, \"</script>\")\n     \
-  \      ),\n           strings.ilike(file.parse_html(.).raw,\n                  \
-  \       \"*createElement*\",\n                         \"*appendChild*\",\n    \
-  \                     \"*createObjectURL*\"\n           ),\n           strings.icount(file.parse_html(.).raw,\
+  \ == \"/quarantine\"\n                     )\n                   )\n           \
+  \      )\n               )\n               or strings.icontains(.display_text, \"\
+  document\")\n               or strings.icontains(.display_text, \"docusign\")\n\
+  \               or strings.icontains(.display_text, \"Review on Docusign\")\n  \
+  \             or (\n                 strings.icontains(.display_text, \"Sign\")\n\
+  \                 and strings.icontains(.display_text, \"Now\")\n              \
+  \ )\n             )\n      ),\n      // ensure those links aren't legit\n      not\
+  \ .href_url.domain.root_domain in (\n        \"docusign.com\",\n        \"docusign.net\"\
+  ,\n        'docusign.co.uk',\n        'docusign.com.br',\n        'docusign.fr',\n\
+  \        // other e-signature companies which use simliar wording\n        \"insuresign.com\"\
+  ,\n        \"clixsign.com\",\n        \"esignlive.com\",\n        \"clickcontracts.com\"\
+  ,\n        \"adobesign.com\",\n        \"hellosign.com\",\n      )\n      and not\
+  \ (\n         strings.ends_with(.href_url.query_params,\"mimecastprotect.com\")\n\
+  \        and (\n          .href_url.query_params is not null\n          and regex.icontains(.href_url.query_params,\n\
+  \                              'domain=(?:\\w+\\.)?docusign.(?:net|com|co\\.uk|com\\\
+  .br|fr)',\n                              // other e-signature companies\n      \
+  \                        'domain=(?:\\w+\\.)?(?:insuresign\\.com|clixsign\\.com|esignlive\\\
+  .com|clickcontracts\\.com|adobesign\\.com|hellosign\\.com)'\n          )\n     \
+  \   )\n      )\n  )\n  // Suspicious attachment\n  or any(attachments,\n       \
+  \  (\n           .file_extension in~ (\"html\", \"htm\", \"shtml\", \"dhtml\")\n\
+  \           or .file_extension in~ $file_extensions_common_archives\n          \
+  \ or .file_type == \"html\"\n           or .content_type == \"text/html\"\n    \
+  \     )\n         and 1 of (\n           (\n             regex.icontains(file.parse_html(.).raw,\
+  \ '\\s{0,}<script.*')\n             and regex.icontains(file.parse_html(.).raw,\
+  \ \"</script>\")\n           ),\n           strings.ilike(file.parse_html(.).raw,\n\
+  \                         \"*createElement*\",\n                         \"*appendChild*\"\
+  ,\n                         \"*createObjectURL*\"\n           ),\n           strings.icount(file.parse_html(.).raw,\
   \ \"/*\") > 10,\n           any($free_subdomain_hosts, strings.icontains(..file_name,\
   \ .))\n         )\n  )\n)\n\n// negate highly trusted sender domains unless they\
   \ fail DMARC authentication\nand (\n  coalesce(sender.email.domain.root_domain in\

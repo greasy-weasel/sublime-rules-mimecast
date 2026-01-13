@@ -112,7 +112,9 @@ source: |-
     or (
       length(distinct(body.links, .href_url.domain.root_domain)) == 1
       and 2 < length(body.links) < 10
-      and all(body.links,  not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)) )
+      and all(body.links,
+               not(strings.ends_with(.href_url.query_params,sender.email.domain.root_domain))
+      )
     )
   )
   and sender.email.domain.root_domain not in (

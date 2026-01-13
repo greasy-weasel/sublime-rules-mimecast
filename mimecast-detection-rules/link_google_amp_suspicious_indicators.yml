@@ -51,14 +51,22 @@ source: |-
                    )
 
                    // captcha partially loaded
-                   or strings.icontains(.scan.ocr.raw, "Checking if the site connection is secure")
+                   or strings.icontains(.scan.ocr.raw,
+                                        "Checking if the site connection is secure"
+                   )
             )
 
             // or the link display text contains "password"
             or strings.icontains(.display_text, "password")
 
             // or the link contains the recipients email in the url path
-            or any(recipients.to, strings.icontains(..href_url.path, .email.email) and (.email.domain.valid or strings.icontains(.display_name, "undisclosed")))
+            or any(recipients.to,
+                   strings.icontains(..href_url.path, .email.email)
+                   and (
+                     .email.domain.valid
+                     or strings.icontains(.display_name, "undisclosed")
+                   )
+            )
           )
   )
 tactics_and_techniques:

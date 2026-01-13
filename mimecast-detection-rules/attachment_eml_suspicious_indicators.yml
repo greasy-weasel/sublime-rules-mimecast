@@ -13,11 +13,11 @@ source: "type.inbound\nand (\n  // a single attachmed EML\n  length(attachments)
   \ message\n  // likely within the signatures\n  or (\n    length(filter(attachments,\n\
   \                  .file_extension == \"eml\" or .content_type == \"message/rfc822\"\
   \n           )\n    ) == 1\n    and length(filter(attachments,\n               \
-  \       .file_type in $file_types_images\n                      and\n          \
-  \            (\n                        any(regex.extract(.content_id, '^<(?P<cid>.*)\\\
-  >$'),\n                          strings.icontains(body.html.raw,\n            \
-  \                                .named_groups[\"cid\"]\n                      \
-  \    )\n                        )\n                        or strings.icontains(body.html.raw,\
+  \       .file_type in $file_types_images\n                      and (\n        \
+  \                any(regex.extract(.content_id, '^<(?P<cid>.*)\\>$'),\n        \
+  \                    strings.icontains(body.html.raw,\n                        \
+  \                      .named_groups[\"cid\"]\n                            )\n \
+  \                       )\n                        or strings.icontains(body.html.raw,\
   \ .content_id)\n                      )\n               )\n    ) == length(attachments)\
   \ - 1\n  )\n)\nand (\n  length(body.current_thread.text) < 300\n  or body.current_thread.text\
   \ is null\n  or any(ml.nlu_classifier(body.current_thread.text).intents,\n     \
@@ -31,11 +31,12 @@ source: "type.inbound\nand (\n  // a single attachmed EML\n  length(attachments)
   \ and recipient of the inner message\n          or (\n            sender.email.email\
   \ in map(recipients.to, .email.email)\n            and length(recipients.to) ==\
   \ 1\n            and sender.email.email == file.parse_eml(.).sender.email.email\n\
-  \            and sender.email.email in map(file.parse_eml(.).recipients.to, .email.email)\n\
-  \            and length(file.parse_eml(.).recipients.to) == 1\n          )\n\n \
-  \       )\n        and not (\n          all(file.parse_eml(.).body.links,\n    \
-  \           any([\"aka.ms\", \"office365.com\"], strings.ends_with(..href_url.query_params,.))\n\
-  \              or .href_url.url == \"#additionalatt\"\n          )\n          and\
+  \            and sender.email.email in map(file.parse_eml(.).recipients.to,\n  \
+  \                                        .email.email\n            )\n         \
+  \   and length(file.parse_eml(.).recipients.to) == 1\n          )\n        )\n \
+  \       and not (\n          all(file.parse_eml(.).body.links,\n               any([\"\
+  aka.ms\", \"office365.com\"], strings.ends_with(..href_url.query_params,.))\n  \
+  \            or .href_url.url == \"#additionalatt\"\n          )\n          and\
   \ strings.icontains(file.parse_eml(.).body.current_thread.text,\n              \
   \                  \"We\u2019re making sure your attachments are safe\"\n      \
   \    )\n        )\n        and file.parse_eml(.).sender.email.domain.root_domain\

@@ -172,8 +172,8 @@ source: |-
       and strings.icontains(body.current_thread.text, "Meta & Coursera Team")
       // Add link validation
       and any(body.links,
-        strings.icontains(.display_text, "coursera")
-        and .href_url.domain.root_domain != "coursera.org"
+              strings.icontains(.display_text, "coursera")
+              and .href_url.domain.root_domain != "coursera.org"
       )
     )
     or 2 of (
