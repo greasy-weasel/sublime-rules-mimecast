@@ -41,17 +41,17 @@ source: "type.inbound\nand (\n  (\n    strings.ilike(sender.display_name, 'quick
   \                      strings.icontains(.text, \"quickbooks\")\n              \
   \ )\n        ) > 2\n        and any(ml.nlu_classifier(body.current_thread.text).intents,\n\
   \                .name == \"cred_theft\"\n        )\n      )\n    )\n  )\n)\nand\
-  \ sender.email.domain.root_domain not in~ (\n  'intuit.com',\n  'turbotax.com',\n\
-  \  'intuit.ca',\n  'meliopayments.com',\n  'qemailserver.com',\n  'intuit.co.uk',\n\
-  \  'quickbooksonline.com',\n  'tsheets.com'\n)\nand (\n  not profile.by_sender().any_messages_benign\n\
-  \  and not profile.by_sender().solicited\n)\n// links in body are not known QB domains\
-  \ or the senders root website (both indicative of a legitimate QuickBooks invoice\
-  \ message)\nand (\n  length(filter(body.links,\n                .href_url.domain.root_domain\
-  \ in~ (\n                  'intuit.com',\n                  'turbotax.com',\n  \
-  \                'intuit.ca',\n                  'meliopayments.com',\n        \
-  \          'qemailserver.com',\n                  'intuit.co.uk',\n            \
-  \      'quickbooksonline.com'\n                )\n                or (\n       \
-  \            strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)\n\
+  \ not (\n  sender.email.domain.root_domain in~ (\n    'intuit.com',\n    'turbotax.com',\n\
+  \    'intuit.ca',\n    'meliopayments.com',\n    'qemailserver.com',\n    'intuit.co.uk',\n\
+  \    'quickbooksonline.com',\n    'tsheets.com'\n  )\n  and coalesce(headers.auth_summary.dmarc.pass,\
+  \ false)\n)\nand (\n  not profile.by_sender().any_messages_benign\n  and not profile.by_sender().solicited\n\
+  )\n// links in body are not known QB domains or the senders root website (both indicative\
+  \ of a legitimate QuickBooks invoice message)\nand (\n  length(filter(body.links,\n\
+  \                .href_url.domain.root_domain in~ (\n                  'intuit.com',\n\
+  \                  'turbotax.com',\n                  'intuit.ca',\n           \
+  \       'meliopayments.com',\n                  'qemailserver.com',\n          \
+  \        'intuit.co.uk',\n                  'quickbooksonline.com'\n           \
+  \     )\n                or (\n                   strings.ends_with(.href_url.query_params,sender.email.domain.root_domain)\n\
   \                  and (.href_url.path is null or .href_url.path == \"/\")\n   \
   \             )\n                // handle links to the root website when the sender\
   \ uses a freemail address to send invoices\n                or (\n             \
