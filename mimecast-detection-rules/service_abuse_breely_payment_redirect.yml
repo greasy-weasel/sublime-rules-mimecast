@@ -1,0 +1,24 @@
+attack_types:
+- BEC/Fraud
+- Credential Phishing
+description: Detects messages containing a single Breely link that displays as a PDF
+  file. Typically, redirects to a different destination for malicious purposes.
+detection_methods:
+- Content analysis
+- URL analysis
+id: 4a498c21-2f8a-5b54-84f5-c3c4ad3ee8e9
+name: 'Link: Breely link masquerading as PDF'
+severity: high
+source: |-
+  type.inbound
+  and length(filter(body.links,  strings.ends_with(.href_url.query_params,"breely.com") )) == 1
+  and any(body.links,
+           strings.ends_with(.href_url.query_params,"breely.com")
+          and strings.icontains(.display_text, ".pdf")
+  )
+tactics_and_techniques:
+- Free subdomain host
+- Social engineering
+tags:
+- Mimecast Changes Complete
+type: rule
