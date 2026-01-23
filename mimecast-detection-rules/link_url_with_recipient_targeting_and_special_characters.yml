@@ -1,12 +1,20 @@
-name: "Link: Suspicious URL with recipient targeting and special characters"
-description: "Detects messages containing links with special characters in the path that include the recipient's email address in either the URL path or fragment, potentially encoded in base64. The URLs have a simple path structure and may end with suspicious patterns."
-type: "rule"
-severity: "high"
-source: |
+attack_types:
+- Credential Phishing
+description: Detects messages containing links with special characters in the path
+  that include the recipient's email address in either the URL path or fragment, potentially
+  encoded in base64. The URLs have a simple path structure and may end with suspicious
+  patterns.
+detection_methods:
+- URL analysis
+- Content analysis
+id: e808be3a-e00c-5565-87f7-d0ca0411650d
+name: 'Link: Suspicious URL with recipient targeting and special characters'
+severity: high
+source: |-
   type.inbound
   and length(recipients.to) == 1
   and recipients.to[0].email.domain.valid
-  and any(body.current_thread.links,
+  and any(body.links,
           // special char in the path
           (
             strings.icontains(.href_url.path, '!')
@@ -33,13 +41,9 @@ source: |
             )
           )
   )
-
-attack_types:
-  - "Credential Phishing"
 tactics_and_techniques:
-  - "Social engineering"
-  - "Evasion"
-detection_methods:
-  - "URL analysis"
-  - "Content analysis"
-id: "e808be3a-e00c-5565-87f7-d0ca0411650d"
+- Social engineering
+- Evasion
+tags:
+- Mimecast Hard to Fix
+type: rule

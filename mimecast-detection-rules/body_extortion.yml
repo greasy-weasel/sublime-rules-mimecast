@@ -60,7 +60,7 @@ source: "type.inbound\nand length(filter(body.links, .display_text is not null))
   \                and strings.icontains(.href_url.query_params,\n               \
   \                       sender.email.domain.root_domain\n                )\n   \
   \           )\n            )\n        )\n      )\n    ),\n    (\n      regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
-  \                      '(?:contact the police|(?:bitcoin|\\bbtc\\b).{0,20}wallet)'\n\
+  \                      '(?:contact the police|(?:bitcoin|\\bbtc\\b).{0,20}(?:wallet|address))'\n\
   \      )\n      and regex.icontains(strings.replace_confusables(body.current_thread.text),\n\
   \                          '(?:\\b[13][a-km-zA-HJ-NP-Z0-9]{24,34}\\b)|\\bX[1-9A-HJ-NP-Za-km-z]{33}\\\
   b|\\b(?:0x[a-fA-F0-9]{40})\\b|\\b[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}\\b|\\b[48][0-9AB][1-9A-HJ-NP-Za-km-z]{93}\\\
