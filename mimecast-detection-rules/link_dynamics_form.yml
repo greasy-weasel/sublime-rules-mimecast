@@ -19,7 +19,8 @@ source: |-
   and any(body.links,
            any([
             "ncv.microsoft.com",
-            "customervoice.microsoft.com"
+            "customervoice.microsoft.com",
+            "nam.dcv.ms"
           ], ..href_url.query_params == strings.concat("domain=",.))
           and ml.link_analysis(.).effective_url.domain.domain == "customervoice.microsoft.com"
 
